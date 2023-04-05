@@ -17,32 +17,51 @@ int Client::getFigure(std::string figure) {
    memset(buffer, 0, 500);
    this->Connect( osn, 80 );
    this->Write(  request, strlen( request ) );
+
    std::string response;
    int amountRead = 0;
    while (this->Read(buffer, 500) > 0) {
      response.erase();
      response = buffer;
      memset(buffer, 0, sizeof(buffer));
-        // Regex para encontrar las piezas
-    std::regex regexPiece("<TR><TD ALIGN=center> (\\d+)</TD>\\s*<TD ALIGN=center> ([^<]+)</TD>");
 
-    std::smatch pieza_match;
-    std::string::const_iterator begin(response.cbegin());
-    while (std::regex_search(begin, response.cend(), pieza_match, regexPiece) ) {
-      // Obtener la cantidad, descripción
-      std::string amount = pieza_match[1];
-      std::string descripcion = pieza_match[2];
-      // Convertir la cantidad a un entero
-      int cantidad = std::stoi(amount);
+     int character = 0;
 
-      std::cout << "Cantidad: " << cantidad << ", Descripción: " << descripcion  << std::endl;
-      // Actualizar la posición en la cadena de respuesta
-      begin = pieza_match.suffix().first;
-    }
+     int initLocation = 0;
 
+     while(character < response.size()){
+      if(response[character] == '\n') {
+        std::string line = response.substr(initLocation, character - initLocation);
+        initLocation = character + 1;
+
+        std::regex regexPieceAmount("<TR><TD ALIGN=center> (\\d+)</TD>");
+        std::regex regexPiece("<TD ALIGN=center> ([^<]+)</TD>");
+
+        std::smatch pieza_match;
+        std::string::const_iterator begin(line.cbegin());
+
+        bool foundAmount = false;
+
+        std::string::const_iterator beginNum(line.cbegin());
+        if (std::regex_search(begin, line.cend(), pieza_match, regexPieceAmount)) {
+          std::string amount = pieza_match[1];
+          int cantidad = std::stoi(amount);
+          std::cout << "Cantidad: " << cantidad;
+          beginNum = pieza_match.suffix().first;
+          foundAmount = true;
+        }
+         if (std::regex_search(begin, line.cend(), pieza_match, regexPiece) ) {
+          if (!foundAmount) {
+            std::string descripcion = pieza_match[1];
+            std::cout << ", Descripción: " << descripcion << std::endl;
+            begin = pieza_match.suffix().first;
+            }
+          }
+       // std::cout << "line change" << std::endl;
+      }
+      character++;
+     }    
    }
-
- 
 
    return 0;
 }
