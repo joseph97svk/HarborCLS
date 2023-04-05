@@ -6,7 +6,6 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include "Client.hpp"
-using namespace std;
 
 int main() {
     Client socket('s', false);

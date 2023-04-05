@@ -25,7 +25,6 @@ bool Client::makeRequest(std::string request) {
     strcat(temp, " HTTP/1.1\r\nhost: redes.ecci\r\n\r\n");
   }
   char* requestComplete = temp;
-  this->Write(  requestComplete, strlen( requestComplete ) );
   processRequest(requestMenu);
   memset(requestComplete, 0, 100);
   return requestMenu;
@@ -33,12 +32,12 @@ bool Client::makeRequest(std::string request) {
 
 bool Client::inAnimalArray(std::string animal) {
   bool foundAnimal = false;
-    for (std::string animals : this->animalsArray) {
-        if (animals == animal) {
-            foundAnimal = true;
-        }
+  for (std::string animals : this->animalsArray) {
+    if (animals == animal) {
+      foundAnimal = true;
     }
-    return foundAnimal;
+  }
+  return foundAnimal;
 }
 
 
@@ -82,8 +81,9 @@ void Client::processRequest(bool requestMenu) {
   std::string line = "";
   std::string endOfDoc = "";
   int cyclesSinceEndOfBytes = 4;
-
+  //int count = 0;
   while (this->Read(buffer, 500) > 0) {
+    //count++;
     response.erase();
     response = buffer;
     memset(buffer, 0, sizeof(buffer));
@@ -148,9 +148,88 @@ void Client::processRequest(bool requestMenu) {
     }    
   }
   if (requestMenu) {
-    for (const std::string& nombre : this->animalsArray) {
-      std::cout << nombre << std::endl;
-    }
+    mainMenuHandle();
   }
 
+  //std::cout << ">>>>>>>>>" << count << std::endl;
+}
+
+int inputHandler (int minRange, int maxRange) {
+  std::string inputString;
+  
+  // while string is readable, read
+  while (std::cin >> inputString) {
+    bool nonValidString = false;
+    // for all characters read in the string
+    for (int character = 0; character < inputString.size(); character++) {
+      // check if value is numeric
+      if (('0' > inputString[character] ||
+          inputString[character] > '9') &&
+          (character == 0 && inputString[character] != '-')) {
+
+        nonValidString = true;
+      }
+    }
+
+    if (nonValidString) {
+      // if not, prompt correct value
+      std::cout << "\nMensaje: \"" << inputString
+          << "\" no es una opcion valida. Por valor introducir un numero entre\n"
+          << "[" << minRange << " y " << maxRange << "]" << std::endl;
+      continue;
+    }
+
+    // change into a value
+    int inputValue = atoi(inputString.c_str());
+
+    // if within range
+    if (minRange <= inputValue && inputValue <= maxRange) {
+      // return value
+      return inputValue;
+    }
+    std::cout << "\nMensaje: " << inputValue
+        << " no esta dentro del rango, por favor introducir un valor entre\n"
+        << "[" << minRange << " y " << maxRange << "]" << std::endl;
+  }
+
+  // if input was not readable, return error
+  return -2;
+}
+
+
+void Client::mainMenuHandle() {
+  // if no figures were found, the page suffered an error
+  if (this->animalsArray.size() == 0) {
+    std::cout << "Error: la pagina no generó respuesta"
+      << std::endl;
+    return;
+  }
+
+  // print header
+  std::cout << "Universidad de Costa Rica\n" << std::endl
+      << "Escuela de Ciencias de la Computación e Informática" << std::endl
+      << "CI-0123 PI de sistemas operativos y redes" << std::endl
+      << "Ejemplos de servicio\n" << std::endl 
+      << "Figuras:\n" << std::endl;
+
+  // print all options
+  int optionNumber = 1;
+  for (const std::string& nombre : this->animalsArray) {
+    std::cout << optionNumber << ".\t" << nombre << std::endl;
+    optionNumber++;
+  }
+
+  // prompt an input
+  std::cout << "\nSeleccione una de las opciones anteriores\n"
+      << "o\n0 para cerrar el programa\n" << std::endl;
+  
+  // get such input
+  int choice = inputHandler(0, this->animalsArray.size());
+
+  if (choice == 0) {
+    return;
+  }
+  
+  std::cout << animalsArray[choice - 1] << std::endl;
+  this->makeRequest(animalsArray[choice - 1]);
 }
