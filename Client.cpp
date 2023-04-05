@@ -33,12 +33,43 @@ bool Client::makeRequest(std::string request) {
 
 bool Client::inAnimalArray(std::string animal) {
   bool foundAnimal = false;
-    for (std::string animals : animalsArray) {
+    for (std::string animals : this->animalsArray) {
         if (animals == animal) {
             foundAnimal = true;
         }
     }
     return foundAnimal;
+}
+
+
+void Client::regexAnalyzer(bool requestMenu, std::string& line) {
+if (requestMenu == true) {
+    std::regex regexMenu("<OPTION\\s+value=\"(?!None\")([^\"]+)\">");
+    std::smatch optionMatch;
+    std::string::const_iterator begin(line.cbegin());
+    if (std::regex_search(begin, line.cend(), optionMatch, regexMenu)) {
+      if (inAnimalArray(optionMatch[1]) == false) {
+        this->animalsArray.push_back(optionMatch[1]);
+      }
+      // Actualizar la posición en la cadena de respuesta
+      begin = optionMatch.suffix().first;
+    }
+  } else {
+      std::regex regexPiece("<TR><TD ALIGN=center> (\\d+)</TD>\\s*<TD ALIGN=center> ([^<]+)</TD>");
+
+      std::smatch pieza_match;
+      std::string::const_iterator begin(line.cbegin());
+      if (std::regex_search(begin, line.cend(), pieza_match, regexPiece)) {
+        // Obtener la cantidad, descripción
+        std::string amount = pieza_match[1];
+        std::string descripcion = pieza_match[2];
+        // Convertir la cantidad a un entero
+        int cantidad = std::stoi(amount);
+        std::cout << "Cantidad: " << cantidad << ", Descripción: " << descripcion << std::endl;
+        // Actualizar la posición en la cadena de respuesta
+        begin = pieza_match.suffix().first;
+      }
+  }
 }
 
 
@@ -94,34 +125,8 @@ void Client::processRequest(bool requestMenu) {
         }
 
         line = lastLine + response.substr(initLocation, character - initLocation + 1);
-        if (requestMenu == true) {
-          std::regex regexMenu("<OPTION\\s+value=\"(?!None\")([^\"]+)\">");
-          std::smatch optionMatch;
-          std::string::const_iterator begin(line.cbegin());
-          if (std::regex_search(begin, line.cend(), optionMatch, regexMenu)) {
-            if (inAnimalArray(optionMatch[1]) == false) {
-              this->animalsArray.push_back(optionMatch[1]);
-            }
-            // Actualizar la posición en la cadena de respuesta
-            begin = optionMatch.suffix().first;
-          }
-        } else {
-            std::regex regexPiece("<TR><TD ALIGN=center> (\\d+)</TD>\\s*<TD ALIGN=center> ([^<]+)</TD>");
+        regexAnalyzer(requestMenu, line);
 
-            std::smatch pieza_match;
-            std::string::const_iterator begin(line.cbegin());
-            if (std::regex_search(begin, line.cend(), pieza_match, regexPiece)) {
-              // Obtener la cantidad, descripción
-              std::string amount = pieza_match[1];
-              std::string descripcion = pieza_match[2];
-              // Convertir la cantidad a un entero
-              int cantidad = std::stoi(amount);
-              std::cout << "Cantidad: " << cantidad << ", Descripción: " << descripcion << std::endl;
-              // Actualizar la posición en la cadena de respuesta
-              begin = pieza_match.suffix().first;
-            }
-        }
-        
         lastLine = response.substr(initLocation, character - initLocation + 1);
         initLocation = character + 1;
         cyclesSinceEndOfBytes++;

@@ -10,9 +10,10 @@ public:
     int connectServer();
     bool makeRequest(std::string request);
     void processRequest(bool requestMenu);
-    int getFigure(std::string figure);
+    //int getFigure(std::string figure);
     bool inAnimalArray(std::string animal);
-    int getMenu();
- private:
-     std::vector<std::string> animalsArray;
+    void regexAnalyzer(bool requestMenu, std::string& line);
+
+private:
+    std::vector<std::string> animalsArray;
 };

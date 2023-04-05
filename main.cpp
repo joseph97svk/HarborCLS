@@ -11,7 +11,7 @@ using namespace std;
 int main() {
     Client socket('s', false);
     socket.connectServer();
-    socket.makeRequest("dragon");
+    socket.makeRequest("menu");
     socket.Close();
 
     return 0;
