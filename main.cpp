@@ -10,8 +10,8 @@ using namespace std;
 
 int main() {
     Client socket('s', false);
-    socket.getFigure("dragon");
-    // Cerrar la conexión
+    socket.connectServer();
+    socket.makeRequest("dragon");
     socket.Close();
 
     return 0;
