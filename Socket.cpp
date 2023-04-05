@@ -59,7 +59,12 @@ Socket::Socket( char type, bool IPv6) {
   *
  **/
 Socket::~Socket(){
-    Close();
+   Close();
+}
+
+
+void Socket::Close(){
+   ::close(this->idSocket);
 
    if (this->SSLContext) { 
       SSL_CTX_free( (SSL_CTX *) this->SSLContext );
@@ -67,11 +72,6 @@ Socket::~Socket(){
    if (this->SSLStruct) {
       SSL_free( (SSL *) this->SSLStruct );
    }
-}
-
-
-void Socket::Close(){
-    ::close(this->idSocket);
 }
 
 /**

@@ -4,14 +4,25 @@
 #include <vector>
 #include "Client.hpp"
 
+Client::Client(char type, bool IPv6):
+type(type),
+IPv6(IPv6),
+socket(nullptr){
+}
+
 int Client::connectServer() {
+  this->socket = new Socket(this->type, this->IPv6);
   char* os = (char*) "os.ecci.ucr.ac.cr";
   char* osn = (char*) "163.178.104.187";
   return this->Connect( osn, 80 );
 }
 
-
 bool Client::makeRequest(std::string request) {
+  if (this->connected) {
+    this->Close();
+    this->connectServer();
+  }
+
   bool requestMenu = false;
   char temp[100];
   memset(temp, 0, 100);
@@ -19,12 +30,15 @@ bool Client::makeRequest(std::string request) {
     requestMenu = true;
     strcpy(temp, "GET /lego/index.php");
     strcat(temp, " HTTP/1.1\r\nhost: redes.ecci\r\n\r\n");
+    this->connected = true;
   } else {
     strcpy(temp, "GET /lego/list.php?figure=");
     strcat(temp, request.c_str());
     strcat(temp, " HTTP/1.1\r\nhost: redes.ecci\r\n\r\n");
   }
+
   char* requestComplete = temp;
+  this->Write(requestComplete, strlen(requestComplete));
   processRequest(requestMenu);
   memset(requestComplete, 0, 100);
   return requestMenu;
@@ -73,6 +87,7 @@ if (requestMenu == true) {
 
 
 void Client::processRequest(bool requestMenu) {
+  begin:
   std::string response;
   int amountRead = 0;
   char buffer[500];
@@ -81,9 +96,9 @@ void Client::processRequest(bool requestMenu) {
   std::string line = "";
   std::string endOfDoc = "";
   int cyclesSinceEndOfBytes = 4;
-  //int count = 0;
+  int count = 0;
   while (this->Read(buffer, 500) > 0) {
-    //count++;
+    count++;
     response.erase();
     response = buffer;
     memset(buffer, 0, sizeof(buffer));
@@ -139,7 +154,7 @@ void Client::processRequest(bool requestMenu) {
 
         // set current line as last line for the next iteration to have it
         lastLine = response.substr(initLocation, character - initLocation + adjustment);
-        
+
         // increase counters
         initLocation = character + 1;
         cyclesSinceEndOfBytes++;
@@ -149,9 +164,13 @@ void Client::processRequest(bool requestMenu) {
   }
   if (requestMenu) {
     mainMenuHandle();
+  } else {
+    if (handleFigure()) {
+      requestMenu = true;
+      goto begin;
+    }
   }
-
-  //std::cout << ">>>>>>>>>" << count << std::endl;
+  
 }
 
 int inputHandler (int minRange, int maxRange) {
@@ -229,7 +248,40 @@ void Client::mainMenuHandle() {
   if (choice == 0) {
     return;
   }
+
+  std::string animalName = animalsArray[choice - 1];
   
-  std::cout << animalsArray[choice - 1] << std::endl;
+  for (size_t character = 0;
+      character < animalName.size();
+      character++) {
+    animalName[character] = toupper(animalName[character]);
+  }
+  
+  std::cout << std::endl
+  << "<<<" << animalName << ">>>" 
+  << std::endl << std::endl;
   this->makeRequest(animalsArray[choice - 1]);
+}
+
+bool Client::handleFigure() {
+  std::cout << "\n\nPara volver al menu principal: 1." << std::endl
+      << "Para cerrar el programa: 0." << std::endl;
+  int choice = inputHandler(0, 1);
+  if (choice == 0) {
+    return false;
+  } 
+  return true;
+}
+
+int Client::Connect(const char * host, int port) {
+  return this->socket->Connect(host, port);
+}
+int Client::Write(const void *text, size_t size) {
+  return this->socket->Write(text, size);
+}
+void Client::Close() {
+  this->socket->Close();
+}
+int Client::Read(void * text, size_t size) {
+  return this->socket->Read(text, size);
 }
