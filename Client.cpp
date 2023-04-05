@@ -7,7 +7,8 @@
 int Client::connectServer() {
   char* os = (char*) "os.ecci.ucr.ac.cr";
   char* osn = (char*) "163.178.104.187";
-  return this->Connect( osn, 80 );
+  this->InitSSL();
+  return this->SSLConnect( os, 80 );
 }
 
 
@@ -25,7 +26,7 @@ bool Client::makeRequest(std::string request) {
     strcat(temp, " HTTP/1.1\r\nhost: redes.ecci\r\n\r\n");
   }
   char* requestComplete = temp;
-  this->Write(  requestComplete, strlen( requestComplete ) );
+  this->SSLWrite((void *)  requestComplete, strlen( requestComplete ) );
   processRequest(requestMenu);
   memset(requestComplete, 0, 100);
   return requestMenu;
@@ -84,7 +85,7 @@ void Client::processRequest(bool requestMenu) {
   std::string beforeEndOfDoc = "";
   int cyclesSinceEndOfBytes = 4;
 
-  while (this->Read(buffer, 500) > 0) {
+  while (this->SSLRead(buffer, 500) > 0) {
     response.erase();
     response = buffer;
     memset(buffer, 0, sizeof(buffer));

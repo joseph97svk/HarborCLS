@@ -15,6 +15,11 @@
 #include <netdb.h>
 #include <iostream>
 
+#include <openssl/ssl.h>
+#include <openssl/err.h>
+
+#include <errno.h>
+
 #include "Socket.hpp"
 
 /**
@@ -44,6 +49,9 @@ Socket::Socket( char type, bool IPv6) {
       perror( "Socket::Socket" );
       exit(2);
    }
+
+   this->SSLContext = NULL;
+   this->SSLStruct = NULL;
 }
 
 /**
@@ -52,6 +60,13 @@ Socket::Socket( char type, bool IPv6) {
  **/
 Socket::~Socket(){
     Close();
+
+   if (this->SSLContext) { 
+      SSL_CTX_free( (SSL_CTX *) this->SSLContext );
+   }
+   if (this->SSLStruct) {
+      SSL_free( (SSL *) this->SSLStruct );
+   }
 }
 
 
@@ -319,4 +334,74 @@ void Socket::SetIDSocket(int id){
 
 }
 
+
+void Socket::InitSSLContext() {
+   const SSL_METHOD * method = TLS_client_method();
+   SSL_CTX * context = SSL_CTX_new(method);
+   if (!context) {
+      perror( "Socket::InitSSLContext" );
+      exit( 23 );
+      Close();
+   }
+   this->SSLContext = (void *) context;
+}
+
+void Socket::InitSSL() {
+   this->InitSSLContext();
+   SSL * ssl = SSL_new( ((SSL_CTX *) this->SSLContext ) );
+   if (!ssl) {
+      perror( "Socket::InitSSL" );
+      exit( 23 );
+      Close();
+   }
+   this->SSLStruct = (void *) ssl;
+}
+
+int Socket::SSLConnect( char * host, int port ) {
+   int st = -1;
+   this->Connect( host, port );
+   SSL_set_fd( (SSL *) this->SSLStruct, this->idSocket );
+   st = SSL_connect( (SSL *) this->SSLStruct );
+   if ( -1 == st ) {
+      perror( "Socket::SSLConnect" );
+      exit( 23 );
+      Close();
+   }
+   return st;
+}
+
+int Socket::SSLConnect( char * host, char * service){
+   int st = -1;
+   this->Connect( host, service );
+   SSL_set_fd( (SSL *) this->SSLStruct, this->idSocket );
+   st = SSL_connect( (SSL *) this->SSLStruct );
+   if ( -1 == st ) {
+      perror( "Socket::SSLConnect" );
+      exit( 23 );
+      Close();
+   }
+   return st;
+}
+
+int Socket::SSLRead( void * buffer, int size){
+   int st = -1;
+   st = SSL_read( (SSL *) this->SSLStruct, buffer, size );
+   if ( -1 == st ) {
+      perror( "Socket::SSLRead" );
+      exit( 23 );
+      Close();
+   }
+   return st;
+}
+
+int Socket::SSLWrite( void * buffer, int size){
+   int st = -1;
+   st = SSL_write( (SSL *) this->SSLStruct, buffer, size );
+   if ( -1 == st ) {
+      perror( "Socket::SSLWrite" );
+      exit( 23 );
+      Close();
+   }
+   return st;
+}
 

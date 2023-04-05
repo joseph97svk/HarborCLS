@@ -38,10 +38,21 @@ class Socket {
         int sendTo( const void * buffer, size_t bufferSize, void * receptor );
         int recvFrom(void * buffer, size_t bufferSize, void * receptor);
         
+
+        void InitSSLContext();
+        void InitSSL();
+        int SSLConnect( char *, int );
+        int SSLConnect( char *, char * );
+        int SSLRead( void *, int );
+        int SSLWrite( void *, int );
+
     private:
         int idSocket;
         int port;
         bool ipv6;
+
+        void * SSLContext;
+	    void * SSLStruct;
 };
 
 #endif
