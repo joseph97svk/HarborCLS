@@ -3,25 +3,29 @@
 #include <regex>
 #include <vector>
 #include "Client.hpp"
+#include <unistd.h>
 
 Client::Client(char type, bool IPv6):
 type(type),
 IPv6(IPv6),
-socket(nullptr){
+socket(nullptr) {
 }
 
 int Client::connectServer() {
+  if (this->socket != nullptr) {
+    this->Close();
+  }
+
   this->socket = new Socket(this->type, this->IPv6);
-  char* os = (char*) "os.ecci.ucr.ac.cr";
+
   char* osn = (char*) "163.178.104.187";
   return this->Connect( osn, 80 );
 }
 
 bool Client::makeRequest(std::string request) {
   if (this->connected) {
-    this->Close();
     this->connectServer();
-  }
+  } 
 
   bool requestMenu = false;
   char temp[100];
@@ -54,9 +58,9 @@ bool Client::inAnimalArray(std::string animal) {
   return foundAnimal;
 }
 
-
-void Client::regexAnalyzer(bool requestMenu, std::string& line) {
-if (requestMenu == true) {
+void Client::regexAnalyzer(bool requestMenu, std::string& line, int& totalAmount) {
+  if (requestMenu == true)
+  {
     std::regex regexMenu("<OPTION\\s+value=\"(?!None\")([^\"]+)\">");
     std::smatch optionMatch;
     std::string::const_iterator begin(line.cbegin());
@@ -67,21 +71,24 @@ if (requestMenu == true) {
       // Actualizar la posición en la cadena de respuesta
       begin = optionMatch.suffix().first;
     }
-  } else {
-      std::regex regexPiece("<TR><TD ALIGN=center> (\\d+)</TD>\\s*<TD ALIGN=center> ([^<]+)</TD>");
+  }
+  else
+  {
+    std::regex regexPiece("<TR><TD ALIGN=center> (\\d+)</TD>\\s*<TD ALIGN=center> ([^<]+)</TD>");
 
-      std::smatch pieza_match;
-      std::string::const_iterator begin(line.cbegin());
-      if (std::regex_search(begin, line.cend(), pieza_match, regexPiece)) {
-        // Obtener la cantidad, descripción
-        std::string amount = pieza_match[1];
-        std::string descripcion = pieza_match[2];
-        // Convertir la cantidad a un entero
-        int cantidad = std::stoi(amount);
-        std::cout << "Cantidad: " << cantidad << ", Descripción: " << descripcion << std::endl;
-        // Actualizar la posición en la cadena de respuesta
-        begin = pieza_match.suffix().first;
-      }
+    std::smatch pieza_match;
+    std::string::const_iterator begin(line.cbegin());
+    if (std::regex_search(begin, line.cend(), pieza_match, regexPiece)) {
+      // Obtener la cantidad, descripción
+      std::string amount = pieza_match[1];
+      std::string descripcion = pieza_match[2];
+      // Convertir la cantidad a un entero
+      int cantidad = std::stoi(amount);
+      std::cout << "Cantidad: " << cantidad << ", Descripción: " << descripcion << std::endl;
+      totalAmount += cantidad;
+      // Actualizar la posición en la cadena de respuesta
+      begin = pieza_match.suffix().first;
+    }
   }
 }
 
@@ -89,21 +96,23 @@ if (requestMenu == true) {
 void Client::processRequest(bool requestMenu) {
   begin:
   std::string response;
-  int amountRead = 0;
-  char buffer[500];
-  memset(buffer, 0, 500);
+  int totalAmount = 0;
+  char buffer[501];
+  memset(buffer, 0, 501);
   std::string lastLine = "";
   std::string line = "";
   std::string endOfDoc = "";
   int cyclesSinceEndOfBytes = 4;
   int count = 0;
+
   while (this->Read(buffer, 500) > 0) {
     count++;
     response.erase();
+    response.resize(strlen(buffer));
     response = buffer;
     memset(buffer, 0, sizeof(buffer));
-    int character = 0;
-    int initLocation = 0;
+    size_t character = 0;
+    size_t initLocation = 0;
 
     bool endOfBytes = false;
 
@@ -122,8 +131,11 @@ void Client::processRequest(bool requestMenu) {
           // set last line as all saved lines
           lastLine = endOfDoc;
 
+          size_t emptyTries = 0;
           // empty previous buffer
-          endOfDoc.empty();
+          while(endOfDoc.empty() && emptyTries < 10) {
+            emptyTries++;
+          }
 
           // restart cycle out of range
           cyclesSinceEndOfBytes = 4;
@@ -150,7 +162,7 @@ void Client::processRequest(bool requestMenu) {
             response.substr(initLocation, character - initLocation + adjustment);
 
         // run regex to analyze line
-        regexAnalyzer(requestMenu, line);
+        regexAnalyzer(requestMenu, line, totalAmount);
 
         // set current line as last line for the next iteration to have it
         lastLine = response.substr(initLocation, character - initLocation + adjustment);
@@ -162,25 +174,34 @@ void Client::processRequest(bool requestMenu) {
       character++;
     }    
   }
+  
   if (requestMenu) {
-    mainMenuHandle();
+    if (mainMenuHandle()) {
+      goto begin;
+    }
   } else {
-    if (handleFigure()) {
+    std::cout << "Cantidad de piezas totales = " << totalAmount << std::endl;
+    if (handleFigure() == 1) {
       requestMenu = true;
       goto begin;
     }
   }
-  
 }
 
-int inputHandler (int minRange, int maxRange) {
+int inputHandler (int minRange = 0, int maxRange = 1, char exception = '\0') {
   std::string inputString;
   
   // while string is readable, read
   while (std::cin >> inputString) {
     bool nonValidString = false;
+    
+
+    if (exception != '\0' && inputString[0] == exception && inputString.size() == 1) {
+      return (int) inputString[0];
+    }
+
     // for all characters read in the string
-    for (int character = 0; character < inputString.size(); character++) {
+    for (size_t character = 0; character < inputString.size(); character++) {
       // check if value is numeric
       if (('0' > inputString[character] ||
           inputString[character] > '9') &&
@@ -216,12 +237,12 @@ int inputHandler (int minRange, int maxRange) {
 }
 
 
-void Client::mainMenuHandle() {
+int Client::mainMenuHandle() {
   // if no figures were found, the page suffered an error
   if (this->animalsArray.size() == 0) {
     std::cout << "Error: la pagina no generó respuesta"
       << std::endl;
-    return;
+    return 0;
   }
 
   // print header
@@ -240,13 +261,19 @@ void Client::mainMenuHandle() {
 
   // prompt an input
   std::cout << "\nSeleccione una de las opciones anteriores\n"
-      << "o\n0 para cerrar el programa\n" << std::endl;
+      << "\to\n0 para cerrar el programa\n" 
+      << "\to\n'r' para refrescar (el servidor puede entregar datos incorrectamente generando comportamiento indefinido"
+      << ",\nsu este es el caso, entonces refresque la pagina)\n" << std::endl;
   
   // get such input
-  int choice = inputHandler(0, this->animalsArray.size());
+  int choice = inputHandler(0, this->animalsArray.size(), 'r');
 
   if (choice == 0) {
-    return;
+    _exit( 0 );
+  }
+
+  if (choice == 'r') {
+    return 1;
   }
 
   std::string animalName = animalsArray[choice - 1];
@@ -256,21 +283,43 @@ void Client::mainMenuHandle() {
       character++) {
     animalName[character] = toupper(animalName[character]);
   }
+
+  this->currentAnimal = animalsArray[choice - 1];
   
   std::cout << std::endl
   << "<<<" << animalName << ">>>" 
   << std::endl << std::endl;
   this->makeRequest(animalsArray[choice - 1]);
+  return 0;
 }
 
-bool Client::handleFigure() {
+int Client::handleFigure() {
   std::cout << "\n\nPara volver al menu principal: 1." << std::endl
-      << "Para cerrar el programa: 0." << std::endl;
-  int choice = inputHandler(0, 1);
+      << "Para cerrar el programa: 0." 
+      << "\n\to\n'r' para refrescar (el servidor puede entregar datos incorrectamente generando comportamiento indefinido"
+      << ",\nsu este es el caso, entonces refresque la pagina)\n" << std::endl;
+
+  int choice = inputHandler(0, 1, 'r');
   if (choice == 0) {
-    return false;
+    _exit( 0 );
   } 
-  return true;
+
+  if (choice == 'r') {
+    std::string animalName = this->currentAnimal;
+  
+    for (size_t character = 0;
+        character < animalName.size();
+        character++) {
+      animalName[character] = toupper(this->currentAnimal[character]);
+    }
+
+    std::cout << std::endl
+    << "<<<" << animalName << ">>>" 
+    << std::endl << std::endl;
+    this->makeRequest(this->currentAnimal);
+  }
+
+  return 1;
 }
 
 int Client::Connect(const char * host, int port) {
@@ -281,6 +330,7 @@ int Client::Write(const void *text, size_t size) {
 }
 void Client::Close() {
   this->socket->Close();
+  delete this->socket;
 }
 int Client::Read(void * text, size_t size) {
   return this->socket->Read(text, size);

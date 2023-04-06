@@ -1,10 +1,8 @@
-
 /**
  *   CI0123 PIRO
  *   Clase para utilizar los "sockets" en Linux
  *
  **/
-
 #include <stdio.h>	// for perror
 #include <stdlib.h>	// for exit
 #include <string.h>	// for memset
@@ -64,8 +62,8 @@ Socket::~Socket(){
 
 
 void Socket::Close(){
-   ::close(this->idSocket);
-
+   close(this->idSocket);
+   
    if (this->SSLContext) { 
       SSL_CTX_free( (SSL_CTX *) this->SSLContext );
    }
@@ -101,7 +99,6 @@ int Socket::Connect( const char * host, int port ) {
       inet_pton( AF_INET6, host, &host6.sin6_addr );
       host6.sin6_port = htons( port );
       ha = (struct sockaddr *) &host6;
-      int len = sizeof( host6 );
       st = connect( idSocket, (sockaddr *) ha, sizeof( host6));
 
    }
@@ -182,9 +179,7 @@ int Socket::Write( const void *text, size_t size ) {
       exit(2);
    }
    return st;
-
 }
-
 
 /**
   * Write method
@@ -202,7 +197,6 @@ int Socket::Write( const char *text ) {
       exit(2);
    }
    return st;
-
 }
 
 int Socket::sendTo(const void * buffer, size_t bufferSize, void * receptor ) {
@@ -244,9 +238,9 @@ int Socket::recvFrom(void * buffer, size_t bufferSize, void * receptor) {
   *
  **/
 int Socket::Listen( int queue ) {
-    int st = -1;
-
-    return st;
+   int st = -1;
+   (void) queue;
+   return st;
 
 }
 
@@ -304,7 +298,6 @@ Socket * Socket::Accept(){
 
 }
 
-
 /**
   * Shutdown method
   *    use "shutdown" Unix system call (man 3 shutdown)
@@ -316,11 +309,9 @@ Socket * Socket::Accept(){
  **/
 int Socket::Shutdown( int mode ) {
    int st = -1;
-
+   (void)mode;
    return st;
-
 }
-
 
 /**
   *  SetIDSocket
