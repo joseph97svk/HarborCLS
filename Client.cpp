@@ -5,25 +5,52 @@
 #include "Client.hpp"
 #include <unistd.h>
 
+/**
+  * Client method
+  * Constructor for the Client class. Initializes the object with the provided type and IPv6
+  * values, and sets the socket pointer to nullptr.
+  *
+  * @param type The type of the client.
+  * @param IPv6 Whether the client uses IPv6.
+  *
+ **/
 Client::Client(char type, bool IPv6):
 type(type),
 IPv6(IPv6),
 socket(nullptr) {
 }
 
+/**
+  * connectServer method
+  * This function creates a new socket connection to the server IP address specified in the code.
+  *
+  * @return int returns 0 if the connection was successful, or a negative number if it failed.
+  *
+ **/
 int Client::connectServer() {
   if (this->socket != nullptr) {
     this->Close();
   }
 
+  // Create a new socket object with the specified protocol type and IP version.
   this->socket = new Socket(this->type, this->IPv6);
 
   char* osn = (char*) "163.178.104.187";
   return this->Connect( osn, 80 );
 }
 
+/**
+  * makeRequest method
+  * This method makes an HTTP GET request to the server.
+  *
+  * @param request The request to be made. If it is "menu", the request will retrieve the menu options.
+  * @return A boolean indicating whether the request made was for the menu or not.
+  *
+ **/
 bool Client::makeRequest(std::string request) {
+  // Check if client is already connected to server
   if (this->connected) {
+    // If not, attempt to connect to server
     this->connectServer();
   } 
 
@@ -31,23 +58,37 @@ bool Client::makeRequest(std::string request) {
   char temp[100];
   memset(temp, 0, 100);
   if (request == "menu") {
+    // Request for menu
     requestMenu = true;
     strcpy(temp, "GET /lego/index.php");
     strcat(temp, " HTTP/1.1\r\nhost: redes.ecci\r\n\r\n");
     this->connected = true;
+
   } else {
+    // Request for a specific figure
     strcpy(temp, "GET /lego/list.php?figure=");
     strcat(temp, request.c_str());
     strcat(temp, " HTTP/1.1\r\nhost: redes.ecci\r\n\r\n");
   }
 
+  // Send request to server
   char* requestComplete = temp;
   this->Write(requestComplete, strlen(requestComplete));
+
+  // Process server response
   processRequest(requestMenu);
   memset(requestComplete, 0, 100);
   return requestMenu;
 }
 
+/**
+  * inAnimalArray method
+  * Checks if the given animal is already present in the client's animalsArray.
+  *
+  * @param animal the animal to check for.
+  * @return true if the animal is already present in the animalsArray, false otherwise.
+  *
+ **/
 bool Client::inAnimalArray(std::string animal) {
   bool foundAnimal = false;
   for (std::string animals : this->animalsArray) {
@@ -58,9 +99,19 @@ bool Client::inAnimalArray(std::string animal) {
   return foundAnimal;
 }
 
+/**
+  * regexAnalyzer method
+  * This method analyzes a given line using regular expressions to extract information depending
+  *
+  * @param requestMenu a boolean indicating whether a menu request is being made or not.
+  * @param line a reference to a string representing the line to be analyzed.
+  * @param totalAmount a reference to an integer representing the total amount of pieces.
+  *
+ **/
 void Client::regexAnalyzer(bool requestMenu, std::string& line, int& totalAmount) {
   if (requestMenu == true)
   {
+    // Regex to match menu options
     std::regex regexMenu("<OPTION\\s+value=\"(?!None\")([^\"]+)\">");
     std::smatch optionMatch;
     std::string::const_iterator begin(line.cbegin());
@@ -68,31 +119,38 @@ void Client::regexAnalyzer(bool requestMenu, std::string& line, int& totalAmount
       if (inAnimalArray(optionMatch[1]) == false) {
         this->animalsArray.push_back(optionMatch[1]);
       }
-      // Actualizar la posición en la cadena de respuesta
+      // Update position in the response string
       begin = optionMatch.suffix().first;
     }
   }
   else
   {
+    // Regex to match pieces in figure response
     std::regex regexPiece("<TR><TD ALIGN=center> (\\d+)</TD>\\s*<TD ALIGN=center> ([^<]+)</TD>");
 
     std::smatch pieza_match;
     std::string::const_iterator begin(line.cbegin());
     if (std::regex_search(begin, line.cend(), pieza_match, regexPiece)) {
-      // Obtener la cantidad, descripción
+      // Extract quantity and description of the piece
       std::string amount = pieza_match[1];
       std::string descripcion = pieza_match[2];
-      // Convertir la cantidad a un entero
+      // Convert quantity to integer
       int cantidad = std::stoi(amount);
       std::cout << "Cantidad: " << cantidad << ", Descripción: " << descripcion << std::endl;
       totalAmount += cantidad;
-      // Actualizar la posición en la cadena de respuesta
+      // Update position in the response string
       begin = pieza_match.suffix().first;
     }
   }
 }
 
-
+/**
+  * processRequest method
+  * This method processes a request from a client, reading a response from a buffer.
+  * 
+  * @param requestMenu A boolean indicating whether the menu should be requested.
+  *
+ **/
 void Client::processRequest(bool requestMenu) {
   begin:
   std::string response;
@@ -188,6 +246,17 @@ void Client::processRequest(bool requestMenu) {
   }
 }
 
+/**
+  * inputHandler method
+  *   This function handles user input from the standard input, checking if it is within the
+  *   specified range and if it is a valid numeric value. It also allows for a single character
+  *   exception to be passed, in which case it returns that character directly.
+  * @param	minRange The minimum acceptable numeric value for the input.
+  * @param	maxRange The maximum acceptable numeric value for the input.
+  * @param exception A single character exception that can be passed to return that character directly.
+  * @return The validated input value as an integer.
+  * 
+ **/
 int inputHandler (int minRange = 0, int maxRange = 1, char exception = '\0') {
   std::string inputString;
   
@@ -195,7 +264,7 @@ int inputHandler (int minRange = 0, int maxRange = 1, char exception = '\0') {
   while (std::cin >> inputString) {
     bool nonValidString = false;
     
-
+    // Check if exception character is present and return it directly
     if (exception != '\0' && inputString[0] == exception && inputString.size() == 1) {
       return (int) inputString[0];
     }
@@ -211,6 +280,7 @@ int inputHandler (int minRange = 0, int maxRange = 1, char exception = '\0') {
       }
     }
 
+    // If the input string is not a valid number, prompt the user to enter a valid number
     if (nonValidString) {
       // if not, prompt correct value
       std::cout << "\nMensaje: \"" << inputString
@@ -236,7 +306,13 @@ int inputHandler (int minRange = 0, int maxRange = 1, char exception = '\0') {
   return -2;
 }
 
-
+/**
+  * mainMenuHandle method
+  * Handle the main menu functionality, which prints the available options and prompts the user to select one.
+  * If no figures were found, the function prints an error message and returns 0.
+  * @return 0 if a valid animal option was chosen, or 1 if a refresh is requested.
+  * 
+ **/
 int Client::mainMenuHandle() {
   // if no figures were found, the page suffered an error
   if (this->animalsArray.size() == 0) {
@@ -293,18 +369,27 @@ int Client::mainMenuHandle() {
   return 0;
 }
 
+/**
+  * handleFigure method
+  *  responsible for handling the user input when a figure (animal) is displayed on the screen.
+  *  @return 1 when the method has completed its execution successfully
+ **/
 int Client::handleFigure() {
+
+  // Display a menu to the user with options to return to the main menu, exit the program, or refresh the current figure
   std::cout << "\n\nPara volver al menu principal: 1." << std::endl
       << "Para cerrar el programa: 0." 
       << "\n\to\n'r' para refrescar (el servidor puede entregar datos incorrectamente generando comportamiento indefinido"
       << ",\nsu este es el caso, entonces refresque la pagina)\n" << std::endl;
 
+  // Handle the user's input
   int choice = inputHandler(0, 1, 'r');
   if (choice == 0) {
     _exit( 0 );
   } 
 
   if (choice == 'r') {
+    // If the user chooses to refresh the current figure, update the displayed figure by making a new request to the server
     std::string animalName = this->currentAnimal;
   
     for (size_t character = 0;
@@ -322,16 +407,51 @@ int Client::handleFigure() {
   return 1;
 }
 
+/**
+  * Connect method
+  *   Makes a call to the Connect method inside the Socket class
+  *   which make use of the "connect" Unix system call.
+  *
+  * @param	char * host: host address in dot notation, example "10.1.104.187"
+  * @param	int port: process address, example 80
+  * 
+ **/
 int Client::Connect(const char * host, int port) {
   return this->socket->Connect(host, port);
 }
+
+/**
+  * Write method
+  * Makes a call to the Write method inside the Socket class
+  * which use "write" Unix system call (man 3 write)
+  *
+  * @param	void * buffer: buffer to store data write to socket
+  * @param	size_t size: buffer capacity, number of bytes to write
+  *
+ **/
 int Client::Write(const void *text, size_t size) {
   return this->socket->Write(text, size);
 }
+
+/**
+  * Close method
+  * This method is responsible for closing the client's socket connection 
+  * and freeing up the memory allocated for the socket object.
+ **/
 void Client::Close() {
   this->socket->Close();
   delete this->socket;
 }
+
+/**
+  * Read method
+  * This method is responsible for reading data from the client's socket 
+  * connection.
+  *
+  * @param	void * text: buffer to store data read from socket
+  * @param	int size: buffer capacity, read will stop if buffer is full
+  *
+ **/
 int Client::Read(void * text, size_t size) {
   return this->socket->Read(text, size);
 }
