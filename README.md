@@ -1,92 +1,134 @@
-# Lego Figure Maker
+#CI-0123 ESJOJO
+
+## Problema 📒
+
+Plasmar diferentes conceptos de las áreas de redes y sistemas operativos en la programación un servicio que podrá ser atendido de manera redundante por varios servidores que pueden correr en máquinas distintas.
+
+Este proyecto crea un programa que obtiene y muestra las piezas de figuras Lego para la construcción de una figura en específico para el usuario.
+
+Específicamente debe construyen programas para:
+• Servidores intermedios
+• Servidores de piezas
+• Clientes buscadores de piezas
+
+### Primera entrega 📒
+
+En la primera etapa de proyecto se realiza un programa que a través de un despliegue de menú en el shell permite al usuario solicitar las figuras de Lego que desea y se le muestre la información de las piezas requeridas.
+
+###### Requerimientos
+
+1. Obtener el menú de figuras a través del servidor web
+2. Obtener las piezas requeridas para la figura solicitada por el cliente a través del servidor web
+
+#### CLIENTES
+
+Crear un cliente que utilice el protocolo HTTP para solicitar a un servidor una figura específica y obtener la información de las piezas necesarias para construir el objeto solicitado.
 
 
+##### Resolución
 
-## Getting started
+### Avance 1 : Clase Client
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+Se crea la clase Client que utiliza el protocolo HTTP para conectarse al servidor web https://os.ecci.ucr.ac.cr/lego/ y realizar solicitudes con la finalidad de conseguir información de menú de figuras Lego disponibles y las piezas requeridas para la figura solicitada, se programa sockets con acceso seguro (SSL).
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+Se implementa los siguientes métodos para la correcta funcionalidad de la clase Client:
 
-## Add your files
+connectServer(): Establece conexión segura SSL con el servidor web usando la dirección IP y el puerto 80.
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
+makeRequest(): Se encarga de crear un socket, si no ha sido creado, establecer conexión con el request específico y llamar a processRequest().
 
-```
-cd existing_repo
-git remote add origin https://git.ucr.ac.cr/esjojo/lego-figure-maker.git
-git branch -M main
-git push -uf origin main
-```
+inAnimalArray(std::string animal): se encarga de agregar un animal al arreglo interno de animales, y si está el animal dentro del arreglo entonces solo confirma si este ya se encuentra presente. 
 
-## Integrate with your tools
+regexAnalyzer(bool requestMenu, std::string& line): analiza segmentos de código dados, dependiendo de si son del menú o de una figura específica, y realiza operaciones relacionadas con lo leído.  
 
-- [ ] [Set up project integrations](https://git.ucr.ac.cr/esjojo/lego-figure-maker/-/settings/integrations)
+processRequest(bool requestMenu): Procesa la respuesta de servidor web después de que se realiza una solicitud, se utiliza la biblioteca regex para el análisis de lenguaje html que el servidor web construye, que por medio de expresiones regulares se saca la información solicitada. En caso que se haya pedido el menú, se saca los nombres de las figuras por medio de la respuesta de servidor web y los agrega en el vector de figuras que tiene el Client. Por otro lado, si se solicita las piezas de una figura, se saca y despliega la información correspondiente
 
-## Collaborate with your team
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Automatically merge when pipeline succeeds](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
+## Manual de Usuario 📃
 
-## Test and Deploy
+### Compilación y Ejecución del código
+Para poder compilar y correr el código, se provee un archivo Makefile que asiste en la compilación y construcción del programa. Con esto, para la compilación es solo necesario el siguiente comando:
 
-Use the built-in continuous integration in GitLab.
+`make`
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing(SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+Este comando corre el makefile y crea el ejecutable dentro de la carpeta bin/. El ejecutable será del nombre de la carpeta común, en cuyo caso, a como es proveído, sería ‘lego-figure-maker’.
 
-***
+Para poder correr el programa desde la carpeta común sería entonces el siguiente comando:
 
-# Editing this README
+`bin/lego-figure-maker`
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thank you to [makeareadme.com](https://www.makeareadme.com/) for this template.
+De querer borrar el ejecutable y todos los archivos relacionados generados, utilizar el siguiente comando:
 
-## Suggestions for a good README
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+`make clean`
 
-## Name
-Choose a self-explaining name for your project.
+Posterior a la ejecución solo es necesario seleccionar las opciones dadas por el output en consola para poder navegar dentro del programa. 
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+Para la compilación de los casos de prueba, se puede usar el siguiente comando para facilitar la tare:
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+`make test`
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+### Detener la Ejecución
+En caso de que desee finalizar la ejecución del programa, presionaremos en nuestro dispositivo la letra Ctrl+C o con 0 en el input, tal como es indicado por la salida del programa. 
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+## Ejemplo de Ejecución 📷
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+Cuando se inicia el programa se deberá parecer a lo siguiente:
+![InicioPrograma](/images/ExampleExecution1.png "Example")
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+Cuando el usuario pide por la figura "blacksheep" y luego solicita cerrar el programa se deberá parecer a lo siguiente:
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+![PeticionYCierre](/images/ExampleExecution2.png "Example")
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+# Protocolo
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+ Establecer los esquemas de comunicación:
 
-## License
-For open source projects, say how it is licensed.
+◦ Entre los clientes y los servidores intermedios se comunican por medio de una red pública con el puerto 80 (HTTP)
+◦ Entre los servidores intermedios y los servidores de piezas se comunican por medio de una red privada, en un puerto diferente a 80
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+Cliente:
+Solicita el menú de figuras y las piezas necesarias a través de la solicitud GET de protocolo HTTP que se envía a través de la URL
+
+Servidor Intermedio:
+Contiene el mapa de rutas. Este mapa de rutas se debe actualizar cuando identifica que se agrega un nuevo servidor de piezas. 
+
+Servidores de piezas:
+Realiza una revisión de los modelos que almacena y es quien brinda las piezas solicitadas por el cliente.
+
+Valorar el uso de datos encriptados para las comunicaciones
+Encriptar datos con AES para el envío de datos en lo posible para toda conexión.
+
+Protocolo de comunicación para adicionar o eliminar servidores de piezas a servidores intermedios o viceversa (interacción):
+Primer Caso: Servidor intermedio se levanta primero. 
+Segundo Caso: Servidor de pieza se levanta primero que el servidor intermedio 
+
+Para ambos casos se establece conexión con el cliente por medio del Socket.
+Uso de un archivo de texto manejado por el servidor de intermedio que contenga la información IP y el puerto de cada servidor de pieza levantado, este archivo de texto se debe de actualizar cada vez que se descarte o levante un servidor de pieza. Para el primer caso el servidor Intermedio solamente establece las conexiones a través de dicha información, en caso de problema de segundo caso, esta se resuelve con que el servidor Intermedio esté tratando de realizar las conexiones constantemente a través de la información. 
+
+Paso de datos:
+Se puede definir un formato propietario diferente al de html para los datos enviados.
+Se puede también definir que al enviarse los datos y que estos, a la mitad de un contenido, no caben dentro del mensaje enviado, se indique donde ocurrió tal interrupción, o simplemente guardarlo para este ser enviado dentro del siguiente mensaje. 
+
+## Integrantes 👥
+• Esteban Porras Herrera - C06044
+• Joseph Stuart Valverde Kong - C18100
+• Johana Wu Nie - C08591
+
+## Evaluaciones 🌐
+
+Evaluado por: Esteban Porras Herrera
+• Esteban Porras Herrera - C06044          : 100/100
+• Joseph Stuart Valverde Kong - C18100  : 100/100
+• Johana Wu Nie - C08591 		       : 100/100
+
+Evaluado por: Joseph Stuart Valverde Kong
+• Esteban Porras Herrera - C06044          : 100/100
+• Joseph Stuart Valverde Kong - C18100  : 100/100
+• Johana Wu Nie - C08591 		       : 100/100
+
+Evaluado por: Johana Wu Nie
+• Esteban Porras Herrera - C06044          : 100/100
+• Joseph Stuart Valverde Kong - C18100  : 100/100
+• Johana Wu Nie - C08591 		       : 100/100
