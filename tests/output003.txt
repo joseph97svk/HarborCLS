@@ -1,0 +1,49 @@
+Universidad de Costa Rica
+
+Escuela de Ciencias de la Computación e Informática
+CI-0123 PI de sistemas operativos y redes
+Ejemplos de servicio
+
+Figuras:
+
+1.	blacksheep
+2.	dragon
+3.	duck
+4.	elephant
+5.	fish
+6.	giraffe
+7.	horse
+8.	lion
+9.	penguin
+10.	roadrunner
+11.	shark
+12.	squid
+13.	swan
+14.	turtle
+15.	whitesheep
+
+Seleccione una de las opciones anteriores
+	o
+0 para cerrar el programa
+	o
+'r' para refrescar (el servidor puede entregar datos incorrectamente generando comportamiento indefinido,
+su este es el caso, entonces refresque la pagina)
+
+
+Mensaje: 17 no esta dentro del rango, por favor introducir un valor entre
+[0 y 15]
+
+Mensaje: -1 no esta dentro del rango, por favor introducir un valor entre
+[0 y 15]
+
+Mensaje: -15 no esta dentro del rango, por favor introducir un valor entre
+[0 y 15]
+
+Mensaje: -1625241677 no esta dentro del rango, por favor introducir un valor entre
+[0 y 15]
+
+Mensaje: "asdfasdf123" no es una opcion valida. Por valor introducir un numero entre
+[0 y 15]
+
+Mensaje: "a1j3239kd32" no es una opcion valida. Por valor introducir un numero entre
+[0 y 15]

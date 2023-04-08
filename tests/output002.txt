@@ -1,0 +1,173 @@
+Universidad de Costa Rica
+
+Escuela de Ciencias de la Computación e Informática
+CI-0123 PI de sistemas operativos y redes
+Ejemplos de servicio
+
+Figuras:
+
+1.	blacksheep
+2.	dragon
+3.	duck
+4.	elephant
+5.	fish
+6.	giraffe
+7.	horse
+8.	lion
+9.	penguin
+10.	roadrunner
+11.	shark
+12.	squid
+13.	swan
+14.	turtle
+15.	whitesheep
+
+Seleccione una de las opciones anteriores
+	o
+0 para cerrar el programa
+	o
+'r' para refrescar (el servidor puede entregar datos incorrectamente generando comportamiento indefinido,
+su este es el caso, entonces refresque la pagina)
+
+Universidad de Costa Rica
+
+Escuela de Ciencias de la Computación e Informática
+CI-0123 PI de sistemas operativos y redes
+Ejemplos de servicio
+
+Figuras:
+
+1.	blacksheep
+2.	dragon
+3.	duck
+4.	elephant
+5.	fish
+6.	giraffe
+7.	horse
+8.	lion
+9.	penguin
+10.	roadrunner
+11.	shark
+12.	squid
+13.	swan
+14.	turtle
+15.	whitesheep
+
+Seleccione una de las opciones anteriores
+	o
+0 para cerrar el programa
+	o
+'r' para refrescar (el servidor puede entregar datos incorrectamente generando comportamiento indefinido,
+su este es el caso, entonces refresque la pagina)
+
+
+<<<DRAGON>>>
+
+Cantidad: 2, Descripción: brick 2x6 plate grey
+Cantidad: 3, Descripción: brick 2x4 grey
+Cantidad: 2, Descripción: brick 2x2 grey
+Cantidad: 1, Descripción: brick 2x2 slope inverted grey
+Cantidad: 1, Descripción: brick 2x8 red
+Cantidad: 2, Descripción: brick 2x2 slope red
+Cantidad: 1, Descripción: brick 2x2 slope inverted red
+Cantidad: 1, Descripción: brick 2x2 slope grey
+Cantidad: 2, Descripción: brick 2x4 plate grey
+Cantidad: 1, Descripción: flag yellow
+Cantidad: 2, Descripción: brick 1x2 slope inverted red
+Cantidad: 2, Descripción: brick 2x4 red
+Cantidad: 2, Descripción: brick 2x3 red
+Cantidad: 1, Descripción: brick 1x1 eyes dark grey
+Cantidad de piezas totales = 23
+
+
+Para volver al menu principal: 1.
+Para cerrar el programa: 0.
+	o
+'r' para refrescar (el servidor puede entregar datos incorrectamente generando comportamiento indefinido,
+su este es el caso, entonces refresque la pagina)
+
+
+<<<DRAGON>>>
+
+Cantidad: 2, Descripción: brick 2x6 plate grey
+Cantidad: 3, Descripción: brick 2x4 grey
+Cantidad: 2, Descripción: brick 2x2 grey
+Cantidad: 1, Descripción: brick 2x2 slope inverted grey
+Cantidad: 1, Descripción: brick 2x8 red
+Cantidad: 2, Descripción: brick 2x2 slope red
+Cantidad: 1, Descripción: brick 2x2 slope inverted red
+Cantidad: 1, Descripción: brick 2x2 slope grey
+Cantidad: 2, Descripción: brick 2x4 plate grey
+Cantidad: 1, Descripción: flag yellow
+Cantidad: 2, Descripción: brick 1x2 slope inverted red
+Cantidad: 2, Descripción: brick 2x4 red
+Cantidad: 2, Descripción: brick 2x3 red
+Cantidad: 1, Descripción: brick 1x1 eyes dark grey
+Cantidad de piezas totales = 23
+
+
+Para volver al menu principal: 1.
+Para cerrar el programa: 0.
+	o
+'r' para refrescar (el servidor puede entregar datos incorrectamente generando comportamiento indefinido,
+su este es el caso, entonces refresque la pagina)
+
+
+Mensaje: 14 no esta dentro del rango, por favor introducir un valor entre
+[0 y 1]
+
+Mensaje: "hola" no es una opcion valida. Por valor introducir un numero entre
+[0 y 1]
+Universidad de Costa Rica
+
+Escuela de Ciencias de la Computación e Informática
+CI-0123 PI de sistemas operativos y redes
+Ejemplos de servicio
+
+Figuras:
+
+1.	blacksheep
+2.	dragon
+3.	duck
+4.	elephant
+5.	fish
+6.	giraffe
+7.	horse
+8.	lion
+9.	penguin
+10.	roadrunner
+11.	shark
+12.	squid
+13.	swan
+14.	turtle
+15.	whitesheep
+
+Seleccione una de las opciones anteriores
+	o
+0 para cerrar el programa
+	o
+'r' para refrescar (el servidor puede entregar datos incorrectamente generando comportamiento indefinido,
+su este es el caso, entonces refresque la pagina)
+
+
+<<<GIRAFFE>>>
+
+Cantidad: 4, Descripción: brick 2x2 black
+Cantidad: 4, Descripción: brick 2x2 yellow
+Cantidad: 6, Descripción: brick 2x1 yellow
+Cantidad: 6, Descripción: brick 2x1 black
+Cantidad: 1, Descripción: brick 2x6 yellow
+Cantidad: 2, Descripción: brick 2x4 yellow
+Cantidad: 1, Descripción: brick 2x3 yellow
+Cantidad: 1, Descripción: brick 1x4 yellow
+Cantidad: 1, Descripción: brick 2x3 red
+Cantidad: 2, Descripción: brick 1x1 eye yellow
+Cantidad de piezas totales = 28
+
+
+Para volver al menu principal: 1.
+Para cerrar el programa: 0.
+	o
+'r' para refrescar (el servidor puede entregar datos incorrectamente generando comportamiento indefinido,
+su este es el caso, entonces refresque la pagina)
+

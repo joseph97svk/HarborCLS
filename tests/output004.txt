@@ -1,0 +1,772 @@
+Universidad de Costa Rica
+
+Escuela de Ciencias de la Computación e Informática
+CI-0123 PI de sistemas operativos y redes
+Ejemplos de servicio
+
+Figuras:
+
+1.	blacksheep
+2.	dragon
+3.	duck
+4.	elephant
+5.	fish
+6.	giraffe
+7.	horse
+8.	lion
+9.	penguin
+10.	roadrunner
+11.	shark
+12.	squid
+13.	swan
+14.	turtle
+15.	whitesheep
+
+Seleccione una de las opciones anteriores
+	o
+0 para cerrar el programa
+	o
+'r' para refrescar (el servidor puede entregar datos incorrectamente generando comportamiento indefinido,
+su este es el caso, entonces refresque la pagina)
+
+
+<<<BLACKSHEEP>>>
+
+Cantidad: 3, Descripción: brick 1x2 white
+Cantidad: 2, Descripción: brick 2x4 black
+Cantidad: 1, Descripción: brick 2x2 black
+Cantidad de piezas totales = 6
+
+
+Para volver al menu principal: 1.
+Para cerrar el programa: 0.
+	o
+'r' para refrescar (el servidor puede entregar datos incorrectamente generando comportamiento indefinido,
+su este es el caso, entonces refresque la pagina)
+
+Universidad de Costa Rica
+
+Escuela de Ciencias de la Computación e Informática
+CI-0123 PI de sistemas operativos y redes
+Ejemplos de servicio
+
+Figuras:
+
+1.	blacksheep
+2.	dragon
+3.	duck
+4.	elephant
+5.	fish
+6.	giraffe
+7.	horse
+8.	lion
+9.	penguin
+10.	roadrunner
+11.	shark
+12.	squid
+13.	swan
+14.	turtle
+15.	whitesheep
+
+Seleccione una de las opciones anteriores
+	o
+0 para cerrar el programa
+	o
+'r' para refrescar (el servidor puede entregar datos incorrectamente generando comportamiento indefinido,
+su este es el caso, entonces refresque la pagina)
+
+
+<<<DRAGON>>>
+
+Cantidad: 2, Descripción: brick 2x6 plate grey
+Cantidad: 3, Descripción: brick 2x4 grey
+Cantidad: 2, Descripción: brick 2x2 grey
+Cantidad: 1, Descripción: brick 2x2 slope inverted grey
+Cantidad: 1, Descripción: brick 2x8 red
+Cantidad: 2, Descripción: brick 2x2 slope red
+Cantidad: 1, Descripción: brick 2x2 slope inverted red
+Cantidad: 1, Descripción: brick 2x2 slope grey
+Cantidad: 2, Descripción: brick 2x4 plate grey
+Cantidad: 1, Descripción: flag yellow
+Cantidad: 2, Descripción: brick 1x2 slope inverted red
+Cantidad: 2, Descripción: brick 2x4 red
+Cantidad: 2, Descripción: brick 2x3 red
+Cantidad: 1, Descripción: brick 1x1 eyes dark grey
+Cantidad de piezas totales = 23
+
+
+Para volver al menu principal: 1.
+Para cerrar el programa: 0.
+	o
+'r' para refrescar (el servidor puede entregar datos incorrectamente generando comportamiento indefinido,
+su este es el caso, entonces refresque la pagina)
+
+Universidad de Costa Rica
+
+Escuela de Ciencias de la Computación e Informática
+CI-0123 PI de sistemas operativos y redes
+Ejemplos de servicio
+
+Figuras:
+
+1.	blacksheep
+2.	dragon
+3.	duck
+4.	elephant
+5.	fish
+6.	giraffe
+7.	horse
+8.	lion
+9.	penguin
+10.	roadrunner
+11.	shark
+12.	squid
+13.	swan
+14.	turtle
+15.	whitesheep
+
+Seleccione una de las opciones anteriores
+	o
+0 para cerrar el programa
+	o
+'r' para refrescar (el servidor puede entregar datos incorrectamente generando comportamiento indefinido,
+su este es el caso, entonces refresque la pagina)
+
+
+<<<DUCK>>>
+
+Cantidad: 1, Descripción: brick 2x2 slope orange
+Cantidad: 2, Descripción: brick 2x3 yellow
+Cantidad: 2, Descripción: brick 2x2 yellow
+Cantidad: 2, Descripción: brick 1x1 yellow eye
+Cantidad: 1, Descripción: brick 2x1 yellow
+Cantidad: 1, Descripción: brick 2x4 slope orange
+Cantidad de piezas totales = 9
+
+
+Para volver al menu principal: 1.
+Para cerrar el programa: 0.
+	o
+'r' para refrescar (el servidor puede entregar datos incorrectamente generando comportamiento indefinido,
+su este es el caso, entonces refresque la pagina)
+
+Universidad de Costa Rica
+
+Escuela de Ciencias de la Computación e Informática
+CI-0123 PI de sistemas operativos y redes
+Ejemplos de servicio
+
+Figuras:
+
+1.	blacksheep
+2.	dragon
+3.	duck
+4.	elephant
+5.	fish
+6.	giraffe
+7.	horse
+8.	lion
+9.	penguin
+10.	roadrunner
+11.	shark
+12.	squid
+13.	swan
+14.	turtle
+15.	whitesheep
+
+Seleccione una de las opciones anteriores
+	o
+0 para cerrar el programa
+	o
+'r' para refrescar (el servidor puede entregar datos incorrectamente generando comportamiento indefinido,
+su este es el caso, entonces refresque la pagina)
+
+
+<<<ELEPHANT>>>
+
+Cantidad: 2, Descripción: brick 2x2 black
+Cantidad: 6, Descripción: brick 2x2 grey
+Cantidad: 5, Descripción: brick 2x4 grey
+Cantidad: 1, Descripción: brick 2x3 grey
+Cantidad: 10, Descripción: brick 2x1 grey
+Cantidad: 2, Descripción: brick 1x1 black eye
+Cantidad: 1, Descripción: plate 2x4 grey
+Cantidad de piezas totales = 27
+
+
+Para volver al menu principal: 1.
+Para cerrar el programa: 0.
+	o
+'r' para refrescar (el servidor puede entregar datos incorrectamente generando comportamiento indefinido,
+su este es el caso, entonces refresque la pagina)
+
+Universidad de Costa Rica
+
+Escuela de Ciencias de la Computación e Informática
+CI-0123 PI de sistemas operativos y redes
+Ejemplos de servicio
+
+Figuras:
+
+1.	blacksheep
+2.	dragon
+3.	duck
+4.	elephant
+5.	fish
+6.	giraffe
+7.	horse
+8.	lion
+9.	penguin
+10.	roadrunner
+11.	shark
+12.	squid
+13.	swan
+14.	turtle
+15.	whitesheep
+
+Seleccione una de las opciones anteriores
+	o
+0 para cerrar el programa
+	o
+'r' para refrescar (el servidor puede entregar datos incorrectamente generando comportamiento indefinido,
+su este es el caso, entonces refresque la pagina)
+
+
+<<<FISH>>>
+
+Cantidad: 3, Descripción: brick 2x4 yellow
+Cantidad: 1, Descripción: brick 2x3 yellow
+Cantidad: 2, Descripción: brick 1x1 yellow eye
+Cantidad: 2, Descripción: brick 2x2 translucent blue
+Cantidad: 4, Descripción: brick 2x2 translucent red
+Cantidad de piezas totales = 12
+
+
+Para volver al menu principal: 1.
+Para cerrar el programa: 0.
+	o
+'r' para refrescar (el servidor puede entregar datos incorrectamente generando comportamiento indefinido,
+su este es el caso, entonces refresque la pagina)
+
+Universidad de Costa Rica
+
+Escuela de Ciencias de la Computación e Informática
+CI-0123 PI de sistemas operativos y redes
+Ejemplos de servicio
+
+Figuras:
+
+1.	blacksheep
+2.	dragon
+3.	duck
+4.	elephant
+5.	fish
+6.	giraffe
+7.	horse
+8.	lion
+9.	penguin
+10.	roadrunner
+11.	shark
+12.	squid
+13.	swan
+14.	turtle
+15.	whitesheep
+
+Seleccione una de las opciones anteriores
+	o
+0 para cerrar el programa
+	o
+'r' para refrescar (el servidor puede entregar datos incorrectamente generando comportamiento indefinido,
+su este es el caso, entonces refresque la pagina)
+
+
+<<<GIRAFFE>>>
+
+Cantidad: 4, Descripción: brick 2x2 black
+Cantidad: 4, Descripción: brick 2x2 yellow
+Cantidad: 6, Descripción: brick 2x1 yellow
+Cantidad: 6, Descripción: brick 2x1 black
+Cantidad: 1, Descripción: brick 2x6 yellow
+Cantidad: 2, Descripción: brick 2x4 yellow
+Cantidad: 1, Descripción: brick 2x3 yellow
+Cantidad: 1, Descripción: brick 1x4 yellow
+Cantidad: 1, Descripción: brick 2x3 red
+Cantidad: 2, Descripción: brick 1x1 eye yellow
+Cantidad de piezas totales = 28
+
+
+Para volver al menu principal: 1.
+Para cerrar el programa: 0.
+	o
+'r' para refrescar (el servidor puede entregar datos incorrectamente generando comportamiento indefinido,
+su este es el caso, entonces refresque la pagina)
+
+
+Mensaje: 7 no esta dentro del rango, por favor introducir un valor entre
+[0 y 1]
+Universidad de Costa Rica
+
+Escuela de Ciencias de la Computación e Informática
+CI-0123 PI de sistemas operativos y redes
+Ejemplos de servicio
+
+Figuras:
+
+1.	blacksheep
+2.	dragon
+3.	duck
+4.	elephant
+5.	fish
+6.	giraffe
+7.	horse
+8.	lion
+9.	penguin
+10.	roadrunner
+11.	shark
+12.	squid
+13.	swan
+14.	turtle
+15.	whitesheep
+
+Seleccione una de las opciones anteriores
+	o
+0 para cerrar el programa
+	o
+'r' para refrescar (el servidor puede entregar datos incorrectamente generando comportamiento indefinido,
+su este es el caso, entonces refresque la pagina)
+
+
+<<<LION>>>
+
+Cantidad: 1, Descripción: brick 2x8 yellow
+Cantidad: 6, Descripción: brick 2x2 yellow
+Cantidad: 3, Descripción: brick 2x4 yellow
+Cantidad: 5, Descripción: brick 1x4 yellow
+Cantidad: 6, Descripción: brick 1x2 yellow
+Cantidad: 1, Descripción: brick 2x4 black
+Cantidad: 1, Descripción: plate 2x3 yellow
+Cantidad: 2, Descripción: brick 1x2 black
+Cantidad: 2, Descripción: brick 2x2 black
+Cantidad: 1, Descripción: brick 2x2 red
+Cantidad: 1, Descripción: brick 1x1 eyes dark grey
+Cantidad de piezas totales = 29
+
+
+Para volver al menu principal: 1.
+Para cerrar el programa: 0.
+	o
+'r' para refrescar (el servidor puede entregar datos incorrectamente generando comportamiento indefinido,
+su este es el caso, entonces refresque la pagina)
+
+Universidad de Costa Rica
+
+Escuela de Ciencias de la Computación e Informática
+CI-0123 PI de sistemas operativos y redes
+Ejemplos de servicio
+
+Figuras:
+
+1.	blacksheep
+2.	dragon
+3.	duck
+4.	elephant
+5.	fish
+6.	giraffe
+7.	horse
+8.	lion
+9.	penguin
+10.	roadrunner
+11.	shark
+12.	squid
+13.	swan
+14.	turtle
+15.	whitesheep
+
+Seleccione una de las opciones anteriores
+	o
+0 para cerrar el programa
+	o
+'r' para refrescar (el servidor puede entregar datos incorrectamente generando comportamiento indefinido,
+su este es el caso, entonces refresque la pagina)
+
+
+<<<PENGUIN>>>
+
+Cantidad: 1, Descripción: plate 2x3 white
+Cantidad: 1, Descripción: brick 1x4 black
+Cantidad: 2, Descripción: brick 2x2 slope inverted white
+Cantidad: 2, Descripción: brick 1x2 black
+Cantidad: 1, Descripción: brick 2x2 white
+Cantidad: 1, Descripción: plate 2x3 red
+Cantidad: 1, Descripción: brick 2x2 black
+Cantidad de piezas totales = 9
+
+
+Para volver al menu principal: 1.
+Para cerrar el programa: 0.
+	o
+'r' para refrescar (el servidor puede entregar datos incorrectamente generando comportamiento indefinido,
+su este es el caso, entonces refresque la pagina)
+
+Universidad de Costa Rica
+
+Escuela de Ciencias de la Computación e Informática
+CI-0123 PI de sistemas operativos y redes
+Ejemplos de servicio
+
+Figuras:
+
+1.	blacksheep
+2.	dragon
+3.	duck
+4.	elephant
+5.	fish
+6.	giraffe
+7.	horse
+8.	lion
+9.	penguin
+10.	roadrunner
+11.	shark
+12.	squid
+13.	swan
+14.	turtle
+15.	whitesheep
+
+Seleccione una de las opciones anteriores
+	o
+0 para cerrar el programa
+	o
+'r' para refrescar (el servidor puede entregar datos incorrectamente generando comportamiento indefinido,
+su este es el caso, entonces refresque la pagina)
+
+
+<<<PENGUIN>>>
+
+Cantidad: 1, Descripción: plate 2x3 white
+Cantidad: 1, Descripción: brick 1x4 black
+Cantidad: 2, Descripción: brick 2x2 slope inverted white
+Cantidad: 2, Descripción: brick 1x2 black
+Cantidad: 1, Descripción: brick 2x2 white
+Cantidad: 1, Descripción: plate 2x3 red
+Cantidad: 1, Descripción: brick 2x2 black
+Cantidad de piezas totales = 9
+
+
+Para volver al menu principal: 1.
+Para cerrar el programa: 0.
+	o
+'r' para refrescar (el servidor puede entregar datos incorrectamente generando comportamiento indefinido,
+su este es el caso, entonces refresque la pagina)
+
+Universidad de Costa Rica
+
+Escuela de Ciencias de la Computación e Informática
+CI-0123 PI de sistemas operativos y redes
+Ejemplos de servicio
+
+Figuras:
+
+1.	blacksheep
+2.	dragon
+3.	duck
+4.	elephant
+5.	fish
+6.	giraffe
+7.	horse
+8.	lion
+9.	penguin
+10.	roadrunner
+11.	shark
+12.	squid
+13.	swan
+14.	turtle
+15.	whitesheep
+
+Seleccione una de las opciones anteriores
+	o
+0 para cerrar el programa
+	o
+'r' para refrescar (el servidor puede entregar datos incorrectamente generando comportamiento indefinido,
+su este es el caso, entonces refresque la pagina)
+
+
+<<<ROADRUNNER>>>
+
+Cantidad: 2, Descripción: brick 2x4 yellow
+Cantidad: 2, Descripción: brick 2x3 yellow
+Cantidad: 2, Descripción: brick 2x3 white
+Cantidad: 1, Descripción: plate 2x3 yellow
+Cantidad: 2, Descripción: plate 2x4 white
+Cantidad: 2, Descripción: brick 2x2 yellow
+Cantidad: 1, Descripción: plate 2x3 white
+Cantidad: 3, Descripción: plate 2x4 black
+Cantidad: 2, Descripción: brick 1x1 round eye yellow
+Cantidad: 1, Descripción: brick 1x2 yellow
+Cantidad: 1, Descripción: brick 2x2 slope translucent blue
+Cantidad: 2, Descripción: brick 1x2 translucent blue
+Cantidad: 1, Descripción: brick 1x2 translucent red
+Cantidad: 6, Descripción: brick 1x1 red
+Cantidad de piezas totales = 28
+
+
+Para volver al menu principal: 1.
+Para cerrar el programa: 0.
+	o
+'r' para refrescar (el servidor puede entregar datos incorrectamente generando comportamiento indefinido,
+su este es el caso, entonces refresque la pagina)
+
+Universidad de Costa Rica
+
+Escuela de Ciencias de la Computación e Informática
+CI-0123 PI de sistemas operativos y redes
+Ejemplos de servicio
+
+Figuras:
+
+1.	blacksheep
+2.	dragon
+3.	duck
+4.	elephant
+5.	fish
+6.	giraffe
+7.	horse
+8.	lion
+9.	penguin
+10.	roadrunner
+11.	shark
+12.	squid
+13.	swan
+14.	turtle
+15.	whitesheep
+
+Seleccione una de las opciones anteriores
+	o
+0 para cerrar el programa
+	o
+'r' para refrescar (el servidor puede entregar datos incorrectamente generando comportamiento indefinido,
+su este es el caso, entonces refresque la pagina)
+
+
+<<<SHARK>>>
+
+Cantidad: 2, Descripción: brick 2x2 slope inverted orange
+Cantidad: 1, Descripción: brick 2x2 slope inverted white
+Cantidad: 1, Descripción: brick 2x4 white
+Cantidad: 1, Descripción: brick 2x2 white
+Cantidad: 1, Descripción: brick 1x2 white
+Cantidad: 2, Descripción: brick 1x2 slope orange
+Cantidad: 2, Descripción: plate 2x4 white
+Cantidad: 2, Descripción: plate 2x4 orange
+Cantidad: 2, Descripción: brick 1x1 white
+Cantidad: 2, Descripción: brick 2x4 white
+Cantidad: 1, Descripción: brick 1x2 orange
+Cantidad: 1, Descripción: brick 2x2 orange
+Cantidad: 1, Descripción: brick 2x2 slope orange
+Cantidad: 1, Descripción: brick 2x3 orange
+Cantidad: 1, Descripción: plate 2x3 orange
+Cantidad: 1, Descripción: brick 1x1 eyes dark grey
+Cantidad de piezas totales = 22
+
+
+Para volver al menu principal: 1.
+Para cerrar el programa: 0.
+	o
+'r' para refrescar (el servidor puede entregar datos incorrectamente generando comportamiento indefinido,
+su este es el caso, entonces refresque la pagina)
+
+Universidad de Costa Rica
+
+Escuela de Ciencias de la Computación e Informática
+CI-0123 PI de sistemas operativos y redes
+Ejemplos de servicio
+
+Figuras:
+
+1.	blacksheep
+2.	dragon
+3.	duck
+4.	elephant
+5.	fish
+6.	giraffe
+7.	horse
+8.	lion
+9.	penguin
+10.	roadrunner
+11.	shark
+12.	squid
+13.	swan
+14.	turtle
+15.	whitesheep
+
+Seleccione una de las opciones anteriores
+	o
+0 para cerrar el programa
+	o
+'r' para refrescar (el servidor puede entregar datos incorrectamente generando comportamiento indefinido,
+su este es el caso, entonces refresque la pagina)
+
+
+<<<SQUID>>>
+
+Cantidad: 4, Descripción: plate 2x2 yellow
+Cantidad: 8, Descripción: brick 2x1 yellow
+Cantidad: 6, Descripción: brick 2x2 yellow
+Cantidad: 2, Descripción: brick 2x4 yellow
+Cantidad: 1, Descripción: plate 2x4 yellow
+Cantidad: 3, Descripción: brick 2x1 dark grey
+Cantidad: 1, Descripción: brick 1x1 eyes dark grey
+Cantidad de piezas totales = 25
+
+
+Para volver al menu principal: 1.
+Para cerrar el programa: 0.
+	o
+'r' para refrescar (el servidor puede entregar datos incorrectamente generando comportamiento indefinido,
+su este es el caso, entonces refresque la pagina)
+
+Universidad de Costa Rica
+
+Escuela de Ciencias de la Computación e Informática
+CI-0123 PI de sistemas operativos y redes
+Ejemplos de servicio
+
+Figuras:
+
+1.	blacksheep
+2.	dragon
+3.	duck
+4.	elephant
+5.	fish
+6.	giraffe
+7.	horse
+8.	lion
+9.	penguin
+10.	roadrunner
+11.	shark
+12.	squid
+13.	swan
+14.	turtle
+15.	whitesheep
+
+Seleccione una de las opciones anteriores
+	o
+0 para cerrar el programa
+	o
+'r' para refrescar (el servidor puede entregar datos incorrectamente generando comportamiento indefinido,
+su este es el caso, entonces refresque la pagina)
+
+
+<<<SWAN>>>
+
+Cantidad: 1, Descripción: plate 2x3 white
+Cantidad: 2, Descripción: brick 2x3 slope white
+Cantidad: 1, Descripción: brick 2x2 slope inverted white
+Cantidad: 4, Descripción: brick 1x2 white
+Cantidad: 1, Descripción: plate 2x4 white
+Cantidad: 1, Descripción: plate 2x3 orange
+Cantidad: 1, Descripción: brick 2x2 slope white
+Cantidad de piezas totales = 11
+
+
+Para volver al menu principal: 1.
+Para cerrar el programa: 0.
+	o
+'r' para refrescar (el servidor puede entregar datos incorrectamente generando comportamiento indefinido,
+su este es el caso, entonces refresque la pagina)
+
+Universidad de Costa Rica
+
+Escuela de Ciencias de la Computación e Informática
+CI-0123 PI de sistemas operativos y redes
+Ejemplos de servicio
+
+Figuras:
+
+1.	blacksheep
+2.	dragon
+3.	duck
+4.	elephant
+5.	fish
+6.	giraffe
+7.	horse
+8.	lion
+9.	penguin
+10.	roadrunner
+11.	shark
+12.	squid
+13.	swan
+14.	turtle
+15.	whitesheep
+
+Seleccione una de las opciones anteriores
+	o
+0 para cerrar el programa
+	o
+'r' para refrescar (el servidor puede entregar datos incorrectamente generando comportamiento indefinido,
+su este es el caso, entonces refresque la pagina)
+
+
+<<<TURTLE>>>
+
+Cantidad: 2, Descripción: plate 2x4 black
+Cantidad: 1, Descripción: brick 2x2 yellow
+Cantidad: 2, Descripción: brick 1x2 yellow
+Cantidad: 2, Descripción: brick 1x2 slope yellow
+Cantidad: 1, Descripción: brick 2x2 slope inverted yellow
+Cantidad: 2, Descripción: brick 2x2 translucent blue
+Cantidad: 2, Descripción: brick 1x1 round eye yellow
+Cantidad de piezas totales = 12
+
+
+Para volver al menu principal: 1.
+Para cerrar el programa: 0.
+	o
+'r' para refrescar (el servidor puede entregar datos incorrectamente generando comportamiento indefinido,
+su este es el caso, entonces refresque la pagina)
+
+Universidad de Costa Rica
+
+Escuela de Ciencias de la Computación e Informática
+CI-0123 PI de sistemas operativos y redes
+Ejemplos de servicio
+
+Figuras:
+
+1.	blacksheep
+2.	dragon
+3.	duck
+4.	elephant
+5.	fish
+6.	giraffe
+7.	horse
+8.	lion
+9.	penguin
+10.	roadrunner
+11.	shark
+12.	squid
+13.	swan
+14.	turtle
+15.	whitesheep
+
+Seleccione una de las opciones anteriores
+	o
+0 para cerrar el programa
+	o
+'r' para refrescar (el servidor puede entregar datos incorrectamente generando comportamiento indefinido,
+su este es el caso, entonces refresque la pagina)
+
+
+<<<WHITESHEEP>>>
+
+Cantidad: 3, Descripción: brick 1x2 black
+Cantidad: 2, Descripción: brick 2x4 white
+Cantidad: 1, Descripción: brick 2x2 white
+Cantidad de piezas totales = 6
+
+
+Para volver al menu principal: 1.
+Para cerrar el programa: 0.
+	o
+'r' para refrescar (el servidor puede entregar datos incorrectamente generando comportamiento indefinido,
+su este es el caso, entonces refresque la pagina)
+
