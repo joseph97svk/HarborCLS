@@ -30,7 +30,7 @@ Crear un cliente que utilice el protocolo HTTP para solicitar a un servidor una 
 
 ##### Resolución
 
-###### Avance 1 : Clase Client
+###### Clase Client
 
 Se crea la clase Client que utiliza el protocolo HTTP para conectarse al servidor web https://os.ecci.ucr.ac.cr/lego/ y realizar solicitudes con la finalidad de conseguir información de menú de figuras Lego disponibles y las piezas requeridas para la figura solicitada, se programa sockets con acceso seguro (SSL).
 
@@ -93,29 +93,32 @@ Cuando el usuario pide por la figura "blacksheep" y luego solicita cerrar el pro
 
 ◦ Entre los servidores intermedios y los servidores de piezas se comunican por medio de una red privada, en un puerto diferente a 80
 
-*Cliente:*
 
-Solicita el menú de figuras y las piezas necesarias a través de la solicitud GET de protocolo HTTP que se envía a través de la URL
 
-*Servidor Intermedio:*
+*Cliente:* Solicita el menú de figuras y las piezas necesarias a través de la solicitud GET de protocolo HTTP que se envía a través de la URL
 
-Contiene el mapa de rutas. Este mapa de rutas se debe actualizar cuando identifica que se agrega un nuevo servidor de piezas. 
 
-*Servidores de piezas:*
+*Servidor Intermedio:* Contiene el mapa de rutas. Este mapa de rutas se debe actualizar cuando identifica que se agrega un nuevo servidor de piezas. 
 
-Realiza una revisión de los modelos que almacena y es quien brinda las piezas solicitadas por el cliente.
+*Servidores de piezas:* Realiza una revisión de los modelos que almacena y es quien brinda las piezas solicitadas por el cliente.
+
 
 Valorar el uso de datos encriptados para las comunicaciones
 Encriptar datos con AES para el envío de datos en lo posible para toda conexión.
 
+
 Protocolo de comunicación para adicionar o eliminar servidores de piezas a servidores intermedios o viceversa (interacción):
 
-Primer Caso: Servidor intermedio se levanta primero. 
 
-Segundo Caso: Servidor de pieza se levanta primero que el servidor intermedio 
+1. Primer Caso: Servidor intermedio se levanta primero. 
+
+
+2. Segundo Caso: Servidor de pieza se levanta primero que el servidor intermedio 
+
 
 Para ambos casos se establece conexión con el cliente por medio del Socket.
 Uso de un archivo de texto manejado por el servidor de intermedio que contenga la información IP y el puerto de cada servidor de pieza levantado, este archivo de texto se debe de actualizar cada vez que se descarte o levante un servidor de pieza. Para el primer caso el servidor Intermedio solamente establece las conexiones a través de dicha información, en caso de problema de segundo caso, esta se resuelve con que el servidor Intermedio esté tratando de realizar las conexiones constantemente a través de la información. 
+
 
 Paso de datos:
 
