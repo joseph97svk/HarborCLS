@@ -12,7 +12,8 @@ Específicamente debe construyen programas para:
 
 • Servidores de piezas
 
-• Clientes buscadores de piezas
+• Clientes buscadores de piezas 
+(seccion inecesaria pero se puede dejar)
 
 ### Primera entrega 📒
 
@@ -21,7 +22,9 @@ En la primera etapa de proyecto se realiza un programa que a través de un despl
 #### Requerimientos
 
 1. Obtener el menú de figuras a través del servidor web
-2. Obtener las piezas requeridas para la figura solicitada por el cliente a través del servidor web
+2. Obtener las piezas requeridas para la figura solicitada por el cliente a través del servidor web 
+
+(agregar std::regex, ssl y otras bibliotecas agregadas que necesitan ser instaladas, veersion de Ubuntu y requerimiento de sistema operativo)
 
 #### CLIENTES
 
@@ -46,6 +49,7 @@ regexAnalyzer(bool requestMenu, std::string& line): analiza segmentos de código
 
 processRequest(bool requestMenu): Procesa la respuesta de servidor web después de que se realiza una solicitud, se utiliza la biblioteca regex para el análisis de lenguaje html que el servidor web construye, que por medio de expresiones regulares se saca la información solicitada. En caso que se haya pedido el menú, se saca los nombres de las figuras por medio de la respuesta de servidor web y los agrega en el vector de figuras que tiene el Client. Por otro lado, si se solicita las piezas de una figura, se saca y despliega la información correspondiente
 
+(agregar expresion de regex utilizada)
 
 ## Manual de Usuario 📃
 
@@ -118,6 +122,8 @@ Protocolo de comunicación para adicionar o eliminar servidores de piezas a serv
 
 Para ambos casos se establece conexión con el cliente por medio del Socket.
 Uso de un archivo de texto manejado por el servidor de intermedio que contenga la información IP y el puerto de cada servidor de pieza levantado, este archivo de texto se debe de actualizar cada vez que se descarte o levante un servidor de pieza. Para el primer caso el servidor Intermedio solamente establece las conexiones a través de dicha información, en caso de problema de segundo caso, esta se resuelve con que el servidor Intermedio esté tratando de realizar las conexiones constantemente a través de la información. 
+
+(broadcast a todos los sockets, estos negocian IPs y establecen conexion, mandan datos y cierran)
 
 
 Paso de datos:
