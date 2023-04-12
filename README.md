@@ -136,11 +136,15 @@ Encriptar datos con AES para el envío de datos en lo posible para toda conexió
 ### Puertos:
 
 ##### Puertos para intermediario:
+
 Puerto: 2304 (clientes)
+
 Puerto: 2432 (otros servidores intermediarios)
+
 Puerto: 2560 (servidores de piezas)
 
 ##### Puertos para servidor de partes: 
+
 Puerto: 2816 (servidor intermediario)
 
 ### Sucesion de eventos: 
