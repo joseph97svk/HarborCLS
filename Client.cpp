@@ -126,7 +126,7 @@ void Client::regexAnalyzer(bool requestMenu, std::string& line, int& totalAmount
   else
   {
     // Regex to match pieces in figure response
-    std::regex regexPiece("<TR><TD ALIGN=center> (\\d+)</TD>\\s*<TD ALIGN=center> ([^<]+)</TD>");
+    std::regex regexPiece("<TR><TD ALIGN=center?> (\\d+)</TD>\\s*<TD ALIGN=center> ([^<]+)</TD>");
 
     std::smatch pieza_match;
     std::string::const_iterator begin(line.cbegin());

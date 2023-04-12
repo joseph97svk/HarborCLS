@@ -13,7 +13,6 @@ Específicamente debe construyen programas para:
 • Servidores de piezas
 
 • Clientes buscadores de piezas 
-(seccion inecesaria pero se puede dejar)
 
 ### Primera entrega 📒
 
@@ -23,8 +22,11 @@ En la primera etapa de proyecto se realiza un programa que a través de un despl
 
 1. Obtener el menú de figuras a través del servidor web
 2. Obtener las piezas requeridas para la figura solicitada por el cliente a través del servidor web 
-
-(agregar std::regex, ssl y otras bibliotecas agregadas que necesitan ser instaladas, veersion de Ubuntu y requerimiento de sistema operativo)
+3. Compilado y probado con una versión mínima de Ubuntu 22.04
+4. Bibliotecas:
+    1. regex de la biblioteca estandar 
+    2. open ssl
+    3. arpa/inet
 
 #### CLIENTES
 
@@ -49,7 +51,26 @@ regexAnalyzer(bool requestMenu, std::string& line): analiza segmentos de código
 
 processRequest(bool requestMenu): Procesa la respuesta de servidor web después de que se realiza una solicitud, se utiliza la biblioteca regex para el análisis de lenguaje html que el servidor web construye, que por medio de expresiones regulares se saca la información solicitada. En caso que se haya pedido el menú, se saca los nombres de las figuras por medio de la respuesta de servidor web y los agrega en el vector de figuras que tiene el Client. Por otro lado, si se solicita las piezas de una figura, se saca y despliega la información correspondiente
 
-(agregar expresion de regex utilizada)
+###### Expresiones Regex (Expresiones regulares) 
+
+Para encontrar figuras en el menu principal:
+
+"<OPTION\\s+value=\"(?!None\")([^\"]+)\">"
+
+-<OPTION\\s -> Se busca la etiqueta [<OPTION] y luego busca 0 o más espacios en blanco
+-value=\" -> Se busca la etiqueta [value="] 
+-(?!None\") -> Indica que [None"] no debe de estar seguida de [value="]
+-([^\"]+)\ -> Este grupo es cualquier carácter que no tenga comilla uno o más veces y se guarda este valor
+
+Para encontrar lego y su cantidad correspondiente:
+
+"<TR><TD ALIGN=center> (\\d+)</TD>\\s*<TD ALIGN=center> ([^<]+)</TD>"
+
+-<TR><TD ALIGN=center> -> Se busca la etiqueta [<TR><TD ALIGN=center> ]
+-(\\d+) -> Este grupo es coge cualquier número una o más veces
+-</TD>\\s*<TD ALIGN=center> -> Busca la etiqueta [</TD>] seguido de 0 o más espacios en blanco y seguido de la etiqueta [<TD ALIGN=center> ]
+-([^<]+)</TD> -> Este otro grupo atrapa cualqueir carácter que no sea [<] una o más veces, tiene que estar seguida de la etiqueta [</TD>]
+
 
 ## Manual de Usuario 📃
 
@@ -101,7 +122,6 @@ Cuando el usuario pide por la figura "blacksheep" y luego solicita cerrar el pro
 
 *Cliente:* Solicita el menú de figuras y las piezas necesarias a través de la solicitud GET de protocolo HTTP que se envía a través de la URL
 
-
 *Servidor Intermedio:* Contiene el mapa de rutas. Este mapa de rutas se debe actualizar cuando identifica que se agrega un nuevo servidor de piezas. 
 
 *Servidores de piezas:* Realiza una revisión de los modelos que almacena y es quien brinda las piezas solicitadas por el cliente.
@@ -111,22 +131,92 @@ Valorar el uso de datos encriptados para las comunicaciones
 Encriptar datos con AES para el envío de datos en lo posible para toda conexión.
 
 
-Protocolo de comunicación para adicionar o eliminar servidores de piezas a servidores intermedios o viceversa (interacción):
+## Protocolo de comunicación para adicionar o eliminar servidores de piezas a servidores intermedios o viceversa (interacción):
+
+### Puertos:
+
+##### Puertos para intermediario:
+Puerto: 2304 (clientes)
+Puerto: 2432 (otros servidores intermediarios)
+Puerto: 2560 (servidores de piezas)
+
+##### Puertos para servidor de partes: 
+Puerto: 2816 (servidor intermediario)
+
+### Sucesion de eventos: 
+
+1. Primer Caso: Servidor intermediario se levanta antes que los servidores de pieza 
+
+        Hace un broadcast a todos los puertos 2560 con su IP dentro del servidor y empieza a escuchar por el puerto 2304 a los clientes.
+
+        Al no haber ningun servidor de piezas entonces no recibe respuesta.
+
+        Se mantiene escuchando en el puerto 2304 a que algun servidor de piezas anuncie su levantamiento. 
+
+        Al levantarse un servidor de piezas, este realiza un broadcast a todos los puertos 2304 dentro de la red, conjunto con su IP.
+
+        El servidor intermediario recibe el IP, y lo guarda en un mapa local para poder accesarlo cuando sea necesario. 
 
 
-1. Primer Caso: Servidor intermedio se levanta primero. 
+
+2. Segundo Caso: Servidor de pieza se levanta primero que el servidor intermediario
+
+        El servidor de piezas realiza un broadcast con su IP a todos los puertos 2560 dentro de la red.
+
+        Al no encontrarse ningun servidor intermediario, no recibe respuesta. 
+
+        Se levanta un servidor intermediario, y este realiza un broadcast a todos los puertos 2560 con su IP dentro del servidor y empieza a escuchar por el puerto 2304 a los clientes.
+
+        El servidor de piezas recibe el IP del servidor intermediarios y este responde a este IP con su IP.
 
 
-2. Segundo Caso: Servidor de pieza se levanta primero que el servidor intermedio 
+
+3. Tercer Caso: conexion de un servidor intermediario con otro servidor intermediario
+
+        El servidor intermediario se levanta y tambien emite un broadcast con su IP a todos los puertos 2432 dentro de la red.
+
+        El otro servidor intermediario recibe el IP, lo agrega a su mapa local de IPs y responde al IP del otro servidor intermediario con su IP.
+
+        El primer servidor intermediario recibe el IP del otro servidor y lo agrega al mapa local de servidores intermediarios. 
 
 
-Para ambos casos se establece conexión con el cliente por medio del Socket.
-Uso de un archivo de texto manejado por el servidor de intermedio que contenga la información IP y el puerto de cada servidor de pieza levantado, este archivo de texto se debe de actualizar cada vez que se descarte o levante un servidor de pieza. Para el primer caso el servidor Intermedio solamente establece las conexiones a través de dicha información, en caso de problema de segundo caso, esta se resuelve con que el servidor Intermedio esté tratando de realizar las conexiones constantemente a través de la información. 
 
-(broadcast a todos los sockets, estos negocian IPs y establecen conexion, mandan datos y cierran)
+4. Cuarto Caso: se borra un servidor intermediario
+
+        Se deja de recibir peticiones por el puerto 2304.
+
+        Se finalizan de procesar las peticiones del servidor.
+
+        Se le envian mensajes a los otros servidores intermediarios con su IP y codigo de borrado en el ultimo byte.
+
+        Los otros servidores mandan un mensaje confirmacion de borrado.
+
+        De recibir un mensaje de confirmacion de todos, se borra.
+
+        De no ser asi, se vuelve a mandar el mensaje al menos 10 veces mas esperando respuesta antes de borrarse de todas maneras y reporta el error.
 
 
-Paso de datos:
+
+5. Quinto Caso: se borra un servidor de partes
+
+        Espera a recibir un mensaje del servidor intermediario que lo esta utilizando confirmando que se finaliza el checkeo o utilizacion, en el caso que esta siendo utilizado. 
+
+        El servidor de partes realiza un broadcast con el codigo de borrado de servidor de piezas a todos los puertos 2560.
+
+        Todos los servidores intermediarios reciben el mensaje, borran el IP de sus mapa locales y mandan una confirmacion de borrado. 
+
+        Al recibir los mensajes de confirmacion, el servidor local reduce un contador local de servidores intermediarios.
+
+        Al llegar este contador a 0 se borra.
+
+        De no llegar a 0, en una cantidad arbitraria de tiempo, este reporta el error antes de borrarse. 
+
+
+
+Nota: si es necesario diferenciar entre un broadcast y un mensaje de respuesta, se puede agregar un byte al final de cada mensaje con IP y en este se puede tomar el 00000000 como un broadcast, el 00000001 como un mensaje normal, 00000010 cuando se manda un mensaje de borrado de servidor intermediario, y 00000011 cuando se manda un mensaje de borrado de servidor de partes, el resto de los digitos pueden utilizarse para agregar mas funcionalidad funcionalidades en el futuro. Otro uso podria ser reservar los primeros 32 valores para mensajes generales y despues asignar 112 a mensajes de servidores de piezas y otros 112 a mensajes de servidores intermediarios, para mantener organizacion. 
+
+
+### Paso de datos:
 
 Se puede definir un formato propietario diferente al de html para los datos enviados.
 Se puede también definir que al enviarse los datos y que estos, a la mitad de un contenido, no caben dentro del mensaje enviado, se indique donde ocurrió tal interrupción, o simplemente guardarlo para este ser enviado dentro del siguiente mensaje. 
