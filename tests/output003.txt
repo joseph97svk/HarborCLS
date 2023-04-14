@@ -14,13 +14,14 @@ Figuras:
 6.	giraffe
 7.	horse
 8.	lion
-9.	penguin
-10.	roadrunner
-11.	shark
-12.	squid
-13.	swan
-14.	turtle
-15.	whitesheep
+9.	monkey
+10.	penguin
+11.	roadrunner
+12.	shark
+13.	squid
+14.	swan
+15.	turtle
+16.	whitesheep
 
 Seleccione una de las opciones anteriores
 	o
@@ -31,19 +32,19 @@ su este es el caso, entonces refresque la pagina)
 
 
 Mensaje: 17 no esta dentro del rango, por favor introducir un valor entre
-[0 y 15]
+[0 y 16]
 
 Mensaje: -1 no esta dentro del rango, por favor introducir un valor entre
-[0 y 15]
+[0 y 16]
 
 Mensaje: -15 no esta dentro del rango, por favor introducir un valor entre
-[0 y 15]
+[0 y 16]
 
 Mensaje: -1625241677 no esta dentro del rango, por favor introducir un valor entre
-[0 y 15]
+[0 y 16]
 
 Mensaje: "asdfasdf123" no es una opcion valida. Por valor introducir un numero entre
-[0 y 15]
+[0 y 16]
 
 Mensaje: "a1j3239kd32" no es una opcion valida. Por valor introducir un numero entre
-[0 y 15]
+[0 y 16]
