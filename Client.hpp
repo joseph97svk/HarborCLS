@@ -26,6 +26,7 @@ class Client {
   int mainMenuHandle();
   int handleFigure();
   int Connect(const char * host, int port);
+  int Connect(const char * host, const char * service);
   int Write(const void *text, size_t size);
   int Read(void * text, size_t size);
     

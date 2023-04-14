@@ -41,10 +41,10 @@ class Socket {
 
         void InitSSLContext();
         void InitSSL();
-        int SSLConnect( char *, int );
-        int SSLConnect( char *, char * );
+        int SSLConnect(const char *, int );
+        int SSLConnect(const char *, const char * );
         int SSLRead( void *, int );
-        int SSLWrite( void *, int );
+        int SSLWrite(const void *, int );
 
     private:
         int idSocket;

@@ -348,7 +348,7 @@ void Socket::InitSSL() {
    this->SSLStruct = (void *) ssl;
 }
 
-int Socket::SSLConnect( char * host, int port ) {
+int Socket::SSLConnect(const char * host, int port ) {
    int st = -1;
    this->Connect( host, port );
    SSL_set_fd( (SSL *) this->SSLStruct, this->idSocket );
@@ -361,7 +361,7 @@ int Socket::SSLConnect( char * host, int port ) {
    return st;
 }
 
-int Socket::SSLConnect( char * host, char * service){
+int Socket::SSLConnect(const char * host, const char * service){
    int st = -1;
    this->Connect( host, service );
    SSL_set_fd( (SSL *) this->SSLStruct, this->idSocket );
@@ -385,7 +385,7 @@ int Socket::SSLRead( void * buffer, int size){
    return st;
 }
 
-int Socket::SSLWrite( void * buffer, int size){
+int Socket::SSLWrite(const void * buffer, int size){
    int st = -1;
    st = SSL_write( (SSL *) this->SSLStruct, buffer, size );
    if ( -1 == st ) {

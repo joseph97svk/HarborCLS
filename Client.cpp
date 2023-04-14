@@ -36,7 +36,8 @@ int Client::connectServer() {
   this->socket = new Socket(this->type, this->IPv6);
 
   char* osn = (char*) "163.178.104.187";
-  return this->Connect( osn, 80 );
+  this->socket->InitSSL();
+  return this->Connect( osn, (char *) "https" );
 }
 
 /**
@@ -417,7 +418,20 @@ int Client::handleFigure() {
   * 
  **/
 int Client::Connect(const char * host, int port) {
-  return this->socket->Connect(host, port);
+  return this->socket->SSLConnect(host, port);
+}
+
+/**
+  * Connect method
+  *   Makes a call to the Connect method inside the Socket class
+  *   which make use of the "connect" Unix system call.
+  *
+  * @param	char * host: host address in dot notation, example "10.1.104.187"
+  * @param	int port: process address, example 80
+  * 
+ **/
+int Client::Connect(const char * host, const char *  service) {
+  return this->socket->SSLConnect(host, service);
 }
 
 /**
@@ -430,7 +444,7 @@ int Client::Connect(const char * host, int port) {
   *
  **/
 int Client::Write(const void *text, size_t size) {
-  return this->socket->Write(text, size);
+  return this->socket->SSLWrite(text, size);
 }
 
 /**
@@ -439,7 +453,7 @@ int Client::Write(const void *text, size_t size) {
   * and freeing up the memory allocated for the socket object.
  **/
 void Client::Close() {
-  this->socket->Close();
+  // this->socket->Close();
   delete this->socket;
 }
 
@@ -453,5 +467,5 @@ void Client::Close() {
   *
  **/
 int Client::Read(void * text, size_t size) {
-  return this->socket->Read(text, size);
+  return this->socket->SSLRead(text, size);
 }
