@@ -37,11 +37,11 @@ Crear un cliente que utilice el protocolo HTTP para solicitar a un servidor una 
 
 ###### Clase Client
 
-Se crea la clase Client que utiliza el protocolo HTTP para conectarse al servidor web https://os.ecci.ucr.ac.cr/lego/ y realizar solicitudes con la finalidad de conseguir información de menú de figuras Lego disponibles y las piezas requeridas para la figura solicitada, se programa sockets con acceso seguro (SSL).
+Se crea la clase Client que utiliza una conexión segura con SSL para conectarse al servidor web https://os.ecci.ucr.ac.cr/lego/ y realizar solicitudes con la finalidad de conseguir información de menú de figuras Lego disponibles y las piezas requeridas para la figura solicitada, se programa sockets con acceso seguro (SSL).
 
 Se implementa los siguientes métodos para la correcta funcionalidad de la clase Client:
 
-connectServer(): Establece conexión segura SSL con el servidor web usando la dirección IP y el puerto 80.
+connectServer(): Establece conexión segura SSL con el servidor web
 
 makeRequest(): Se encarga de crear un socket, si no ha sido creado, establecer conexión con el request específico y llamar a processRequest().
 
@@ -75,6 +75,9 @@ Para encontrar lego y su cantidad correspondiente:
 ## Manual de Usuario 📃
 
 ### Compilación y Ejecución del código
+
+Recordar que para poder compilar el programa se debe de tener descargado en su sistema la biblioteca libssl-dev.
+
 Para poder compilar y correr el código, se provee un archivo Makefile que asiste en la compilación y construcción del programa. Con esto, para la compilación es solo necesario el siguiente comando:
 
 `make`
@@ -91,9 +94,11 @@ De querer borrar el ejecutable y todos los archivos relacionados generados, util
 
 Posterior a la ejecución solo es necesario seleccionar las opciones dadas por el output en consola para poder navegar dentro del programa. 
 
-Para la compilación de los casos de prueba, se puede usar el siguiente comando para facilitar la tare:
+Para la compilación de los casos de prueba, se puede usar el siguiente comando para facilitar la tarea:
 
 `make test`
+
+Con el fin de poder usar este comando se debe de descargar en el sistema  icdiff que es una herramienta de comparación de archivos y directorios.
 
 
 ### Detener la Ejecución
