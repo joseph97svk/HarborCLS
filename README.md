@@ -55,11 +55,11 @@ processRequest(bool requestMenu): Procesa la respuesta de servidor web después 
 
 Para encontrar figuras en el menu principal:
 
+```markdown
+"<OPTION\\s+value=\"(?!None\")([^\"]+)\">"
 
-*"<OPTION\\s+value=\"(?!None\")([^\"]+)\">"*
 
-
-1. <OPTION\\s -> Se busca la etiqueta [<OPTION] y luego busca 0 o más espacios en blanco
+1. <OPTION\\s+ -> Se busca la etiqueta [<OPTION] y luego busca 0 o más espacios en blanco
 
 
 2. value=\" -> Se busca la etiqueta [value="] 
@@ -68,12 +68,12 @@ Para encontrar figuras en el menu principal:
 3. (?!None\") -> Indica que [None"] no debe de estar seguida de [value="]
 
 
-4. ([^\"]+)\ -> Este grupo es cualquier carácter que no tenga comilla uno o más veces y se guarda este valor
-
+4. ([^\"]+)\"> -> Este grupo es cualquier carácter que no tenga comilla uno o más veces y se guarda este valor y debe de terminar con ">
+```
 
 Para encontrar lego y su cantidad correspondiente:
-
-*"<TR><TD ALIGN=center> (\\d+)</TD>\\s\*<TD ALIGN=center> ([^<]+)</TD>"*
+```markdown
+"<TR><TD ALIGN=center> (\\d+)</TD>\\s*<TD ALIGN=center> ([^<]+)</TD>"
 
 1. <TR><TD ALIGN=center> -> Se busca la etiqueta [<TR><TD ALIGN=center> ]
 
@@ -81,11 +81,11 @@ Para encontrar lego y su cantidad correspondiente:
 2. (\\d+) -> Este grupo es coge cualquier número una o más veces
 
 
-3. </TD>\\s\*<TD ALIGN=center> -> Busca la etiqueta [</TD>] seguido de 0 o más espacios en blanco y seguido de la etiqueta [<TD ALIGN=center> ]
+3. </TD>\\s*<TD ALIGN=center> -> Busca la etiqueta [</TD>] seguido de 0 o más espacios en blanco y seguido de la etiqueta [<TD ALIGN=center> ]
 
 
 4. ([^<]+)</TD> -> Este otro grupo atrapa cualqueir carácter que no sea [<] una o más veces, tiene que estar seguida de la etiqueta [</TD>]
-
+```
 
 ## Manual de Usuario 📃
 
