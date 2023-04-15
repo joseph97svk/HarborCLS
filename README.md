@@ -245,6 +245,12 @@ Nota: si es necesario diferenciar entre un broadcast y un mensaje de respuesta, 
 Se puede definir un formato propietario diferente al de html para los datos enviados.
 Se puede también definir que al enviarse los datos y que estos, a la mitad de un contenido, no caben dentro del mensaje enviado, se indique donde ocurrió tal interrupción, o simplemente guardarlo para este ser enviado dentro del siguiente mensaje. 
 
+### FIGURA LEGO: CHIKI
+
+![legoChiki](/images/legoChiki.png "Example")
+
+![tablePieces](/images/tablePieces.png "Example")
+
 ## Integrantes 👥
 
 • Esteban Porras Herrera - C06044
