@@ -36,7 +36,7 @@ int Client::connectServer() {
   this->socket = new Socket(this->type, this->IPv6);
 
   char* osn = (char*) "163.178.104.187";
-  this->socket->InitSSL();
+  this->socket->SSLInit();
   return this->Connect( osn, (char *) "https" );
 }
 

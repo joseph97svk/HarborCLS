@@ -326,40 +326,18 @@ void Socket::SetIDSocket(int id){
 }
 
 
-/**
-  *  SSLInitContext
-  *     use TLS_client_method and SSL_CTX_new
-  *
-  *  Creates a new SSL context to start encrypted comunications, this context is stored in class instance
-  *
- **/
 void Socket::SSLInitContext() {
-    // Create SSL/TLS method for client
-    const SSL_METHOD* method = TLS_client_method();
-    if (method == nullptr) {
-        ERR_print_errors_fp(stderr);
-        abort();
-    }
-
-    // Create SSL context
-    SSL_CTX * context = SSL_CTX_new(method);
-    if (context == nullptr) {
-        ERR_print_errors_fp(stderr);
-        abort();
-    }
-
+   const SSL_METHOD * method = TLS_client_method();
+   SSL_CTX * context = SSL_CTX_new(method);
+   if (!context) {
+      perror( "Socket::InitSSLContext" );
+      exit( 23 );
+      Close();
+   }
    this->SSLContext = (void *) context;
 }
 
-
-/**
-  *  SSLInit
-  *     use SSL_new with a defined context
-  *
-  *  Create a SSL object
-  *
- **/
-void Socket::SSLInit(){
+void Socket::SSLInit() {
    this->SSLInitContext();
    SSL * ssl = SSL_new( ((SSL_CTX *) this->SSLContext ) );
    if (!ssl) {
@@ -370,6 +348,53 @@ void Socket::SSLInit(){
    this->SSLStruct = (void *) ssl;
 }
 
+int Socket::SSLConnect(const char * host, int port ) {
+   int st = -1;
+   this->Connect( host, port );
+   SSL_set_fd( (SSL *) this->SSLStruct, this->idSocket );
+   st = SSL_connect( (SSL *) this->SSLStruct );
+   if ( -1 == st ) {
+      perror( "Socket::SSLConnect" );
+      exit( 23 );
+      Close();
+   }
+   return st;
+}
+
+int Socket::SSLConnect(const char * host, const char * service){
+   int st = -1;
+   this->Connect( host, service );
+   SSL_set_fd( (SSL *) this->SSLStruct, this->idSocket );
+   st = SSL_connect( (SSL *) this->SSLStruct );
+   if ( -1 == st ) {
+      perror( "Socket::SSLConnect" );
+      exit( 23 );
+      Close();
+   }
+   return st;
+}
+
+int Socket::SSLRead( void * buffer, int size){
+   int st = -1;
+   st = SSL_read( (SSL *) this->SSLStruct, buffer, size );
+   if ( -1 == st ) {
+      perror( "Socket::SSLRead" );
+      exit( 23 );
+      Close();
+   }
+   return st;
+}
+
+int Socket::SSLWrite(const void * buffer, int size){
+   int st = -1;
+   st = SSL_write( (SSL *) this->SSLStruct, buffer, size );
+   if ( -1 == st ) {
+      perror( "Socket::SSLWrite" );
+      exit( 23 );
+      Close();
+   }
+   return st;
+}
 
 /**
  *  Load certificates
@@ -551,42 +576,3 @@ const char* Socket::SSLAccept() {
     // SSL handshake was successful
     return "SSL handshake succeeded";
 }
-
-
-/*
-   char * hostip: direccion del servidor, por ejemplo "www.ecci.ucr.ac.cr"
-   int port: ubicacion del proceso, por ejemplo 80
- */
-int Socket::SSLConnect( char * host, int port ) {
-   int st = -1;
-   this->Connect( host, port );
-   SSL_set_fd( (SSL *) this->SSLStruct, this->idSocket );
-   st = SSL_connect( (SSL *) this->SSLStruct );
-   if ( -1 == st ) {
-      perror( "Socket::SSLConnect" );
-      exit( 23 );
-      Close();
-   }
-   return st;
-}
-
-
-/*
-   char * hostip: direccion del servidor, por ejemplo "www.ecci.ucr.ac.cr"
-   char * service: nombre del servicio que queremos acceder, por ejemplo "http"
- */
-int Socket::SSLConnect( char * host, char * service){
-   int st = -1;
-   this->Connect( host, service );
-   SSL_set_fd( (SSL *) this->SSLStruct, this->idSocket );
-   st = SSL_connect( (SSL *) this->SSLStruct );
-   if ( -1 == st ) {
-      perror( "Socket::SSLConnect" );
-      exit( 23 );
-      Close();
-   }
-   
-   return st;
-}
-
-

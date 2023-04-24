@@ -47,11 +47,13 @@ class Socket {
         void SSLShowCerts(); //[SSL_get_peer_certificate()]
         const char * SSLGetCipher(); //[SSL_get_cypher()]
         const char * SSLAccept(); //[SSL_accept()];
-        int SSLConnect( char *, int );
-        int SSLConnect( char *, char * );
+        int SSLConnect(const char *, int );
+        int SSLConnect(const char *, const char * );
         int SSLRead( void *, int );
-        int SSLWrite( void *, int );
-        void SSLLoadCertificates( const char * certFileName, const char * keyFileName );
+        int SSLWrite(const void *, int );
+        void SSLLoadCertificates( const char * , const char * );
+
+        
 
     private:
         int idSocket;
