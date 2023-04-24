@@ -5,6 +5,7 @@
 #include "Client.hpp"
 #include <unistd.h>
 
+
 /**
   * Client method
   * Constructor for the Client class. Initializes the object with the provided type and IPv6
@@ -48,19 +49,17 @@ int Client::connectServer() {
   * @return A boolean indicating whether the request made was for the menu or not.
   *
  **/
-bool Client::makeRequest(std::string request) {
+bool Client::makeRequest(std::string request, RequestType requestType) {
   // Check if client is already connected to server
   if (this->connected) {
     // If not, attempt to connect to server
     this->connectServer();
-  } 
+  }
 
-  bool requestMenu = false;
   char temp[100];
   memset(temp, 0, 100);
-  if (request == "menu") {
+  if (requestType == RequestType::MenuRequest) {
     // Request for menu
-    requestMenu = true;
     strcpy(temp, "GET /lego/index.php");
     strcat(temp, " HTTP/1.1\r\nhost: redes.ecci\r\n\r\n");
     this->connected = true;
@@ -77,27 +76,27 @@ bool Client::makeRequest(std::string request) {
   this->Write(requestComplete, strlen(requestComplete));
 
   // Process server response
-  processRequest(requestMenu);
+  processRequest(requestType);
   memset(requestComplete, 0, 100);
-  return requestMenu;
+  return requestType == RequestType::MenuRequest;
 }
 
 /**
-  * inAnimalArray method
-  * Checks if the given animal is already present in the client's animalsArray.
+  * in figuresArray method
+  * Checks if the given figures is already present in the client's figures.
   *
-  * @param animal the animal to check for.
-  * @return true if the animal is already present in the animalsArray, false otherwise.
+  * @param figure the figure to check for.
+  * @return true if the figure is already present in the figures, false otherwise.
   *
  **/
-bool Client::inAnimalArray(std::string animal) {
-  bool foundAnimal = false;
-  for (std::string animals : this->animalsArray) {
-    if (animals == animal) {
-      foundAnimal = true;
+bool Client::inFigureArray(std::string figure) {
+  bool foundFigure = false;
+  for (std::string figures : this->figuresArray) {
+    if (figures == figure) {
+      foundFigure = true;
     }
   }
-  return foundAnimal;
+  return foundFigure;
 }
 
 /**
@@ -109,16 +108,16 @@ bool Client::inAnimalArray(std::string animal) {
   * @param totalAmount a reference to an integer representing the total amount of pieces.
   *
  **/
-void Client::regexAnalyzer(bool requestMenu, std::string& line, int& totalAmount) {
-  if (requestMenu == true)
+void Client::regexAnalyzer(RequestType requestType, std::string& line, int& totalAmount) {
+  if (requestType == RequestType::MenuRequest)
   {
     // Regex to match menu options
     std::regex regexMenu("<OPTION\\s+value=\"(?!None\")([^\"]+)\">");
     std::smatch optionMatch;
     std::string::const_iterator begin(line.cbegin());
     if (std::regex_search(begin, line.cend(), optionMatch, regexMenu)) {
-      if (inAnimalArray(optionMatch[1]) == false) {
-        this->animalsArray.push_back(optionMatch[1]);
+      if (inFigureArray(optionMatch[1]) == false) {
+        this->figuresArray.push_back(optionMatch[1]);
       }
       // Update position in the response string
       begin = optionMatch.suffix().first;
@@ -152,7 +151,7 @@ void Client::regexAnalyzer(bool requestMenu, std::string& line, int& totalAmount
   * @param requestMenu A boolean indicating whether the menu should be requested.
   *
  **/
-void Client::processRequest(bool requestMenu) {
+void Client::processRequest(RequestType requestType) {
   begin:
   std::string response;
   int totalAmount = 0;
@@ -221,7 +220,7 @@ void Client::processRequest(bool requestMenu) {
             response.substr(initLocation, character - initLocation + adjustment);
 
         // run regex to analyze line
-        regexAnalyzer(requestMenu, line, totalAmount);
+        regexAnalyzer(requestType, line, totalAmount);
 
         // set current line as last line for the next iteration to have it
         lastLine = response.substr(initLocation, character - initLocation + adjustment);
@@ -234,14 +233,14 @@ void Client::processRequest(bool requestMenu) {
     }    
   }
   
-  if (requestMenu) {
+  if (requestType == RequestType::MenuRequest) {
     if (mainMenuHandle()) {
       goto begin;
     }
   } else {
     std::cout << "Cantidad de piezas totales = " << totalAmount << std::endl;
     if (handleFigure() == 1) {
-      requestMenu = true;
+      requestType = RequestType::MenuRequest;
       goto begin;
     }
   }
@@ -311,12 +310,12 @@ int inputHandler (int minRange = 0, int maxRange = 1, char exception = '\0') {
   * mainMenuHandle method
   * Handle the main menu functionality, which prints the available options and prompts the user to select one.
   * If no figures were found, the function prints an error message and returns 0.
-  * @return 0 if a valid animal option was chosen, or 1 if a refresh is requested.
+  * @return 0 if a valid figure option was chosen, or 1 if a refresh is requested.
   * 
  **/
 int Client::mainMenuHandle() {
   // if no figures were found, the page suffered an error
-  if (this->animalsArray.size() == 0) {
+  if (this->figuresArray.size() == 0) {
     std::cout << "Error: la pagina no generó respuesta"
       << std::endl;
     return 0;
@@ -331,7 +330,7 @@ int Client::mainMenuHandle() {
 
   // print all options
   int optionNumber = 1;
-  for (const std::string& nombre : this->animalsArray) {
+  for (const std::string& nombre : this->figuresArray) {
     std::cout << optionNumber << ".\t" << nombre << std::endl;
     optionNumber++;
   }
@@ -343,7 +342,7 @@ int Client::mainMenuHandle() {
       << ",\nsu este es el caso, entonces refresque la pagina)\n" << std::endl;
   
   // get such input
-  int choice = inputHandler(0, this->animalsArray.size(), 'r');
+  int choice = inputHandler(0, this->figuresArray.size(), 'r');
 
   if (choice == 0) {
     _exit( 0 );
@@ -353,26 +352,26 @@ int Client::mainMenuHandle() {
     return 1;
   }
 
-  std::string animalName = animalsArray[choice - 1];
+  std::string figureName = figuresArray[choice - 1];
   
   for (size_t character = 0;
-      character < animalName.size();
+      character < figureName.size();
       character++) {
-    animalName[character] = toupper(animalName[character]);
+    figureName[character] = toupper(figureName[character]);
   }
 
-  this->currentAnimal = animalsArray[choice - 1];
+  this->currentFigure = figuresArray[choice - 1];
   
   std::cout << std::endl
-  << "<<<" << animalName << ">>>" 
+  << "<<<" << figureName << ">>>" 
   << std::endl << std::endl;
-  this->makeRequest(animalsArray[choice - 1]);
+  this->makeRequest(figuresArray[choice - 1], RequestType::MenuRequest);
   return 0;
 }
 
 /**
   * handleFigure method
-  *  responsible for handling the user input when a figure (animal) is displayed on the screen.
+  *  responsible for handling the user input when a figure (figure) is displayed on the screen.
   *  @return 1 when the method has completed its execution successfully
  **/
 int Client::handleFigure() {
@@ -391,18 +390,18 @@ int Client::handleFigure() {
 
   if (choice == 'r') {
     // If the user chooses to refresh the current figure, update the displayed figure by making a new request to the server
-    std::string animalName = this->currentAnimal;
+    std::string figureName = this->currentFigure;
   
     for (size_t character = 0;
-        character < animalName.size();
+        character < figureName.size();
         character++) {
-      animalName[character] = toupper(this->currentAnimal[character]);
+      figureName[character] = toupper(this->currentFigure[character]);
     }
 
     std::cout << std::endl
-    << "<<<" << animalName << ">>>" 
+    << "<<<" << figureName << ">>>" 
     << std::endl << std::endl;
-    this->makeRequest(this->currentAnimal);
+    this->makeRequest(this->currentFigure, RequestType::MenuRequest);
   }
 
   return 1;

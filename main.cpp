@@ -18,7 +18,7 @@
 int main() {
     Client socket('s', false);  // create a Client object with type 's' and IPv6 as false
     socket.connectServer(); // connect to the server
-    socket.makeRequest("menu");  // make a request for the menus
+    //socket.makeRequest("menu", RequestType::MenuRequest);  // make a request for the menus
     socket.Close();  // close the connection
 
     return 0;  // indicate successful execution

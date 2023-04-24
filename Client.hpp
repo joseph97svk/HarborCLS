@@ -6,23 +6,29 @@
 
 class Client {
  private: 
-  std::vector<std::string> animalsArray;
+  std::vector<std::string> figuresArray;
   bool connected = false;
   char type;
   bool IPv6;
   Socket* socket;
-  std::string currentAnimal = "";
+  std::string currentFigure = "";
+
+  enum RequestType {
+  MenuRequest,
+  FigureRequest
+};
+
    
  public:
   Client(char type, bool IPv6);
   int connectServer();
-  bool makeRequest(std::string request);
+  bool makeRequest(std::string request, RequestType);
   void Close();
 
  private:
-  void processRequest(bool requestMenu);
-  bool inAnimalArray(std::string animal);
-  void regexAnalyzer(bool requestMenu, std::string& line, int& totalAmount);
+  void processRequest(RequestType requestMenu);
+  bool inFigureArray(std::string figure);
+  void regexAnalyzer(RequestType requestMenu, std::string& line, int& totalAmount);
   int mainMenuHandle();
   int handleFigure();
   int Connect(const char * host, int port);
