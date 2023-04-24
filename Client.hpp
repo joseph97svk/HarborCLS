@@ -4,6 +4,11 @@
 
 #include "Socket.hpp"
 
+enum RequestType {
+  MenuRequest,
+  FigureRequest
+};
+
 class Client {
  private: 
   std::vector<std::string> figuresArray;
@@ -12,12 +17,6 @@ class Client {
   bool IPv6;
   Socket* socket;
   std::string currentFigure = "";
-
-  enum RequestType {
-  MenuRequest,
-  FigureRequest
-};
-
    
  public:
   Client(char type, bool IPv6);

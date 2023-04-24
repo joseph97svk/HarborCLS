@@ -244,7 +244,7 @@ void Client::processRequest(RequestType requestType) {
   } else {
     std::cout << "Cantidad de piezas totales = " << totalAmount << std::endl;
     if (handleFigure() == 1) {
-      requestType = RequestType::MenuRequest;
+      requestType = RequestType::FigureRequest;
       goto begin;
     }
   }
@@ -369,7 +369,7 @@ int Client::mainMenuHandle() {
   std::cout << std::endl
   << "<<<" << figureName << ">>>" 
   << std::endl << std::endl;
-  this->makeRequest(figuresArray[choice - 1], RequestType::MenuRequest);
+  this->makeRequest(figuresArray[choice - 1], RequestType::FigureRequest);
   return 0;
 }
 
