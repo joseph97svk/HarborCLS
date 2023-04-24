@@ -326,19 +326,41 @@ void Socket::SetIDSocket(int id){
 }
 
 
-void Socket::InitSSLContext() {
-   const SSL_METHOD * method = TLS_client_method();
-   SSL_CTX * context = SSL_CTX_new(method);
-   if (!context) {
-      perror( "Socket::InitSSLContext" );
-      exit( 23 );
-      Close();
-   }
+/**
+  *  SSLInitContext
+  *     use TLS_client_method and SSL_CTX_new
+  *
+  *  Creates a new SSL context to start encrypted comunications, this context is stored in class instance
+  *
+ **/
+void Socket::SSLInitContext() {
+    // Create SSL/TLS method for client
+    const SSL_METHOD* method = TLS_client_method();
+    if (method == nullptr) {
+        ERR_print_errors_fp(stderr);
+        abort();
+    }
+
+    // Create SSL context
+    SSL_CTX * context = SSL_CTX_new(method);
+    if (context == nullptr) {
+        ERR_print_errors_fp(stderr);
+        abort();
+    }
+
    this->SSLContext = (void *) context;
 }
 
-void Socket::InitSSL() {
-   this->InitSSLContext();
+
+/**
+  *  SSLInit
+  *     use SSL_new with a defined context
+  *
+  *  Create a SSL object
+  *
+ **/
+void Socket::SSLInit(){
+   this->SSLInitContext();
    SSL * ssl = SSL_new( ((SSL_CTX *) this->SSLContext ) );
    if (!ssl) {
       perror( "Socket::InitSSL" );
@@ -348,7 +370,194 @@ void Socket::InitSSL() {
    this->SSLStruct = (void *) ssl;
 }
 
-int Socket::SSLConnect(const char * host, int port ) {
+
+/**
+ *  Load certificates
+ *    verify and load certificates
+ *
+ *  @param	const char * certFileName, file containing certificate
+ *  @param	const char * keyFileName, file containing keys
+ *
+ **/
+ void Socket::SSLLoadCertificates( const char * certFileName, const char * keyFileName ) {
+   SSL_CTX * context = (SSL_CTX*) this->SSLContext;
+   int st;
+
+   if ( SSL_CTX_use_certificate_file(context, certFileName, SSL_FILETYPE_PEM ) <= 0 ) {	 // set the local certificate from CertFile
+      st = SSL_get_error( (SSL *) this->SSLStruct, st );
+      ERR_print_errors_fp( stderr );
+      abort();
+   }
+
+   if ( SSL_CTX_use_PrivateKey_file( context, keyFileName, SSL_FILETYPE_PEM ) <= 0 ) {	// set the private key from KeyFile (may be the same as CertFile)
+      st = SSL_get_error( (SSL *) this->SSLStruct, st );
+      ERR_print_errors_fp( stderr );
+      abort();
+   }
+
+   if ( ! SSL_CTX_check_private_key( context ) ) {	// verify private key
+      st = SSL_get_error( (SSL *) this->SSLStruct, st );
+      ERR_print_errors_fp( stderr );
+      abort();
+   }
+
+}
+
+
+/**
+  *  SSLInitServerContext
+  *     use SSL_library_init, OpenSSL_add_all_algorithms, SSL_load_error_strings, TLS_server_method, SSL_CTX_new
+  *
+  *  Creates a new SSL server context to start encrypted comunications, this context is stored in class instance
+  *
+ **/
+void Socket::SSLInitServerContext() {
+    // Initialize SSL library
+    SSL_library_init();
+    OpenSSL_add_all_algorithms();
+    SSL_load_error_strings();
+
+    // Create SSL/TLS method for server
+    const SSL_METHOD* method = TLS_server_method();
+    if (method == nullptr) {
+        ERR_print_errors_fp(stderr);
+        abort();
+    }
+
+    // Create SSL context
+    SSL_CTX * context = SSL_CTX_new(method);
+    if (context == nullptr) {
+        ERR_print_errors_fp(stderr);
+        abort();
+    }
+
+   this->SSLContext = (void *) context;
+}
+
+
+/**
+ *  SSLInitServer
+ *     use SSL_new with a defined context
+ *
+ *  Create a SSL object for server conections
+ *
+ *  @param	const char * certFileName, file containing certificate
+ *  @param	const char * keyFileName, file containing keys
+ *
+ **/
+void Socket::SSLInitServer(const char* certFileName, const char* keyFileName) {
+    // Create SSL context
+    SSLInitServerContext();
+
+    // Create SSL object
+    SSL* ssl = SSL_new( ((SSL_CTX *) this->SSLContext ) );
+    if (ssl == nullptr) {
+        ERR_print_errors_fp(stderr);
+        abort();
+    }
+
+    // Assign SSL object to instance variable
+    this->SSLStruct = ssl;
+
+    // Load SSL certificates
+    SSLLoadCertificates(certFileName, keyFileName);
+}
+
+
+/**
+ *   SSLCreate constructs a new SSL * variable from a previous created context
+ *
+ *  @param	Socket * original socket with a previous created context
+ *
+ **/
+void Socket::SSLCreate(Socket* original) {
+   int st;
+    // Construct a new SSL * variable using SSL_new()
+    SSL* ssl = SSL_new( ((SSL_CTX *) this->SSLContext ) );
+    if (ssl == nullptr) {
+        ERR_print_errors_fp(stderr);
+        abort();
+    }
+
+    // Assign new variable to instance variable
+    this->SSLStruct = ssl;
+
+    // Change connection status to SSL using SSL_set_fd() function
+    SSL_set_fd( (SSL *) this->SSLStruct, this->idSocket );
+    if (st == 0) {
+        ERR_print_errors_fp(stderr);
+        abort();
+    }
+}
+
+
+/**
+ *   Show SSL certificates
+ *
+ **/
+void Socket::SSLShowCerts() {
+   X509 *cert;
+   char *line;
+
+   cert = SSL_get_peer_certificate( (SSL *) this->SSLStruct );		 // Get certificates (if available)
+   if ( nullptr != cert ) {
+      printf("Server certificates:\n");
+      line = X509_NAME_oneline( X509_get_subject_name( cert ), 0, 0 );
+      printf( "Subject: %s\n", line );
+      free( line );
+      line = X509_NAME_oneline( X509_get_issuer_name( cert ), 0, 0 );
+      printf( "Issuer: %s\n", line );
+      free( line );
+      X509_free( cert );
+   } else {
+      printf( "No certificates.\n" );
+   }
+
+}
+
+
+/**
+ *   Get SSL ciphers
+ *
+ **/
+const char* Socket::SSLGetCipher() {
+    SSL* ssl = (SSL*) this->SSLStruct;
+
+    // Call SSL_get_cipher() and return the name
+    return SSL_get_cipher(ssl);
+}
+
+/**
+ *   SSLAccept
+ *
+ *  waits for a TLS/SSL client to initiate the TLS/SSL handshake
+ *
+ **/
+const char* Socket::SSLAccept() {
+    SSL* ssl = (SSL*) this->SSLStruct;
+    int ret = SSL_accept(ssl); // Perform the SSL/TLS handshake
+    if (ret != 1) {
+        // Handle error during handshake
+        int err = SSL_get_error(ssl, ret);
+        if (err == SSL_ERROR_WANT_READ || err == SSL_ERROR_WANT_WRITE) {
+            // The SSL_accept() call needs to be retried
+            return "SSL handshake in progress";
+        } else {
+            // An error occurred during the handshake
+            return "SSL handshake failed";
+        }
+    }
+
+    // SSL handshake was successful
+    return "SSL handshake succeeded";
+}
+
+
+/*
+   char * hostip: direccion del servidor, por ejemplo "www.ecci.ucr.ac.cr"
+   int port: ubicacion del proceso, por ejemplo 80
+ */
+int Socket::SSLConnect( char * host, int port ) {
    int st = -1;
    this->Connect( host, port );
    SSL_set_fd( (SSL *) this->SSLStruct, this->idSocket );
@@ -361,7 +570,12 @@ int Socket::SSLConnect(const char * host, int port ) {
    return st;
 }
 
-int Socket::SSLConnect(const char * host, const char * service){
+
+/*
+   char * hostip: direccion del servidor, por ejemplo "www.ecci.ucr.ac.cr"
+   char * service: nombre del servicio que queremos acceder, por ejemplo "http"
+ */
+int Socket::SSLConnect( char * host, char * service){
    int st = -1;
    this->Connect( host, service );
    SSL_set_fd( (SSL *) this->SSLStruct, this->idSocket );
@@ -371,28 +585,8 @@ int Socket::SSLConnect(const char * host, const char * service){
       exit( 23 );
       Close();
    }
+   
    return st;
 }
 
-int Socket::SSLRead( void * buffer, int size){
-   int st = -1;
-   st = SSL_read( (SSL *) this->SSLStruct, buffer, size );
-   if ( -1 == st ) {
-      perror( "Socket::SSLRead" );
-      exit( 23 );
-      Close();
-   }
-   return st;
-}
-
-int Socket::SSLWrite(const void * buffer, int size){
-   int st = -1;
-   st = SSL_write( (SSL *) this->SSLStruct, buffer, size );
-   if ( -1 == st ) {
-      perror( "Socket::SSLWrite" );
-      exit( 23 );
-      Close();
-   }
-   return st;
-}
 

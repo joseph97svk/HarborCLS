@@ -39,12 +39,19 @@ class Socket {
         int recvFrom(void * buffer, size_t bufferSize, void * receptor);
         
 
-        void InitSSLContext();
-        void InitSSL();
-        int SSLConnect(const char *, int );
-        int SSLConnect(const char *, const char * );
+        void SSLInitContext();
+        void SSLInit();
+        void SSLInitServerContext();
+        void SSLInitServer( const char *, const char * );
+        void SSLCreate( Socket * parent ); //[assign a new SSL using same context as parent]
+        void SSLShowCerts(); //[SSL_get_peer_certificate()]
+        const char * SSLGetCipher(); //[SSL_get_cypher()]
+        const char * SSLAccept(); //[SSL_accept()];
+        int SSLConnect( char *, int );
+        int SSLConnect( char *, char * );
         int SSLRead( void *, int );
-        int SSLWrite(const void *, int );
+        int SSLWrite( void *, int );
+        void SSLLoadCertificates( const char * certFileName, const char * keyFileName );
 
     private:
         int idSocket;
