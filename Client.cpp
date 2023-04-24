@@ -131,9 +131,7 @@ void Client::regexAnalyzer(RequestType requestType, std::string& line, int& tota
 
     std::smatch pieza_match;
     std::string::const_iterator begin(line.cbegin());
-    std::cout << std::left << std::setw(15) << "Cantidad" << "Descripción" << std::endl;
-    std::cout << std::left << std::setw(15) << "--------" << "-----------" << std::endl;
-
+    
     if (std::regex_search(begin, line.cend(), pieza_match, regexPiece)) {
       // Extract quantity and description of the piece
       std::string amount = pieza_match[1];
@@ -166,6 +164,11 @@ void Client::processRequest(RequestType requestType) {
   std::string endOfDoc = "";
   int cyclesSinceEndOfBytes = 4;
   int count = 0;
+
+  if (requestType == RequestType::FigureRequest) {
+    std::cout << std::left << std::setw(15) << "Cantidad" << "Descripción" << std::endl;
+    std::cout << std::left << std::setw(15) << "--------" << "-----------" << std::endl;
+  }
 
   while (this->Read(buffer, 500) > 0) {
     count++;
