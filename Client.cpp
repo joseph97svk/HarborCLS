@@ -4,6 +4,7 @@
 #include <vector>
 #include "Client.hpp"
 #include <unistd.h>
+#include <iomanip>
 
 
 /**
@@ -130,13 +131,16 @@ void Client::regexAnalyzer(RequestType requestType, std::string& line, int& tota
 
     std::smatch pieza_match;
     std::string::const_iterator begin(line.cbegin());
+    std::cout << std::left << std::setw(15) << "Cantidad" << "Descripción" << std::endl;
+    std::cout << std::left << std::setw(15) << "--------" << "-----------" << std::endl;
+
     if (std::regex_search(begin, line.cend(), pieza_match, regexPiece)) {
       // Extract quantity and description of the piece
       std::string amount = pieza_match[1];
       std::string descripcion = pieza_match[2];
       // Convert quantity to integer
       int cantidad = std::stoi(amount);
-      std::cout << "Cantidad: " << cantidad << ", Descripción: " << descripcion << std::endl;
+      std::cout << std::left << std::setw(15) << cantidad << descripcion << std::endl;
       totalAmount += cantidad;
       // Update position in the response string
       begin = pieza_match.suffix().first;
