@@ -5,8 +5,11 @@
 #include "Socket.hpp"
 
 enum RequestType {
+  Base, 
   MenuRequest,
-  FigureRequest
+  FigureRequest,
+  Server,
+  Exit
 };
 
 class Client {
@@ -21,15 +24,16 @@ class Client {
  public:
   Client(char type, bool IPv6);
   int connectServer();
-  bool makeRequest(std::string request, RequestType);
+  int run(RequestType);
+  bool makeRequest(RequestType);
   void Close();
 
  private:
   void processRequest(RequestType requestMenu);
   bool inFigureArray(std::string figure);
   void regexAnalyzer(RequestType requestMenu, std::string& line, int& totalAmount);
-  int mainMenuHandle();
-  int handleFigure();
+  RequestType mainMenuHandle();
+  RequestType handleFigure();
   int Connect(const char * host, int port);
   int Connect(const char * host, const char * service);
   int Write(const void *text, size_t size);
