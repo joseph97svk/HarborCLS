@@ -80,7 +80,6 @@ void PiecesServer::startServer() {
 
   this->browserSocket->Bind(BROWSER_PORT);
   this->browserSocket->Listen(5);
-  this->browserSocket->SSLInitServer("esjojo.pem", "key.pem");
 
   std::cout << "listening" << std::endl;
 

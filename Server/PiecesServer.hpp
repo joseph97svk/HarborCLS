@@ -49,6 +49,8 @@ class PiecesServer {
       }
 
       processBrowserRequest(client, server->legos);
+
+      std::cout << "Browser request served" << std::endl;
     }      
   }
 
@@ -62,13 +64,14 @@ class PiecesServer {
         break;
       }
       client->SSLCreate(server->clientSocket);
-      processClientRequest(client, server->browserSocket, server->legos);
+      client->SSLAccept();
+      processClientRequest(client, server->clientSocket, server->legos);
     }      
   }
 
   static void processBrowserRequest (Socket* client,
       const std::map<std::string, size_t>& legos) {
-
+    std::cout << "Serving browser request" << std::endl;
     std::string response =
         // send header
         "HTTP/1.0 200\r\n"
@@ -108,13 +111,13 @@ class PiecesServer {
         "</html>");
 
     // send all bytes
-    client->SSLWrite(
+    client->Write(
         response.c_str(),
         response.size()
         );
   }
 
-  static void processClientRequest (Socket* client, Socket* browserSocket,
+  static void processClientRequest (Socket* client, Socket* clientSocket,
       std::map<std::string, size_t>& legos) {
     
     std::string response =
@@ -170,13 +173,14 @@ class PiecesServer {
       std::cout << "Listening to browser connections" << std::endl;
 
       client = piecesServer->browserSocket->Accept();
-      client->SSLCreate(piecesServer->browserSocket);
-      std::cout << "Browser connection accepted\n" << std::endl;
 
       if ((int)(size_t)client == -1) {
+        std::cout << "Ending browser connections thread" << std::endl;
         piecesServer->browserQueue.push(nullptr);
         break;
       }
+
+      std::cout << "Browser connection accepted\n" << std::endl;
 
       // queue the requests
       piecesServer->browserQueue.push(client);
