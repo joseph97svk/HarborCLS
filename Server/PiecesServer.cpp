@@ -16,27 +16,20 @@ PiecesServer::PiecesServer(std::string legoSourceFileName,
 
 void PiecesServer::stop() {
   // Stop listening for incoming client connection requests
-    std::cout << "cerrando..."<< std::endl;
   this->closing = true;
   Socket closingClient('s', false);
-  // closingClient.InitSSL();
-  std::cout << "cerrando2..."<< std::endl;
-  // closingClient.SSLConnect("ip aqui", CLIENT_PORT);
+
   closingClient.Connect("ip aqui", BROWSER_PORT);
-  std::cout << "cerrando..."<< std::endl;
-  std::cout << "hacen join..." << std::endl;
+
+  std::cout << "joining threads..." << std::endl;
+
   // join the threads
   this->browserListenThread->join();
-  std::cout << "browser listener thread joined" << std::endl;
   this->browserRequestHandler->join();
-  std::cout << "browser handler thread joined" << std::endl;
-  // this->clientRequestHandler->join();
-  // std::cout << "client handler thread joined" << std::endl;
+  std::cout << "browser liner and handler thread joined" << std::endl;
+
   this->browserSocket->Close();
-  // this->clientSocket->Close();
-  // delete this->clientSocket;
   delete this->browserSocket;
-  std::cout << "proceso de cerrado exitoso"<< std::endl;
 }
 
 
@@ -133,14 +126,12 @@ void PiecesServer::startServer() {
     std::cout << "Listening to client connections" << std::endl;
 
     client = this->clientSocket->Accept();
-      std::cout << "Client connection accepted\n" << std::endl;
 
     if ((int)(size_t)client == -1 || client == nullptr || this->closing) {
-      std::cout << "closing client thread" << std::endl;
       this->clientQueue.push(nullptr);
       break;
     }
-      // queue the requests
+    // queue the requests
     this->clientQueue.push(client);
   }
 
@@ -149,7 +140,7 @@ void PiecesServer::startServer() {
   }
 
   this->clientRequestHandler->join();
-  std::cout << "client handler thread joined" << std::endl;
+  std::cout << "Client threads joined" << std::endl;
   this->clientSocket->Close();
   delete this->clientSocket;
 }

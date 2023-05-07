@@ -12,8 +12,8 @@
 #include "Socket.hpp"
 #include "Queue.hpp"
 
-#define CLIENT_PORT 2844
-#define BROWSER_PORT 2596
+#define CLIENT_PORT 2816
+#define BROWSER_PORT 2832
 #define BUFFERSIZE 500
 
 class PiecesServer {
@@ -54,7 +54,7 @@ class PiecesServer {
     while (true) {
       client = server->browserQueue.pop();
 
-      if ((int)(size_t)client == -1 || client == nullptr) {
+      if ((int)(size_t)client == -1 || client == nullptr ) {
         break;
       }
       
@@ -62,10 +62,11 @@ class PiecesServer {
 
       std::cout << "Browser request served" << std::endl;
     }
-    Socket closingClient('s', false);
-    closingClient.InitSSL();
-    closingClient.SSLConnect("msko", CLIENT_PORT);
 
+    // once browser requests are done, close client requests
+    // main thread stolen by signal, so must first finish signal handling before
+    // main thread running on client listening can beggin ending
+    server->clientSocket->Close();
   }
 
   static void processClientRequests (PiecesServer* server) {
@@ -77,6 +78,7 @@ class PiecesServer {
       if ((int)(size_t)client == -1 || client == nullptr) {
         break;
       }
+
       client->SSLCreate(server->clientSocket);
       client->SSLAccept();
       processClientRequest(client, server->clientSocket, server->legos);

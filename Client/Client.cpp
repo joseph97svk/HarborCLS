@@ -216,6 +216,7 @@ void Client::processRequest(RequestType requestType)
     response.erase();
     response.resize(strlen(buffer));
     response = buffer;
+    size_t bufferSize = strlen(buffer);
     memset(buffer, 0, sizeof(buffer));
     size_t character = 0;
     size_t initLocation = 0;
@@ -285,8 +286,11 @@ void Client::processRequest(RequestType requestType)
       }
       character++;
     }
-  }
 
+    if (bufferSize != 500) {
+      break;
+    }
+  }
 
   // if (requestType == RequestType::MenuRequest) {
   //   if (mainMenuHandle()) {
@@ -553,18 +557,10 @@ int Client::Read(void *text, size_t size)
 }
 
 void Client::showPiecesServer() {
-  this->socket =  new Socket('s', false);
+  this->socket = new Socket('s', false);
   this->socket->InitSSL();
-  std::cout<<"a"<<std::endl;
-  this->socket->SSLConnect( "ip address in dot decimal format", 2835 ); // Same port as server
-   std::cout<<"b"<<std::endl;
-  this->processRequest(RequestType::Server);
 
-  /*
-  int response = 0;
-  do {
-    response = s.Read(buffer, BUFSIZE);
-    std::cout << buffer;
-    memset( buffer, 0, BUFSIZE );
-  } while (BUFSIZE == response);*/
+  this->socket->SSLConnect( "ip address in dot decimal format", 2844 ); // Same port as server
+
+  this->processRequest(RequestType::Server);
 }

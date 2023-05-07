@@ -8,24 +8,24 @@
 #include <csignal>
 #include "PiecesServer.hpp"
 
-
-
 void signal_handler(int signal) {
-  (void)signal;
-  if (signal == SIGTERM || signal == SIGINT) {
+  if (signal == SIGTERM // kill
+      || signal == SIGINT //ctrl + C
+      || signal == SIGSTOP // ctrl + Z
+      ) {
     std::cout << "\nSTOP PROGRAM" << std::endl;
     PiecesServer::getInstance().stop();
   }
 }
 
-
 int main (int argc, char** argv) {
-    (void) argc;
-    (void) argv;
-    signal(SIGINT, signal_handler);
-    signal(SIGTERM, signal_handler);
-    PiecesServer::getInstance().readLegoSourceFile();
-    PiecesServer::getInstance().startServer();
-    std::cout<<"termina programa" << std::endl;
-    return EXIT_SUCCESS;
+  (void) argc;
+  (void) argv;
+  signal(SIGINT, signal_handler);
+  signal(SIGTERM, signal_handler);
+  signal(SIGSTOP, signal_handler);
+
+  PiecesServer::getInstance().readLegoSourceFile();
+  PiecesServer::getInstance().startServer();
+  return EXIT_SUCCESS;
 }

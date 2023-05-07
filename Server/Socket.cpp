@@ -92,7 +92,9 @@ Socket::~Socket(){
  **/
 void Socket::Close(){
   if (this->SSLStruct != nullptr) {
+
     int fileDescriptor = SSL_get_fd((SSL*) this->SSLStruct);
+
     SSL_free((SSL*) this->SSLStruct);
 
     bool same = this->idSocket == fileDescriptor;
@@ -100,7 +102,8 @@ void Socket::Close(){
     this->SSLStruct = nullptr;
     if (fileDescriptor >= 0) {
       close(fileDescriptor);
-      fileDescriptor = -2;
+
+      fileDescriptor = -1;
     }
     if (same) {
       return;
@@ -381,8 +384,10 @@ Socket * Socket::Accept(){
       );
 
   if (-1 == socketFD) {  // check for errors
-    perror("Socket::Accept");
-    exit(0);
+    // in case the socket is closed abruptly, no need to mention error
+    if (errno != 9) {
+      perror("Socket::Accept");
+    }
   }
 
   int idNewSocket;
