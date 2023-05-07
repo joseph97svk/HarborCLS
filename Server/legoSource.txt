@@ -1,0 +1,9 @@
+Lego source File :: group ESJOJO
+brick 2x2 yellow
+25
+brick 2x4 white
+1024
+brick 2x4 yellow
+32
+brick 2x6 yellow
+420	

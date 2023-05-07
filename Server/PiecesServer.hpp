@@ -61,7 +61,7 @@ class PiecesServer {
       if (client == nullptr) {
         break;
       }
-
+      client->SSLCreate(server->clientSocket);
       processClientRequest(client, server->browserSocket, server->legos);
     }      
   }
@@ -108,7 +108,7 @@ class PiecesServer {
         "</html>");
 
     // send all bytes
-    client->Write(
+    client->SSLWrite(
         response.c_str(),
         response.size()
         );
@@ -156,7 +156,7 @@ class PiecesServer {
         "</html>");
 
     // send all bytes
-    client->Write(
+    client->SSLWrite(
         response.c_str(),
         response.size()
         );
@@ -170,6 +170,7 @@ class PiecesServer {
       std::cout << "Listening to browser connections" << std::endl;
 
       client = piecesServer->browserSocket->Accept();
+      client->SSLCreate(piecesServer->browserSocket);
       std::cout << "Browser connection accepted\n" << std::endl;
 
       if ((int)(size_t)client == -1) {

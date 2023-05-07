@@ -495,7 +495,7 @@ RequestType Client::handleFigure()
  **/
 int Client::Connect(const char *host, int port)
 {
-  return this->socket->SSLConnect(host, port);
+  return this->socket->SSLConnect((char*) host, port);
 }
 
 /**
@@ -509,7 +509,7 @@ int Client::Connect(const char *host, int port)
  **/
 int Client::Connect(const char *host, const char *service)
 {
-  return this->socket->SSLConnect(host, service);
+  return this->socket->SSLConnect((char*) host, (char*) service);
 }
 
 /**
@@ -549,4 +549,21 @@ void Client::Close()
 int Client::Read(void *text, size_t size)
 {
   return this->socket->SSLRead(text, size);
+}
+
+void Client::showPiecesServer() {
+  this->socket =  new Socket('s', false);
+  this->socket->InitSSL();
+  std::cout<<"a"<<std::endl;
+  this->socket->SSLConnect( "ip address in dot decimal format", 2816 ); // Same port as server
+   std::cout<<"b"<<std::endl;
+  this->processRequest(RequestType::Server);
+
+  /*
+  int response = 0;
+  do {
+    response = s.Read(buffer, BUFSIZE);
+    std::cout << buffer;
+    memset( buffer, 0, BUFSIZE );
+  } while (BUFSIZE == response);*/
 }

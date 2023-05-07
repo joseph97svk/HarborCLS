@@ -27,6 +27,7 @@ class Client {
   int run(RequestType);
   bool makeRequest(RequestType);
   void Close();
+  void showPiecesServer();
 
  private:
   void processRequest(RequestType requestMenu);

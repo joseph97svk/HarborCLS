@@ -7,8 +7,16 @@
 #include <unistd.h>
 #include "PiecesServer.hpp"
 
-int main() {
+int main (int argc, char** argv) {
+    (void) argc;
+    (void) argv;
 
+    PiecesServer piecesServer("legoSource.txt", 's', false);
+    piecesServer.readLegoSourceFile();
 
-    return 0;  // indicate successful execution
+    piecesServer.startServer();
+
+    
+
+    return EXIT_SUCCESS;
 }

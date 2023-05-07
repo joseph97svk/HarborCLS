@@ -76,9 +76,11 @@ void PiecesServer::startServer() {
 
   this->clientSocket->Bind(CLIENT_PORT);
   this->clientSocket->Listen(5);
+  this->clientSocket->SSLInitServer("esjojo.pem", "key.pem");
 
   this->browserSocket->Bind(BROWSER_PORT);
   this->browserSocket->Listen(5);
+  this->browserSocket->SSLInitServer("esjojo.pem", "key.pem");
 
   std::cout << "listening" << std::endl;
 
@@ -104,6 +106,7 @@ void PiecesServer::startServer() {
     std::cout << "Listening to client connections" << std::endl;
 
     client = this->clientSocket->Accept();
+    
     std::cout << "Client connection accepted\n" << std::endl;
 
     if ((int)(size_t)client == -1) {
@@ -120,3 +123,5 @@ void PiecesServer::startServer() {
   this->browserRequestHandler->join();
   this->clientRequestHandler->join();
 }
+
+
