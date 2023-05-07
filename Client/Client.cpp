@@ -287,6 +287,7 @@ void Client::processRequest(RequestType requestType)
     }
   }
 
+
   // if (requestType == RequestType::MenuRequest) {
   //   if (mainMenuHandle()) {
   //     goto begin;
@@ -555,7 +556,7 @@ void Client::showPiecesServer() {
   this->socket =  new Socket('s', false);
   this->socket->InitSSL();
   std::cout<<"a"<<std::endl;
-  this->socket->SSLConnect( "ip address in dot decimal format", 2816 ); // Same port as server
+  this->socket->SSLConnect( "ip address in dot decimal format", 2835 ); // Same port as server
    std::cout<<"b"<<std::endl;
   this->processRequest(RequestType::Server);
 

@@ -12,7 +12,12 @@
 #include "Socket.hpp"
 #include "Queue.hpp"
 
+#define CLIENT_PORT 2844
+#define BROWSER_PORT 2596
+#define BUFFERSIZE 500
+
 class PiecesServer {
+
   Socket* clientSocket;
   Socket* browserSocket;
 
@@ -27,15 +32,20 @@ class PiecesServer {
 
   Queue<Socket*> clientQueue;
   Queue<Socket*> browserQueue;
+  bool closing = false;
 
  public:
   PiecesServer(std::string legoSourceFileName = "",
     char type = 's',
     bool ipv6 = false);
+  
+  static PiecesServer& getInstance();
+
 
   int readLegoSourceFile(std::string legoSourceFileName = "");
 
   void startServer();
+  void stop();
 
  private:
   static void processBrowserRequests (PiecesServer* server) {
@@ -44,14 +54,18 @@ class PiecesServer {
     while (true) {
       client = server->browserQueue.pop();
 
-      if (client == nullptr) {
+      if ((int)(size_t)client == -1 || client == nullptr) {
         break;
       }
-
+      
       processBrowserRequest(client, server->legos);
 
       std::cout << "Browser request served" << std::endl;
-    }      
+    }
+    Socket closingClient('s', false);
+    closingClient.InitSSL();
+    closingClient.SSLConnect("msko", CLIENT_PORT);
+
   }
 
   static void processClientRequests (PiecesServer* server) {
@@ -60,7 +74,7 @@ class PiecesServer {
     while (true) {
       client = server->clientQueue.pop();
 
-      if (client == nullptr) {
+      if ((int)(size_t)client == -1 || client == nullptr) {
         break;
       }
       client->SSLCreate(server->clientSocket);
@@ -174,7 +188,7 @@ class PiecesServer {
 
       client = piecesServer->browserSocket->Accept();
 
-      if ((int)(size_t)client == -1) {
+      if ((int)(size_t)client == -1 || client == nullptr || piecesServer->closing) {
         std::cout << "Ending browser connections thread" << std::endl;
         piecesServer->browserQueue.push(nullptr);
         break;
@@ -185,6 +199,7 @@ class PiecesServer {
       // queue the requests
       piecesServer->browserQueue.push(client);
     }
+    std::cout << "termina el listening" << std::endl;
   }
 };
 

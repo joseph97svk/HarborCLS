@@ -98,8 +98,10 @@ void Socket::Close(){
     bool same = this->idSocket == fileDescriptor;
 
     this->SSLStruct = nullptr;
-    close(fileDescriptor);
-
+    if (fileDescriptor >= 0) {
+      close(fileDescriptor);
+      fileDescriptor = -2;
+    }
     if (same) {
       return;
     }
@@ -368,7 +370,7 @@ int Socket::Bind( int port ) {
   *
  **/
 Socket * Socket::Accept(){
-  struct sockaddr_in6 server;
+  struct sockaddr_in server;
   socklen_t addr_len = sizeof(server);
 
   // accept system call
@@ -383,6 +385,9 @@ Socket * Socket::Accept(){
     exit(0);
   }
 
+  int idNewSocket;
+  socklen_t addr_size;
+   
   return new Socket(socketFD);
 }
 
