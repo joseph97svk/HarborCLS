@@ -17,11 +17,11 @@
  **/
 int main() {
     Client socket('s', false);  // create a Client object with type 's' and IPv6 as false
-    //socket.connectServer(); // connect to the server
-    //socket.run(MenuRequest);
-    //socket.makeRequest("menu", MenuRequest);  // make a request for the menus
-    socket.showPiecesServer();
-    socket.Close();  // close the connection
+    socket.connectServer(); // connect to the server
+    socket.run(MenuRequest);
+    // socket.makeRequest("menu", MenuRequest);  // make a request for the menus
+    // socket.showPiecesServer();
+    // socket.Close();  // close the connection
 
     return 0;  // indicate successful execution
 }

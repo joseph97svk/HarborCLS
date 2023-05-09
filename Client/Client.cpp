@@ -48,18 +48,21 @@ int Client::run(RequestType initOption)
   RequestType option = initOption;
   while (option != RequestType::Exit)
   {
-    makeRequest(option);
     if (option == RequestType::MenuRequest)
     {
+      makeRequest(option);
       option = mainMenuHandle();
     }
     else if (option == RequestType::FigureRequest)
     {
+      makeRequest(option);
       option = handleFigure();
     }
     else if (option == RequestType::Server)
     {
       // server
+      std::cout << "Enter server" << std::endl;
+      option = handleServerRequest();
     }
   }
   //_exit( 0 );
@@ -162,18 +165,17 @@ void Client::regexAnalyzer(RequestType requestType, std::string &line, int &tota
   {
     // Regex to match pieces in figure response
     std::regex regexPiece("<TR><TD ALIGN=center?> (\\d+)</TD>\\s*<TD ALIGN=center> ([^<]+)</TD>");
-
     std::smatch pieza_match;
     std::string::const_iterator begin(line.cbegin());
 
-    if (std::regex_search(begin, line.cend(), pieza_match, regexPiece))
-    {
+    if (std::regex_search(begin, line.cend(), pieza_match, regexPiece)) {
       // Extract quantity and description of the piece
       std::string amount = pieza_match[1];
       std::string descripcion = pieza_match[2];
       // Convert quantity to integer
       int cantidad = std::stoi(amount);
       std::cout << std::left << std::setw(15) << cantidad << descripcion << std::endl;
+      this->requestedPieces.emplace_back(descripcion, cantidad);
       totalAmount += cantidad;
       // Update position in the response string
       begin = pieza_match.suffix().first;
@@ -287,22 +289,11 @@ void Client::processRequest(RequestType requestType)
       character++;
     }
 
-    if (bufferSize != 500) {
+    if (requestType == RequestType::Server
+        &&  bufferSize != 500) {
       break;
     }
   }
-
-  // if (requestType == RequestType::MenuRequest) {
-  //   if (mainMenuHandle()) {
-  //     goto begin;
-  //   }
-  // } else {
-  //   std::cout << "Cantidad de piezas totales = " << totalAmount << std::endl;
-  //   if (handleFigure() == 1) {
-  //     requestType = RequestType::FigureRequest;
-  //     goto begin;
-  //   }
-  // }
 }
 
 /**
@@ -382,12 +373,12 @@ int inputHandler(int minRange = 0, int maxRange = 1, char exception = '\0')
 RequestType Client::mainMenuHandle()
 {
   // if no figures were found, the page suffered an error
-  if (this->figuresArray.size() == 0)
+  /* if (this->figuresArray.size() == 0)
   {
     std::cout << "Error: la pagina no generó respuesta"
               << std::endl;
     return RequestType::Base;
-  }
+  } */
 
   // print header
   std::cout << "Universidad de Costa Rica\n"
@@ -454,14 +445,15 @@ RequestType Client::handleFigure()
 {
 
   // Display a menu to the user with options to return to the main menu, exit the program, or refresh the current figure
-  std::cout << "\n\nPara volver al menu principal: 1." << std::endl
+  std::cout << "\n\nPara armar la figura: 2." << std::endl
+            << "Para volver al menu principal: 1." << std::endl
             << "Para cerrar el programa: 0."
             << "\n\to\n'r' para refrescar (el servidor puede entregar datos incorrectamente generando comportamiento indefinido"
             << ",\nsu este es el caso, entonces refresque la pagina)\n"
             << std::endl;
 
   // Handle the user's input
-  int choice = inputHandler(0, 1, 'r');
+  int choice = inputHandler(0, 2, 'r');
   if (choice == 0)
   {
     return RequestType::Exit;
@@ -484,6 +476,10 @@ RequestType Client::handleFigure()
               << std::endl
               << std::endl;
     return FigureRequest;
+  }
+
+  if (choice == 2) {
+    return RequestType::Server;
   }
 
   return RequestType::MenuRequest;
@@ -557,10 +553,50 @@ int Client::Read(void *text, size_t size)
 }
 
 void Client::showPiecesServer() {
+ 
+
+  this->processRequest(RequestType::Server);
+}
+
+RequestType Client::handleServerRequest() {
+  std::string response = "";
+
+  Socket* socketBuffer = this->socket;
+
   this->socket = new Socket('s', false);
   this->socket->InitSSL();
 
-  this->socket->SSLConnect( "ip address in dot decimal format", 2844 ); // Same port as server
+  this->socket->SSLConnect("ip address in dot decimal format", 2816); // Same port as server
 
-  this->processRequest(RequestType::Server);
+  for (int piece = 0; piece < this->requestedPieces.size(); piece++) {
+    response.append("<TR><TD ALIGN=center> ");
+    response.append(this->requestedPieces[piece].first);
+    response.append(
+          "</TD>\n"
+          "<TD ALIGN=center> ");
+    response.append(std::to_string(this->requestedPieces[piece].second));
+    response.append(
+      "</TD>\n"
+      "</TR>\n"); 
+  }
+
+  this->Write(response.c_str(), response.size());
+
+  char buffer[501];
+  memset(buffer, 0, 501);
+  
+  std::cout << "reading response" << std::endl;
+
+  processRequest(RequestType::Server); 
+
+  bool figureAssembled = (bool)(int) buffer[0];
+  if (figureAssembled) {
+    std::cout << "Your figure has been assembled!" << std::endl;
+  } else {
+    std::cout << "There were not enough pieces to assemble your figure :'(" << std::endl;
+  }
+
+  this->socket = socketBuffer;
+
+  return RequestType::MenuRequest;
 }

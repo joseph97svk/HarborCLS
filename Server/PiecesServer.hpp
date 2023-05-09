@@ -136,49 +136,54 @@ class PiecesServer {
   static void processClientRequest (Socket* client, Socket* clientSocket,
       std::map<std::string, size_t>& legos) {
     
-    std::string response =
-        // send header
-        "HTTP/1.0 200\r\n"
-        "Content-type: text/html; charset=UTF-8\r\n"
-        "Server: AttoServer v1.1\r\n"
-        "\r\n"
+    std::vector<std::pair<std::string, size_t>> requestedPieces;
 
-        // send html format and title
-        "<!DOCTYPE html>\n"
-        "<html>\n"
-        "<html lang=\"en\">\n"
-        "   <meta charset=\"UTF-8\"/>\n"
-        "   <title>Figures Server Pieces List </title>\n"
-        "   <style>body {font-family: monospace}</style>\n"
-        "   <h1>Figures Server Pieces List</h1>\n"
-        "<TABLE BORDER=1 BGCOLOR=\"lightblue\" CELLPADDING=5 ALIGN=LEFT>\n"
-        "<TR> <TH> Cantidad </TH> <TH> Descripción </TH> </TR>\n";
+    std::cout << "Processing client request" << std::endl;
 
-    // add figures and their amounts to the table
-    for (auto it = legos.begin();
-        it != legos.end();
-        it++) {
-      response.append("<TR><TD ALIGN=center> ");
-      response.append(std::to_string(it->second));
-      response.append(
-          "</TD>\n"
-          "<TD ALIGN=center> ");
-      response.append(it->first);
-      response.append(
-        "</TD>\n"
-        "</TR>\n");
+    // recibir piezas
+    processRequest(client, requestedPieces);
+
+    std::cout << "Process requested" << std::endl;
+
+    // amount of pieces found
+    size_t piecesFountAmount = 0;
+
+    // check if all pieces are available
+    for (size_t piece = 0; piece < requestedPieces.size(); piece++) {
+      if (legos[requestedPieces[piece].first] >
+          requestedPieces[piece].second) {
+        piecesFountAmount++;
+      }
     }
 
-    // close table and html doc
-    response.append(
-        "</TR></TABLE>\n"
-        "</html>");
+    std::cout << "Checked" << std::endl;
+
+    char response[1];
+    response[0] = 0;
+
+    // if available take out the pieces
+    if (piecesFountAmount == requestedPieces.size()) {
+      std::cout << "removing" << std::endl;
+      // check if all pieces are available
+      for (size_t piece = 0; piece < requestedPieces.size(); piece++) {
+        legos[requestedPieces[piece].first] -=
+            requestedPieces[piece].second;
+      }
+
+      // set response to positive
+      response[0] = 1;
+    }
+
+    std::cout << "responding" << std::endl;
+    std::cout << response << ", " << strlen(response) << std::endl;
 
     // send all bytes
-    client->SSLWrite(
-        response.c_str(),
-        response.size()
+    client->Write(
+        response,
+        strlen(response)
         );
+
+    std::cout << "response sent" << std::endl;
   } 
 
   static void listenBrowserConnections(PiecesServer* piecesServer) {
@@ -202,6 +207,120 @@ class PiecesServer {
       piecesServer->browserQueue.push(client);
     }
     std::cout << "termina el listening" << std::endl;
+  }
+
+  static void processRequest(Socket* browserSocket,
+      std::vector<std::pair<std::string, size_t>>& requestedPieces) {
+    std::string response;
+    char buffer[501];
+    memset(buffer, 0, 501);
+    std::string lastLine = "";
+    std::string line = "";
+    std::string endOfDoc = "";
+    int cyclesSinceEndOfBytes = 4;
+    int count = 0;
+
+    std::cout << "Processing request" << std::endl;
+
+    while (browserSocket->Read(buffer, 500) > 0) {
+      count++;
+      response.erase();
+      response.resize(strlen(buffer));
+      response = buffer;
+      int bufferSize = strnlen(buffer, 500);
+      memset(buffer, 0, sizeof(buffer));
+      size_t character = 0;
+      size_t initLocation = 0;
+
+      bool endOfBytes = false;
+
+      while (character < response.size()) {
+        // check if at the end of bytes read (incomplete statement possible)
+        endOfBytes = (character == response.size() - 1);
+
+        // if whole line or end of bytes
+        if(response[character] == '\n' || endOfBytes) {
+
+          // if two turns gone by
+          if (cyclesSinceEndOfBytes == 2) {
+            // join saved lines with last line
+            endOfDoc += lastLine;
+
+            // set last line as all saved lines
+            lastLine = endOfDoc;
+
+            size_t emptyTries = 0;
+            // empty previous buffer
+            while(endOfDoc.empty() && emptyTries < 10) {
+              emptyTries++;
+            }
+
+            // restart cycle out of range
+            cyclesSinceEndOfBytes = 4;
+          }
+
+          int adjustment = 1;
+          // adjust location of end of string if character is invalid
+          if ((u_int)(char) response[character - 1] > 127) {
+            adjustment-=2;
+          }
+          
+          // if at end of bytes
+          if (endOfBytes) {
+            // copy previous and actual lines
+            endOfDoc = lastLine +
+                response.substr(initLocation, character - initLocation + adjustment);
+            // begin counter of cycles since found
+            cyclesSinceEndOfBytes = 0;
+          }
+
+          // analyze last line and this line together
+          // (some regex may need to analyze two lines at once)
+          line = lastLine +
+              response.substr(initLocation, character - initLocation + adjustment);
+
+          // run regex to analyze line
+          regexAnalyzer(line, requestedPieces);
+
+          // set current line as last line for the next iteration to have it
+          lastLine = response.substr(initLocation, character - initLocation + adjustment);
+
+          // increase counters
+          initLocation = character + 1;
+          cyclesSinceEndOfBytes++;
+        }
+        character++;
+      } 
+
+      if (bufferSize != 500) {
+        break;
+      }   
+    }
+  }
+
+  static void regexAnalyzer(std::string& line,
+      std::vector<std::pair<std::string, size_t>>& requestedPieces) {
+    // Regex to match pieces in figure response
+    std::regex regexPiece("<TR><TD ALIGN=center?> (\\d+)</TD>\\s*<TD ALIGN=center> ([^<]+)</TD>");
+
+    std::smatch pieza_match;
+    std::string::const_iterator begin(line.cbegin());
+    if (std::regex_search(begin, line.cend(), pieza_match, regexPiece)) {
+      // Extract quantity and description of the piece
+      std::string amount = pieza_match[1];
+      std::string description = pieza_match[2];
+      // Convert quantity to integer
+      size_t cantidad = (size_t) std::stoi(amount);
+
+      // add pair to the vector
+      requestedPieces.push_back(
+          {description, cantidad});
+
+      std::cout << requestedPieces[requestedPieces.size()-1].first << "," << requestedPieces[requestedPieces.size()-1].second << std::endl;
+
+      // Update position in the response string
+      begin = pieza_match.suffix().first;
+    }
   }
 };
 

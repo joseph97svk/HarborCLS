@@ -1,6 +1,7 @@
 #include <string>
 #include <iostream>
 #include <vector>
+#include <utility>
 
 #include "Socket.hpp"
 
@@ -20,7 +21,8 @@ class Client {
   bool IPv6;
   Socket* socket;
   std::string currentFigure = "";
-   
+  std::vector<std::pair<std::string, size_t>> requestedPieces;
+
  public:
   Client(char type, bool IPv6);
   int connectServer();
@@ -35,6 +37,7 @@ class Client {
   void regexAnalyzer(RequestType requestMenu, std::string& line, int& totalAmount);
   RequestType mainMenuHandle();
   RequestType handleFigure();
+  RequestType handleServerRequest();
   int Connect(const char * host, int port);
   int Connect(const char * host, const char * service);
   int Write(const void *text, size_t size);
