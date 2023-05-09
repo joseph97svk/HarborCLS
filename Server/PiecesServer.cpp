@@ -126,7 +126,7 @@ void PiecesServer::startServer() {
     std::cout << "Listening to client connections" << std::endl;
 
     client = this->clientSocket->Accept();
-
+    
     if ((int)(size_t)client == -1 || client == nullptr || this->closing) {
       this->clientQueue.push(nullptr);
       break;
