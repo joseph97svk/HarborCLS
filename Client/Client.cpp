@@ -570,11 +570,11 @@ RequestType Client::handleServerRequest() {
 
   for (int piece = 0; piece < this->requestedPieces.size(); piece++) {
     response.append("<TR><TD ALIGN=center> ");
-    response.append(this->requestedPieces[piece].first);
+    response.append(std::to_string((int) this->requestedPieces[piece].second));
     response.append(
           "</TD>\n"
           "<TD ALIGN=center> ");
-    response.append(std::to_string(this->requestedPieces[piece].second));
+    response.append(this->requestedPieces[piece].first);
     response.append(
       "</TD>\n"
       "</TR>\n"); 
@@ -582,21 +582,21 @@ RequestType Client::handleServerRequest() {
 
   this->Write(response.c_str(), response.size());
 
-  char buffer[501];
-  memset(buffer, 0, 501);
-  
-  std::cout << "reading response" << std::endl;
+  char buffer[2];
+  memset(buffer, 0, 2);
 
-  processRequest(RequestType::Server); 
+  this->Read(buffer, 2); 
 
-  bool figureAssembled = (bool)(int) buffer[0];
-  if (figureAssembled) {
+  if (buffer[0] == '1') {
     std::cout << "Your figure has been assembled!" << std::endl;
   } else {
     std::cout << "There were not enough pieces to assemble your figure :'(" << std::endl;
   }
 
+  delete this->socket;
   this->socket = socketBuffer;
+
+  this->requestedPieces.clear();
 
   return RequestType::MenuRequest;
 }

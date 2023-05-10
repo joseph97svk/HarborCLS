@@ -6,4 +6,4 @@ brick 2x4 white
 brick 2x4 yellow
 32
 brick 2x6 yellow
-420	
+420

@@ -26,6 +26,7 @@ int main (int argc, char** argv) {
   signal(SIGSTOP, signal_handler);
 
   PiecesServer::getInstance().readLegoSourceFile();
+  PiecesServer::getInstance().readLegoSourceFile("legoDragonTest.txt");
   PiecesServer::getInstance().startServer();
   return EXIT_SUCCESS;
 }

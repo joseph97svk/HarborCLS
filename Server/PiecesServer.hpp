@@ -135,55 +135,47 @@ class PiecesServer {
 
   static void processClientRequest (Socket* client, Socket* clientSocket,
       std::map<std::string, size_t>& legos) {
+
+    char response[2];
+    memset(response, 0, 2);
+    response[0] = '0';
     
     std::vector<std::pair<std::string, size_t>> requestedPieces;
 
-    std::cout << "Processing client request" << std::endl;
-
     // recibir piezas
     processRequest(client, requestedPieces);
-
-    std::cout << "Process requested" << std::endl;
 
     // amount of pieces found
     size_t piecesFountAmount = 0;
 
     // check if all pieces are available
     for (size_t piece = 0; piece < requestedPieces.size(); piece++) {
-      if (legos[requestedPieces[piece].first] >
+      if (legos[requestedPieces[piece].first] >=
           requestedPieces[piece].second) {
         piecesFountAmount++;
       }
     }
 
-    std::cout << "Checked" << std::endl;
-
-    char response[1];
-    response[0] = 0;
-
     // if available take out the pieces
     if (piecesFountAmount == requestedPieces.size()) {
-      std::cout << "removing" << std::endl;
       // check if all pieces are available
       for (size_t piece = 0; piece < requestedPieces.size(); piece++) {
-        legos[requestedPieces[piece].first] -=
+        if (legos[requestedPieces[piece].first] != 0) {
+          legos[requestedPieces[piece].first] -=
             requestedPieces[piece].second;
+        }  
       }
 
       // set response to positive
-      response[0] = 1;
+      response[0] = '1';
     }
 
-    std::cout << "responding" << std::endl;
-    std::cout << response << ", " << strlen(response) << std::endl;
-
     // send all bytes
-    client->Write(
+    client->SSLWrite(
         response,
-        strlen(response)
+        2
         );
 
-    std::cout << "response sent" << std::endl;
   } 
 
   static void listenBrowserConnections(PiecesServer* piecesServer) {
@@ -206,10 +198,9 @@ class PiecesServer {
       // queue the requests
       piecesServer->browserQueue.push(client);
     }
-    std::cout << "termina el listening" << std::endl;
   }
 
-  static void processRequest(Socket* browserSocket,
+  static void processRequest(Socket* clientSocket,
       std::vector<std::pair<std::string, size_t>>& requestedPieces) {
     std::string response;
     char buffer[501];
@@ -220,9 +211,7 @@ class PiecesServer {
     int cyclesSinceEndOfBytes = 4;
     int count = 0;
 
-    std::cout << "Processing request" << std::endl;
-
-    while (browserSocket->Read(buffer, 500) > 0) {
+    while (clientSocket->SSLRead(buffer, 500) > 0) {
       count++;
       response.erase();
       response.resize(strlen(buffer));
@@ -315,8 +304,6 @@ class PiecesServer {
       // add pair to the vector
       requestedPieces.push_back(
           {description, cantidad});
-
-      std::cout << requestedPieces[requestedPieces.size()-1].first << "," << requestedPieces[requestedPieces.size()-1].second << std::endl;
 
       // Update position in the response string
       begin = pieza_match.suffix().first;

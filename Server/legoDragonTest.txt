@@ -1,0 +1,29 @@
+Lego source File :: group ESJOJO
+brick 2x6 plate grey
+2
+brick 2x4 grey
+3
+brick 2x2 grey
+2
+brick 2x2 slope inverted grey
+1
+brick 2x8 red
+1
+brick 2x2 slope red
+2
+brick 2x2 slope inverted red
+1
+brick 2x2 slope grey
+1
+brick 2x4 plate grey
+2
+flag yellow
+1
+brick 1x2 slope inverted red
+2
+brick 2x4 red
+2
+brick 2x3 red
+2
+brick 1x1 eyes dark grey
+1
