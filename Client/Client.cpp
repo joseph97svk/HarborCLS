@@ -567,10 +567,10 @@ RequestType Client::handleServerRequest() {
 
   this->socket = new Socket('s', false);
   this->socket->InitSSL();
+  std::string textInit = "ip address in dot decimal format";
+  this->socket->SSLConnect((char*)textInit.c_str(), CLIENT_PORT); // Same port as server
 
-  this->socket->SSLConnect("ip address in dot decimal format", CLIENT_PORT); // Same port as server
-
-  for (int piece = 0; piece < this->requestedPieces.size(); piece++) {
+  for (size_t piece = 0; piece < this->requestedPieces.size(); piece++) {
     response.append("<TR><TD ALIGN=center> ");
     response.append(std::to_string((int) this->requestedPieces[piece].second));
     response.append(

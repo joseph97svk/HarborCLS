@@ -198,7 +198,6 @@ int Socket::Connect( const char *host, const char *service ) {
   int st = -1;
 
   struct sockaddr_in6  host6;
-  struct sockaddr * ha;
 
   memset( (char *) &host6, 0, sizeof( host6 ) );
   host6.sin6_family = AF_INET6;
@@ -210,8 +209,6 @@ int Socket::Connect( const char *host, const char *service ) {
   }
 
   host6.sin6_port = htons( port );
-  ha = (struct sockaddr *) &host6;
-
   struct addrinfo hints, *result, *rp;
 
   memset(&hints, 0, sizeof(struct addrinfo));
@@ -389,9 +386,6 @@ Socket * Socket::Accept(){
       perror("Socket::Accept");
     }
   }
-
-  int idNewSocket;
-  socklen_t addr_size;
    
   return new Socket(socketFD);
 }

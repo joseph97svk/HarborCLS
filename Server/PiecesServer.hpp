@@ -95,7 +95,7 @@ class PiecesServer {
 
       client->SSLCreate(server->clientSocket); // Create an SSL context for the client
       client->SSLAccept(); // Perform SSL handshake with the client
-      processClientRequest(client, server->clientSocket, server->legos); // Process the client request
+      processClientRequest(client, server->legos); // Process the client request
     }
   }
 
@@ -160,7 +160,7 @@ class PiecesServer {
    * @param clientSocket A pointer to the Socket representing the server's client socket.
    * @param legos A reference to the map containing lego figures and their amounts.
    */
-  static void processClientRequest (Socket* client, Socket* clientSocket,
+  static void processClientRequest (Socket* client,
       std::map<std::string, size_t>& legos) {
 
     char response[2];
