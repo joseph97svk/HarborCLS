@@ -48,43 +48,62 @@ class PiecesServer {
   void stop();
 
  private:
-  static void processBrowserRequests (PiecesServer* server) {
+
+  /**
+   * Process browser requests by popping clients from the browser queue and serving their requests.
+   * @param server A pointer to the PiecesServer instance.
+   */
+  static void processBrowserRequests(PiecesServer* server) {
     Socket* client = nullptr;
 
+    // Continuously process browser requests until signaled to stop
     while (true) {
-      client = server->browserQueue.pop();
+      client = server->browserQueue.pop(); // Pop a client from the browser queue
 
-      if ((int)(size_t)client == -1 || client == nullptr ) {
+      // Check if there is an error in popping the client or if the server is closing
+      if ((int)(size_t)client == -1 || client == nullptr) {
         break;
       }
-      
+
+      // Process the browser request for the client using the legos map
       processBrowserRequest(client, server->legos);
 
       std::cout << "Browser request served" << std::endl;
     }
 
-    // once browser requests are done, close client requests
-    // main thread stolen by signal, so must first finish signal handling before
-    // main thread running on client listening can beggin ending
+    // Once browser requests are done, close client requests
+    // Since the main thread may be stolen by a signal, it must first finish signal handling
+    // before the main thread running on client listening can begin ending
     server->clientSocket->Close();
   }
 
-  static void processClientRequests (PiecesServer* server) {
+  /**
+   * Process client requests by popping clients from the client queue and serving their requests.
+   * @param server A pointer to the PiecesServer instance.
+   */
+  static void processClientRequests(PiecesServer* server) {
     Socket* client = nullptr;
 
+    // Continuously process client requests until signaled to stop
     while (true) {
-      client = server->clientQueue.pop();
+      client = server->clientQueue.pop(); // Pop a client from the client queue
 
+      // Check if there is an error in popping the client or if the server is closing
       if ((int)(size_t)client == -1 || client == nullptr) {
         break;
       }
 
-      client->SSLCreate(server->clientSocket);
-      client->SSLAccept();
-      processClientRequest(client, server->clientSocket, server->legos);
-    }      
+      client->SSLCreate(server->clientSocket); // Create an SSL context for the client
+      client->SSLAccept(); // Perform SSL handshake with the client
+      processClientRequest(client, server->clientSocket, server->legos); // Process the client request
+    }
   }
 
+  /**
+   * Process a browser request by sending a response to the client with a table of lego figures and their amounts.
+   * @param client A pointer to the Socket representing the client connection.
+   * @param legos A constant reference to the map containing lego figures and their amounts.
+   */
   static void processBrowserRequest (Socket* client,
       const std::map<std::string, size_t>& legos) {
     std::cout << "Serving browser request" << std::endl;
@@ -133,6 +152,12 @@ class PiecesServer {
         );
   }
 
+  /**
+   * Process a client request by checking if the requested lego pieces are available and responding with a success or failure message.
+   * @param client A pointer to the Socket representing the client connection.
+   * @param clientSocket A pointer to the Socket representing the server's client socket.
+   * @param legos A reference to the map containing lego figures and their amounts.
+   */
   static void processClientRequest (Socket* client, Socket* clientSocket,
       std::map<std::string, size_t>& legos) {
 
@@ -178,6 +203,10 @@ class PiecesServer {
 
   } 
 
+  /**
+   * Listens for incoming browser connections and queues them for further processing.
+   * @param piecesServer A pointer to the PiecesServer instance.
+   */
   static void listenBrowserConnections(PiecesServer* piecesServer) {
     Socket* client;
 
@@ -185,8 +214,10 @@ class PiecesServer {
     while (true) {
       std::cout << "Listening to browser connections" << std::endl;
 
+      // Accept a new browser connection
       client = piecesServer->browserSocket->Accept();
 
+      // Check if the client connection is valid or if the server is closing
       if ((int)(size_t)client == -1 || client == nullptr || piecesServer->closing) {
         std::cout << "Ending browser connections thread" << std::endl;
         piecesServer->browserQueue.push(nullptr);
@@ -195,11 +226,16 @@ class PiecesServer {
 
       std::cout << "Browser connection accepted\n" << std::endl;
 
-      // queue the requests
+      // Queue the client connection for further processing
       piecesServer->browserQueue.push(client);
     }
   }
 
+  /**
+   * Processes the client request and extracts the requested pieces from the received data.
+   * @param clientSocket The client socket from which the request is received.
+   * @param requestedPieces A vector to store the extracted requested pieces.
+   */
   static void processRequest(Socket* clientSocket,
       std::vector<std::pair<std::string, size_t>>& requestedPieces) {
     std::string response;
@@ -287,6 +323,12 @@ class PiecesServer {
     }
   }
 
+  /**
+   * @brief Analyzes a line of text using a regular expression to extract the quantity and description of a Lego piece.
+   *
+   * @param line The line of text to analyze.
+   * @param requestedPieces A vector of pairs representing the requested Lego pieces and their quantities.
+   */
   static void regexAnalyzer(std::string& line,
       std::vector<std::pair<std::string, size_t>>& requestedPieces) {
     // Regex to match pieces in figure response
@@ -310,7 +352,6 @@ class PiecesServer {
     }
   }
 };
-
 
 
 #endif
