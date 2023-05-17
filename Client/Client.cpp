@@ -6,6 +6,8 @@
 #include <unistd.h>
 #include <iomanip>
 
+#define CLIENT_PORT 2816
+
 /**
  * Client method
  * Constructor for the Client class. Initializes the object with the provided type and IPv6
@@ -566,7 +568,7 @@ RequestType Client::handleServerRequest() {
   this->socket = new Socket('s', false);
   this->socket->InitSSL();
 
-  this->socket->SSLConnect("ip address in dot decimal format", 2816); // Same port as server
+  this->socket->SSLConnect("ip address in dot decimal format", CLIENT_PORT); // Same port as server
 
   for (int piece = 0; piece < this->requestedPieces.size(); piece++) {
     response.append("<TR><TD ALIGN=center> ");

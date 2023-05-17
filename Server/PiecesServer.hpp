@@ -122,22 +122,24 @@ class PiecesServer {
         "   <title>Figures Server Pieces List </title>\n"
         "   <style>body {font-family: monospace}</style>\n"
         "   <h1>Figures Server Pieces List</h1>\n"
-        "<TABLE BORDER=1 BGCOLOR=\"lightblue\" CELLPADDING=5 ALIGN=LEFT>\n"
+        "<TABLE BORDER=1 BGCOLOR=\"pink\" CELLPADDING=5 ALIGN=LEFT>\n"
         "<TR> <TH> Cantidad </TH> <TH> Descripción </TH> </TR>\n";
 
     // add figures and their amounts to the table
     for (auto it = legos.begin();
         it != legos.end();
         it++) {
-      response.append("<TR><TD ALIGN=center> ");
-      response.append(std::to_string(it->second));
-      response.append(
+      if (it->second != 0) {
+        response.append("<TR><TD ALIGN=center> ");
+        response.append(std::to_string(it->second));
+        response.append(
+            "</TD>\n"
+            "<TD ALIGN=center> ");
+        response.append(it->first);
+        response.append(
           "</TD>\n"
-          "<TD ALIGN=center> ");
-      response.append(it->first);
-      response.append(
-        "</TD>\n"
-        "</TR>\n");
+          "</TR>\n");
+      }
     }
 
     // close table and html doc
