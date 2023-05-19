@@ -136,9 +136,6 @@ En esta clase cuenta con 4 hilos principales:
 
 También se cuenta con 2 colas con control de concurrencia para tener control de las solicitudes del cliente (clientQueue) y del browser(browserQueue). 
 
-Durante esta etapa y para las realizar pruebas, los clientes conecten
-directamente con los servidores de piezas.
-
 ### Funciones Importantes que realiza el Servidor de Piezas
 
 1. startServer():  Empieza el servidor inicializando sockets, creando subprocesos y escuchando conexiones de clientes. También se encarga de hacer join al hilo clientRequestHandler y cierra el socket Cliente.
