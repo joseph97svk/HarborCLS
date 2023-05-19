@@ -230,7 +230,7 @@ Después de ingresar al "localhost:2832" deberá aparecer el inventario del serv
 
 Sin cerrar el programa de bin/Server, abre otra pestaña de terminal, dirijase a la carpeta Client
 
-Utiliza el siguiente comando para compilar el programa de servidor de piezas y crear el ejecutable bin/Client:
+Utiliza el siguiente comando para compilar el programa del cliente y crear el ejecutable bin/Client:
 
 `make`
 
