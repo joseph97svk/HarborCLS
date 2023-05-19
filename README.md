@@ -88,12 +88,13 @@ Para encontrar lego y su cantidad correspondiente:
 ```
 ### Segunda entrega 📒
 
-## Clase PiecesServer
+Se crea Servidores de piezas con inventario de piezas.Es capaz de atender las solicitudes de los clientes por piezas para armar figuras y devolver el listado de las piezas para armar la figura, estas solicitudes utilizan el protocolo HTTP.
 
-Es capaz de atender las solicitudes de los clientes por piezas para
-armar figuras y devolver el listado de las piezas para armar la figura, estas solicitudes utilizan el protocolo HTTP. PiecesServer es un singleton.
+## Resolución: Clase PiecesServer 
+
 
 Los servidores de piezas tendrán información del inventario por medio de archivos .txt necesario para construir cada tipo de figura. El inventario es un conjunto de piezas que indica el nombre de la pieza y la cantidad, este inventario de piezas se disminuye cuando el cliente pide armar una figura. También es importante que al principio de que los archivos .txt para agregar al inventario debe de venir al principio  "Lego source File :: group ESJOJO"
+
 
 Ejemplo:
 
@@ -119,7 +120,7 @@ brick 2x2 slope inverted grey
 ### Componentes Importantes de la Clase
 
 Los servidores de piezas crea otros trabajadores (hilos o procesos) para realizar la
-atención de las solicitudes. El proceso principal no debe realizar esa atención.
+atención de las solicitudes. El proceso principal no debe realizar esa atención. PiecesServer es un singleton.
 
 Cuenta con 2 puertos, uno para los clientes que corresponde a 2816 y otro para el browser que es 2832. Para el socket cliente se conecta por medio de SSL y el browser con TCP. 
 
