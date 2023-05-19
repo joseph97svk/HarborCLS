@@ -45,11 +45,11 @@ connectServer(): Establece conexión segura SSL con el servidor web
 
 makeRequest(): Se encarga de crear un socket, si no ha sido creado, establecer conexión con el request específico y llamar a processRequest().
 
-inAnimalArray(std::string animal): se encarga de agregar un animal al arreglo interno de animales, y si está el animal dentro del arreglo entonces solo confirma si este ya se encuentra presente. 
+inAnimalArray(): se encarga de agregar un animal al arreglo interno de animales, y si está el animal dentro del arreglo entonces solo confirma si este ya se encuentra presente. 
 
-regexAnalyzer(bool requestMenu, std::string& line): analiza segmentos de código dados, dependiendo de si son del menú o de una figura específica, y realiza operaciones relacionadas con lo leído.  
+regexAnalyzer(): analiza segmentos de código dados, dependiendo de si son del menú o de una figura específica, y realiza operaciones relacionadas con lo leído.  
 
-processRequest(bool requestMenu): Procesa la respuesta de servidor web después de que se realiza una solicitud, se utiliza la biblioteca regex para el análisis de lenguaje html que el servidor web construye, que por medio de expresiones regulares se saca la información solicitada. En caso que se haya pedido el menú, se saca los nombres de las figuras por medio de la respuesta de servidor web y los agrega en el vector de figuras que tiene el Client. Por otro lado, si se solicita las piezas de una figura, se saca y despliega la información correspondiente
+processRequest(): Procesa la respuesta de servidor web después de que se realiza una solicitud, se utiliza la biblioteca regex para el análisis de lenguaje html que el servidor web construye, que por medio de expresiones regulares se saca la información solicitada. En caso que se haya pedido el menú, se saca los nombres de las figuras por medio de la respuesta de servidor web y los agrega en el vector de figuras que tiene el Client. Por otro lado, si se solicita las piezas de una figura, se saca y despliega la información correspondiente
 
 ###### Expresiones Regex (Expresiones regulares) 
 
@@ -86,28 +86,78 @@ Para encontrar lego y su cantidad correspondiente:
 
 4. ([^<]+)</TD> -> Este otro grupo atrapa cualqueir carácter que no sea [<] una o más veces, tiene que estar seguida de la etiqueta [</TD>]
 ```
+### Segunda entrega 📒
+
+## Clase PiecesServer
+
+Es capaz de atender las solicitudes de los clientes por piezas para
+armar figuras y devolver el listado de las piezas para armar la figura, estas solicitudes utilizan el protocolo HTTP. PiecesServer es un singleton.
+
+Los servidores de piezas tendrán información del inventario por medio de archivos .txt necesario para construir cada tipo de figura. El inventario es un conjunto de piezas que indica el nombre de la pieza y la cantidad, este inventario de piezas se disminuye cuando el cliente pide armar una figura. También es importante que al principio de que los archivos .txt para agregar al inventario debe de venir al principio  "Lego source File :: group ESJOJO"
+
+Ejemplo:
+
+```markdown
+Lego source File :: group ESJOJO
+
+brick 2x6 plate grey
+
+2
+
+brick 2x4 grey
+
+3
+
+brick 2x2 grey
+
+2
+
+brick 2x2 slope inverted grey
+
+1
+```
+### Componentes Importantes de la Clase
+
+Los servidores de piezas crea otros trabajadores (hilos o procesos) para realizar la
+atención de las solicitudes. El proceso principal no debe realizar esa atención.
+
+Cuenta con 2 puertos, uno para los clientes que corresponde a 2816 y otro para el browser que es 2832. Para el socket cliente se conecta por medio de SSL y el browser con TCP. 
+
+En esta clase cuenta con 4 hilos principales:
+
+1. listeningThread: Escucha por peticiones del cliente
+
+2. clientRequestHandler: Atiende peticiones del cliente
+
+3. browserListenThread: Escucha por peticiones del browser (mostrar inventario únicamente)
+
+4. browserRequestHandler: Atiende peticiones del browser (mostrar inventario únicamente)
+
+También se cuenta con 2 colas con control de concurrencia para tener control de las solicitudes del cliente (clientQueue) y del browser(browserQueue). 
+
+Durante esta etapa y para las realizar pruebas, los clientes conecten
+directamente con los servidores de piezas.
+
+### Funciones Importantes que realiza el Servidor de Piezas
+
+1. startServer():  Empieza el servidor inicializando sockets, creando subprocesos y escuchando conexiones de clientes. También se encarga de hacer join al hilo clientRequestHandler y cierra el socket Cliente.
+
+2. readLegoSourceFile(): Lea el archivo fuente de Lego y rellene el mapa de inventario de Lego.
+
+3. stop(): Detiene el PiecesServer cerrando los sockets del servidor y haciendo join a los hilos restantes. 
+
+4. processBrowserRequests(): Procesa las solicitudes del navegador sacando clientes de la cola del navegador y atendiendo sus solicitudes.
+
+5. processBrowserRequest(): Procesa una solicitud del navegador enviando una respuesta al cliente con una tabla de figuras de lego y sus montos.
+
+6. processClientRequests(): Procesa las solicitudes de los clientes extrayéndolos de la cola de clientes y sirviendo sus solicitudes.
+
+7. processClientRequest(): Procesa la solicitud de un cliente verificando si las piezas de Lego solicitadas están disponibles y respondiendo con un mensaje de éxito o falla.
+
+8. processRequest(): Procesa la solicitud del cliente y extrae las piezas solicitadas de los datos recibidos.
+
 
 ## Manual de Usuario 📃
-
-### Compilación y Ejecución del código
-
-Recordar que para poder compilar el programa se debe de tener descargado en su sistema la biblioteca *libssl-dev*.
-
-Para poder compilar y correr el código, se provee un archivo Makefile que asiste en la compilación y construcción del programa. Con esto, para la compilación es solo necesario el siguiente comando:
-
-`make`
-
-Este comando corre el makefile y crea el ejecutable dentro de la carpeta bin/. El ejecutable será del nombre de la carpeta común, en cuyo caso, a como es proveído, sería ‘lego-figure-maker’.
-
-Para poder correr el programa desde la carpeta común sería entonces el siguiente comando:
-
-`bin/lego-figure-maker`
-
-De querer borrar el ejecutable y todos los archivos relacionados generados, utilizar el siguiente comando:
-
-`make clean`
-
-Posterior a la ejecución solo es necesario seleccionar las opciones dadas por el output en consola para poder navegar dentro del programa. 
 
 #### Pruebas
 
@@ -122,13 +172,17 @@ Con el fin de poder usar este comando se debe de descargar en el sistema  *icdif
 Para el client:
 
 1. Prueba que el programa entre, cargue las figuras y termine la ejecucion correctamente.
+
 2. Prueba el manejo de errores de input en el menu principal por parte del cliente y que a pesar de estos se puede continuar con la ejecucion correctamente.
+
 3. Prueba el manejo de errores de input en el menu de una figura por parte del cliente y que a pesar de estos se puede continuar con la ejecucion correctamente.
+
 4. Prueba que se puede hacer llamados continuos para revisar las figuras y que sin importar la cantidad, el programa se ejecuta sin problema alguno.
 
 Para correr estas pruebas es necesario tener el servidor corriendo previo a la ejecucion del make test.
 
 5. Prueba que se puede armar la figura cuando se encuentran partes suficientes, y que posteriormente, al no haber mas piezas, recibe un mensaje del servidor que no se pudo armar. (Solo hay suficientes piezas en la prueba para armar el dragon una vez)
+
 6. Prueba que al no haber piezas para las demas figuras, no se pueden armar del todo.
 
 Para el servidor:
@@ -138,136 +192,198 @@ No es posible realizar un make test debido a que el programa se cierra con ctrl+
 Considerando esto, los siguientes describen los casos a probar.
 
 1. Solo correr bin/Server y posteriormente ctrl+C. Se prueba que la secuencia de ejecucion es correcta.
+
 2. Correr bin/Server, correr make test en la carpeta de Cliente, y al terminar las pruebas, ctrl+C. Se busca comprobar que la respuesta a pedidos desde el cliente son manejados correctamente. 
 
 ### Detener la Ejecución
 
-En caso de que desee finalizar la ejecución del programa, presionaremos en nuestro dispositivo la letra Ctrl+C o con 0 en el input, tal como es indicado por la salida del programa. 
+En caso de que desee finalizar la ejecución del programa, presionaremos en nuestro dispositivo la letra Ctrl+C o con 0 en el input, tal como es indicado por la salida del programa. Esto hará que hilos finalicen su trabajo, hagan join y termine la ejecución de programa exitosamente.
 
 
 ## Ejemplo de Ejecución 📷
 
+Para iniciar una ejecución del programa se debe de hacer lo siguiente:
+
+Dentro de la carpeta de proyecto lego-figure-maker del terminal, cambia de directorio a la carpeta Server con el siguiente comando:
+
+`cd Server`
+
+Utiliza el siguiente comando para compilar el programa de servidor de piezas y crear el ejecutable bin/Server:
+
+`make`
+
+Ejecuta bin/Server para comenzar con el programa:
+
+`bin/Server`
+
 Cuando se inicia el programa se deberá parecer a lo siguiente:
-![InicioPrograma](/images/ExampleExecution1.png "Example")
 
-Cuando el usuario pide por la figura "blacksheep" y luego solicita cerrar el programa se deberá parecer a lo siguiente:
+![InicioPrograma](/images/ServerInit.png "Example")
 
-![PeticionYCierre](/images/ExampleExecution2.png "Example")
+Abre un browser, y pon en el encabezado de la búsqueda "localhost:2832":
 
-# Protocolo
+![InicioBrowser](/images/BrowserInit.png "Example")
 
-Establecer los esquemas de comunicación:
+Después de ingresar al "localhost:2832" deberá aparecer el inventario del servidor de piezas que se representa con una tabla que muestra la cantidad y el nombre de la pieza, como lo siguiente:
 
-◦ Entre los clientes y los servidores intermedios se comunican por medio de una red pública con el puerto 80 (HTTP)
+![InicioBrowser2](/images/BrowserP2.png "Example")
 
-◦ Entre los servidores intermedios y los servidores de piezas se comunican por medio de una red privada, en un puerto diferente a 80
+Sin cerrar el programa de bin/Server, abre otra pestaña de terminal, dirijase a la carpeta Client
 
+Utiliza el siguiente comando para compilar el programa de servidor de piezas y crear el ejecutable bin/Client:
 
+`make`
 
-*Cliente:* Solicita el menú de figuras y las piezas necesarias a través de la solicitud GET de protocolo HTTP que se envía a través de la URL
+Ejecuta bin/Client para comenzar con el programa:
 
-*Servidor Intermedio:* Contiene el mapa de rutas. Este mapa de rutas se debe actualizar cuando identifica que se agrega un nuevo servidor de piezas. 
+`bin/Client`
 
-*Servidores de piezas:* Realiza una revisión de los modelos que almacena y es quien brinda las piezas solicitadas por el cliente.
+Cuando se inicia el programa deberá aparecer lo siguiente:
 
+![InicioProgramaClient](/images/ClientInit.png "Example")
 
-Valorar el uso de datos encriptados para las comunicaciones
-Encriptar datos con AES para el envío de datos en lo posible para toda conexión.
+Cuando pide por la figura "dragon" deberá aparecer lo siguiente:
 
+![Client2](/images/ClientReqFig.png "Example")
 
-## Protocolo de comunicación para adicionar o eliminar servidores de piezas a servidores intermedios o viceversa (interacción):
+Cuando se pide armar la figura deberá aparecer lo siguiente:
 
-### Puertos:
+![Client3](/images/ClientAimFigure.png "Example")
 
-##### Puertos para intermediario:
+El resultado de armar la figura correspondiente con éxito significa el cambio en el inventario del servidor de piezas, por lo que a refrescar el browser usado en el "localhost:2832" aparecerá lo siguiente:
 
-Puerto: 2304 (clientes)
+![Browser](/images/BlowserChangeInventory.png "Example")
 
-Puerto: 2432 (otros servidores intermediarios)
+Para cerrar el programa, dirijase al terminal que se encuentra en el directorio de Server y pon ctrl+c, aparecerá lo siguiente: 
 
-Puerto: 2560 (servidores de piezas)
+![ServerClose](/images/closeServer.png "Example")
 
-##### Puertos para servidor de partes: 
+ 
 
-Puerto: 2816 (servidor intermediario)
+# Protocolo grupal de comunicación PIRO 2023
 
-### Sucesion de eventos: 
+## Esquema de comunicación
 
-1. Primer Caso: Servidor intermediario se levanta antes que los servidores de pieza 
+- Los servidores intermedios y de piezas deben estar en la misma red
 
-        Hace un broadcast a todos los puertos 2560 con su IP dentro del servidor y empieza a escuchar por el puerto 2304 a los clientes.
+- Los Servidores Intermedios y de Piezas usarán el protocolo HTTP
 
-        Al no haber ningun servidor de piezas entonces no recibe respuesta.
+- Los Servidores Intermedios no se comunican con otros Servidores Intermedios
 
-        Se mantiene escuchando en el puerto 2304 a que algun servidor de piezas anuncie su levantamiento. 
+- Los servidores intermedios deben conectarse con los servidores de piezas y escuchar por solicitudes de clientes
 
-        Al levantarse un servidor de piezas, este realiza un broadcast a todos los puertos 2304 dentro de la red, conjunto con su IP.
+- Los servidores intermedios contienen un mapa de ruta, el cual indica los servidores de piezas que contienen las piezas necesarias para construir cierta figura
 
-        El servidor intermediario recibe el IP, y lo guarda en un mapa local para poder accesarlo cuando sea necesario. 
+- Los servidores de piezas indican a los servidores intermedios las figuras que contienen
 
+- Los clientes establecen una conexión con los servidores intermedios, nunca con los servidores de piezas
 
+## URI
 
-2. Segundo Caso: Servidor de pieza se levanta primero que el servidor intermediario
+Los servidores intermedios redirigen las solicitudes de los clientes a los servidores de piezas, de modo que las URIs utilizadas deben ser estandarizadas, por lo cual se ha acordado utilizar la forma “/piece”, donde “piece” específica la figura que desea el cliente. Por ejemplo si se desea la figura de Jirafa, la solicitud será de la siguiente manera:
 
-        El servidor de piezas realiza un broadcast con su IP a todos los puertos 2560 dentro de la red.
 
-        Al no encontrarse ningun servidor intermediario, no recibe respuesta. 
+	GET /giraffe
 
-        Se levanta un servidor intermediario, y este realiza un broadcast a todos los puertos 2560 con su IP dentro del servidor y empieza a escuchar por el puerto 2304 a los clientes.
 
-        El servidor de piezas recibe el IP del servidor intermediarios y este responde a este IP con su IP.
+## Puertos
 
+Se utilizarán 3 diferentes puertos para la comunicación en la red. Los servidores intermedios deben comunicarse con los clientes, así como con los servidores de piezas, para lo cual se ha acordado lo siguiente:
 
+1. En el puerto 4850, el Servidor Intermedio va a enviar un GET de broadcast, y los Servidores de Piezas van a mandar un 200 OK con su tabla de figuras si se encuentra levantado.
 
-3. Tercer Caso: conexion de un servidor intermediario con otro servidor intermediario
 
-        El servidor intermediario se levanta y tambien emite un broadcast con su IP a todos los puertos 2432 dentro de la red.
+2. En el puerto 4849 el Servidor Intermedio va a redirigir la request del cliente a los Servidores de Piezas, si es que lo encuentra en su tabla.
 
-        El otro servidor intermediario recibe el IP, lo agrega a su mapa local de IPs y responde al IP del otro servidor intermediario con su IP.
 
-        El primer servidor intermediario recibe el IP del otro servidor y lo agrega al mapa local de servidores intermediarios. 
+3. En el caso en el que el Servidor Intermedio no encuentre la figura solicitada en dentro de su tabla de rutas con los Servidores de Piezas, entonces hará de nuevo un broadcast por si algún nuevo Servidor de Piezas se levanta y tiene la figura pero no estaba en la tabla de rutas del Servidor Intermedio
 
 
+## Conexiones
 
-4. Cuarto Caso: se borra un servidor intermediario
 
-        Se deja de recibir peticiones por el puerto 2304.
+Los servidores intermedios deben esperar el envío de bytes por parte de los Servidores de Piezas. Si estos, luego de cierta cantidad de tiempo no reciben bytes, deben eliminar la dirección IP de ese servidor de su mapa de rutas, puesto que el Servidores de Piezas no está activo.
 
-        Se finalizan de procesar las peticiones del servidor.
+Si el cliente le solicita una figura al servidor intermedio, cuyo servidor no tiene en su tabla de rutas, el servidor debe enviar un mensaje de broadcast a través del puerto 4850, con tal de encontrar dicho servidor. El servidor de piezas, entonces, responde con un mensaje indicando su dirección IP y las figuras que contiene.
 
-        Se le envian mensajes a los otros servidores intermediarios con su IP y codigo de borrado en el ultimo byte.
+En caso de que otro servidor intermedio reciba el mensaje, este simplemente descarta la solicitud.
 
-        Los otros servidores mandan un mensaje confirmacion de borrado.
 
-        De recibir un mensaje de confirmacion de todos, se borra.
+## Mensajes
 
-        De no ser asi, se vuelve a mandar el mensaje al menos 10 veces mas esperando respuesta antes de borrarse de todas maneras y reporta el error.
+Los mensajes entre cliente y servidor intermedio, y entre servidor intermedio y de piezas, se realizan sobre el protocolo HTTP 1.0. El contenido de los mensajes es sensible a la naturaleza de la solicitud a un servidor, y el puerto donde se realiza la conexión. 
 
+En particular, existen estas categorías de mensajes:
 
+1. Mensajes de contenido entre cliente y servidor intermedio:
 
-5. Quinto Caso: se borra un servidor de partes
+- Los clientes pueden realizar solicitudes GET para obtener el listado de figuras, y el listado de piezas para alguna figura en particular.
 
-        Espera a recibir un mensaje del servidor intermediario que lo esta utilizando confirmando que se finaliza el checkeo o utilizacion, en el caso que esta siendo utilizado. 
+- Los servidores intermedios son responsables de responder con el listado de figuras en HTML al cliente.
 
-        El servidor de partes realiza un broadcast con el codigo de borrado de servidor de piezas a todos los puertos 2560.
+- La distinción entre una solicitud del listado de figuras y el listado de piezas de alguna figura se realiza mediante el URI asociado al método GET.
 
-        Todos los servidores intermediarios reciben el mensaje, borran el IP de sus mapa locales y mandan una confirmacion de borrado. 
+- Un servidor intermedio debe devolver la respuesta HTTP con el listado de piezas de una figura que le respondió un servidor de piezas al cliente que las solicitó.
 
-        Al recibir los mensajes de confirmacion, el servidor local reduce un contador local de servidores intermediarios.
+- De no poder contactar un servidor de piezas, el servidor intermedio podrá responder con su propia respuesta HTTP. 
 
-        Al llegar este contador a 0 se borra.
+- De manera semejante, de obtener una solicitud mal formada, o una pieza inexistente, se debe responder con su propia respuesta HTTP.
 
-        De no llegar a 0, en una cantidad arbitraria de tiempo, este reporta el error antes de borrarse. 
+- Aquellas respuestas de los casos de error de redirección a un servidor de piezas deben indicar que no se pudo encontrar la pieza. Se sugieren las respuestas 404 o 500 para mensajes de error HTTP.
 
+2. Mensajes de contenido entre servidor intermedio y servidor de piezas:
 
+- Los servidores intermedios deben enviar la solicitud HTTP de un listado de piezas de una figura enviada por un cliente hacia el servidor de piezas correspondiente.
 
-Nota: si es necesario diferenciar entre un broadcast y un mensaje de respuesta, se puede agregar un byte al final de cada mensaje con IP y en este se puede tomar el 00000000 como un broadcast, el 00000001 como un mensaje normal, 00000010 cuando se manda un mensaje de borrado de servidor intermediario, y 00000011 cuando se manda un mensaje de borrado de servidor de partes, el resto de los digitos pueden utilizarse para agregar mas funcionalidad funcionalidades en el futuro. Otro uso podria ser reservar los primeros 32 valores para mensajes generales y despues asignar 112 a mensajes de servidores de piezas y otros 112 a mensajes de servidores intermediarios, para mantener organizacion. 
+- Al obtener la respuesta apropiada a esa solicitud, deben redirigirla hacia el cliente que la solicitó.
 
+3. Mensajes de descubrimiento desde el servidor intermedio hacia servidores de piezas:
 
-### Paso de datos:
+- Un servidor intermedio comienza desconociendo los servidores de piezas.
 
-Se puede definir un formato propietario diferente al de html para los datos enviados.
-Se puede también definir que al enviarse los datos y que estos, a la mitad de un contenido, no caben dentro del mensaje enviado, se indique donde ocurrió tal interrupción, o simplemente guardarlo para este ser enviado dentro del siguiente mensaje. 
+- Cuando un cliente solicita una pieza para la cual el servidor intermedio desconoce el servidor de piezas apropiado, éste debe preguntar mediante broadcast cuáles servidores servidores contienen esa pieza.
+
+- Un servidor de piezas al recibir una solicitud de descubrimiento de piezas de un servidor intermedio debe responder apropiadamente. Se le puede preguntar cuáles figura soporta, o si soporta una pieza o no.
+
+- Cuando un cliente solicita una pieza, y el servidor intermedio conoce el servidor de piezas apropiado, pero éste no responde tras un tiempo de timeout, el servidor intermedio se desconoce de aquel servidor de piezas y responde al cliente con una respuesta indicando que la pieza no se encontró.
+
+## El formato de los mensajes HTTP:
+
+1. Solicitud de listado de figuras:
+
+        Método: “GET”
+        URI: “/”
+        Versión HTTP: “HTTP/1.0”
+        Cuerpo: Ignorado
+
+2. Respuesta del listado de figuras (encontrado):
+
+        Estado: “OK” 200
+        Versión HTTP: “HTTP/1.0”
+        Cuerpo: Dirección IP del servidor, un cambio de línea (CRLF), junto a lista separada por comas de figuras que maneja el servidor, terminando en un punto.
+
+3. Solicitud de listado de piezas para una figura:
+
+        Método: “GET”
+        URI: “/” seguido del nombre de la figura
+        Versión HTTP: “HTTP/1.0”
+        Cuerpo: Ignorado
+
+4. Respuesta del listado de piezas para una figura (encontrado):
+
+        Estado: “OK” 200
+        Versión HTTP: “HTTP/1.0”
+        Cuerpo: Listado de piezas para una figura en HTML
+
+
+Notas:
+
+- El listado de figuras y el listado de piezas para una figura se envían HTML.
+
+- El contenido de las respuestas y solicitudes no tienen encoding particular (ni chunked). Se asume el final del mensaje como el final de la respuesta / solicitud HTML. Se sugiere considerar un timeout en la lectura.
+
+- Ambos listados son libres de ser implementados según desee cada grupo, siempre y cuando le permita al cliente formar las solicitudes de figuras en el formato apropiado.
+
 
 ### FIGURA LEGO: CHIKI
 
