@@ -39,17 +39,17 @@ Crear un cliente que utilice conexión segura SSL para solicitar a un servidor u
 
 Se crea la clase Client que utiliza una conexión segura con SSL para conectarse al servidor web https://os.ecci.ucr.ac.cr/lego/ y realizar solicitudes con la finalidad de conseguir información de menú de figuras Lego disponibles y las piezas requeridas para la figura solicitada, se programa sockets con acceso seguro (SSL).
 
-Se implementa los siguientes métodos para la correcta funcionalidad de la clase Client:
+La clase Client debe de realizar lo siguiente:
 
-connectServer(): Establece conexión segura SSL con el servidor web
+- Establecer conexión segura SSL con el servidor web
 
-makeRequest(): Se encarga de crear un socket, si no ha sido creado, establecer conexión con el request específico y llamar a processRequest().
+- Encargarse de crear un socket, si no ha sido creado, establecer conexión con el request específico y llamar a processRequest().
 
-inAnimalArray(): se encarga de agregar un animal al arreglo interno de animales, y si está el animal dentro del arreglo entonces solo confirma si este ya se encuentra presente. 
+- Encargarse de agregar un animal al arreglo interno de animales, y si está el animal dentro del arreglo entonces solo confirma si este ya se encuentra presente. 
 
-regexAnalyzer(): analiza segmentos de código dados, dependiendo de si son del menú o de una figura específica, y realiza operaciones relacionadas con lo leído.  
+- Analizar segmentos de código dados, dependiendo de si son del menú o de una figura específica, y realiza operaciones relacionadas con lo leído.  
 
-processRequest(): Procesa la respuesta de servidor web después de que se realiza una solicitud, se utiliza la biblioteca regex para el análisis de lenguaje html que el servidor web construye, que por medio de expresiones regulares se saca la información solicitada. En caso que se haya pedido el menú, se saca los nombres de las figuras por medio de la respuesta de servidor web y los agrega en el vector de figuras que tiene el Client. Por otro lado, si se solicita las piezas de una figura, se saca y despliega la información correspondiente
+- Procesar la respuesta de servidor web después de que se realiza una solicitud, se utiliza la biblioteca regex para el análisis de lenguaje html que el servidor web construye, que por medio de expresiones regulares se saca la información solicitada. En caso que se haya pedido el menú, se saca los nombres de las figuras por medio de la respuesta de servidor web y los agrega en el vector de figuras que tiene el Client. Por otro lado, si se solicita las piezas de una figura, se saca y despliega la información correspondiente
 
 ###### Expresiones Regex (Expresiones regulares) 
 
