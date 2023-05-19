@@ -34,6 +34,7 @@ class Client {
  private:
   void processRequest(RequestType requestMenu);
   bool inFigureArray(std::string figure);
+  bool inRequestedPieces(std::string& piece);
   void regexAnalyzer(RequestType requestMenu, std::string& line, int& totalAmount);
   RequestType mainMenuHandle();
   RequestType handleFigure();

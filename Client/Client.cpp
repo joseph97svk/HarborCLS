@@ -137,6 +137,27 @@ bool Client::inFigureArray(std::string figure)
 }
 
 /**
+ * in requestPieces method
+ * Checks if the given pieces is already present in the client's pieces.
+ *
+ * @param Piece the Piece to check for.
+ * @return true if the Piece is already present in the pieces, false otherwise.
+ *
+ **/
+bool Client::inRequestedPieces(std::string& piece)
+{
+  bool foundPiece = false;
+  for (auto& pieces : this->requestedPieces)
+  {
+    if (pieces.first == piece)
+    {
+      foundPiece = true;
+    }
+  }
+  return foundPiece;
+}
+
+/**
  * regexAnalyzer method
  * This method analyzes a given line using regular expressions to extract information depending
  *
@@ -174,11 +195,13 @@ void Client::regexAnalyzer(RequestType requestType, std::string &line, int &tota
       // Extract quantity and description of the piece
       std::string amount = pieza_match[1];
       std::string descripcion = pieza_match[2];
-      // Convert quantity to integer
-      int cantidad = std::stoi(amount);
-      std::cout << std::left << std::setw(15) << cantidad << descripcion << std::endl;
-      this->requestedPieces.emplace_back(descripcion, cantidad);
-      totalAmount += cantidad;
+      if (inRequestedPieces(descripcion) == false) {
+        // Convert quantity to integer
+        int cantidad = std::stoi(amount);
+        std::cout << std::left << std::setw(15) << cantidad << descripcion << std::endl;
+        this->requestedPieces.emplace_back(descripcion, cantidad);
+        totalAmount += cantidad;
+      }
       // Update position in the response string
       begin = pieza_match.suffix().first;
     }
