@@ -1,0 +1,161 @@
+Universidad de Costa Rica
+
+Escuela de Ciencias de la Computación e Informática
+CI-0123 PI de sistemas operativos y redes
+Ejemplos de servicio
+
+Figuras:
+
+1.	Horse
+2.	blacksheep
+3.	dragon
+4.	duck
+5.	elephant
+6.	fish
+7.	giraffe
+8.	horse
+9.	lion
+10.	monkey
+11.	penguin
+12.	roadrunner
+13.	shark
+14.	squid
+15.	swan
+16.	turtle
+17.	whitesheep
+
+Seleccione una de las opciones anteriores
+	o
+0 para cerrar el programa
+	o
+'r' para refrescar (el servidor puede entregar datos incorrectamente generando comportamiento indefinido,
+su este es el caso, entonces refresque la pagina)
+
+
+<<<DRAGON>>>
+
+Cantidad       Descripción
+--------       -----------
+2              brick 2x6 plate grey
+3              brick 2x4 grey
+2              brick 2x2 grey
+1              brick 2x2 slope inverted grey
+1              brick 2x8 red
+2              brick 2x2 slope red
+1              brick 2x2 slope inverted red
+1              brick 2x2 slope grey
+2              brick 2x4 plate grey
+1              flag yellow
+2              brick 1x2 slope inverted red
+2              brick 2x4 red
+2              brick 2x4 red
+2              brick 2x3 red
+1              brick 1x1 eyes dark grey
+
+
+Para armar la figura: 2.
+Para volver al menu principal: 1.
+Para cerrar el programa: 0.
+	o
+'r' para refrescar (el servidor puede entregar datos incorrectamente generando comportamiento indefinido,
+su este es el caso, entonces refresque la pagina)
+
+Enter server
+Your figure has been assembled!
+Universidad de Costa Rica
+
+Escuela de Ciencias de la Computación e Informática
+CI-0123 PI de sistemas operativos y redes
+Ejemplos de servicio
+
+Figuras:
+
+1.	Horse
+2.	blacksheep
+3.	dragon
+4.	duck
+5.	elephant
+6.	fish
+7.	giraffe
+8.	horse
+9.	lion
+10.	monkey
+11.	penguin
+12.	roadrunner
+13.	shark
+14.	squid
+15.	swan
+16.	turtle
+17.	whitesheep
+
+Seleccione una de las opciones anteriores
+	o
+0 para cerrar el programa
+	o
+'r' para refrescar (el servidor puede entregar datos incorrectamente generando comportamiento indefinido,
+su este es el caso, entonces refresque la pagina)
+
+
+<<<DRAGON>>>
+
+Cantidad       Descripción
+--------       -----------
+2              brick 2x6 plate grey
+3              brick 2x4 grey
+2              brick 2x2 grey
+1              brick 2x2 slope inverted grey
+1              brick 2x8 red
+2              brick 2x2 slope red
+1              brick 2x2 slope inverted red
+1              brick 2x2 slope grey
+2              brick 2x4 plate grey
+1              flag yellow
+2              brick 1x2 slope inverted red
+2              brick 2x4 red
+2              brick 2x4 red
+2              brick 2x3 red
+1              brick 1x1 eyes dark grey
+
+
+Para armar la figura: 2.
+Para volver al menu principal: 1.
+Para cerrar el programa: 0.
+	o
+'r' para refrescar (el servidor puede entregar datos incorrectamente generando comportamiento indefinido,
+su este es el caso, entonces refresque la pagina)
+
+Enter server
+There were not enough pieces to assemble your figure :'(
+Universidad de Costa Rica
+
+Escuela de Ciencias de la Computación e Informática
+CI-0123 PI de sistemas operativos y redes
+Ejemplos de servicio
+
+Figuras:
+
+1.	Horse
+2.	blacksheep
+3.	dragon
+4.	duck
+5.	elephant
+6.	fish
+7.	giraffe
+8.	horse
+9.	lion
+10.	monkey
+11.	penguin
+12.	roadrunner
+13.	shark
+14.	squid
+15.	swan
+16.	turtle
+17.	whitesheep
+
+Seleccione una de las opciones anteriores
+	o
+0 para cerrar el programa
+	o
+'r' para refrescar (el servidor puede entregar datos incorrectamente generando comportamiento indefinido,
+su este es el caso, entonces refresque la pagina)
+

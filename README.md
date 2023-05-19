@@ -109,12 +109,36 @@ De querer borrar el ejecutable y todos los archivos relacionados generados, util
 
 Posterior a la ejecución solo es necesario seleccionar las opciones dadas por el output en consola para poder navegar dentro del programa. 
 
+#### Pruebas
+
 Para la compilación de los casos de prueba, se puede usar el siguiente comando para facilitar la tarea:
 
 `make test`
 
 Con el fin de poder usar este comando se debe de descargar en el sistema  *icdiff* que es una herramienta de comparación de archivos y directorios.
 
+###### Sobre las pruebas
+
+Para el client:
+
+1. Prueba que el programa entre, cargue las figuras y termine la ejecucion correctamente.
+2. Prueba el manejo de errores de input en el menu principal por parte del cliente y que a pesar de estos se puede continuar con la ejecucion correctamente.
+3. Prueba el manejo de errores de input en el menu de una figura por parte del cliente y que a pesar de estos se puede continuar con la ejecucion correctamente.
+4. Prueba que se puede hacer llamados continuos para revisar las figuras y que sin importar la cantidad, el programa se ejecuta sin problema alguno.
+
+Para correr estas pruebas es necesario tener el servidor corriendo previo a la ejecucion del make test.
+
+5. Prueba que se puede armar la figura cuando se encuentran partes suficientes, y que posteriormente, al no haber mas piezas, recibe un mensaje del servidor que no se pudo armar. (Solo hay suficientes piezas en la prueba para armar el dragon una vez)
+6. Prueba que al no haber piezas para las demas figuras, no se pueden armar del todo.
+
+Para el servidor:
+
+No es posible realizar un make test debido a que el programa se cierra con ctrl+C el cual no es interpretado como tal dentro de un archivo input.txt. Por esto se necesita realizar las operaciones manualmente y posteriormente comparar con el archivo de output proveido.
+
+Considerando esto, los siguientes describen los casos a probar.
+
+1. Solo correr bin/Server y posteriormente ctrl+C. Se prueba que la secuencia de ejecucion es correcta.
+2. Correr bin/Server, correr make test en la carpeta de Cliente, y al terminar las pruebas, ctrl+C. Se busca comprobar que la respuesta a pedidos desde el cliente son manejados correctamente. 
 
 ### Detener la Ejecución
 
@@ -132,7 +156,7 @@ Cuando el usuario pide por la figura "blacksheep" y luego solicita cerrar el pro
 
 # Protocolo
 
- Establecer los esquemas de comunicación:
+Establecer los esquemas de comunicación:
 
 ◦ Entre los clientes y los servidores intermedios se comunican por medio de una red pública con el puerto 80 (HTTP)
 
