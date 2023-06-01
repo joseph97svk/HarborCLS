@@ -98,7 +98,8 @@ AddrSpace::AddrSpace(OpenFile *executable)
     memMap->Mark(10);
     memMap->Mark(12);
     */
-
+    std::cout << "Bytes required: " << size << std::endl; 
+    std::cout << "Space available: " << memMap->NumClear() << " :: Space requested: " << numPages << std::endl;
     size = numPages * PageSize;
 
     ASSERT(numPages <= NumPhysPages);		// check we're not trying
