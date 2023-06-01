@@ -4,17 +4,23 @@ int socketFD;
 
 #define PORT 2816
 
-void makeRequest(int option);
+// G0 Esteban
+// G1 Johana
+// G2 Joseph
 
-int mainMenuHandle();
+void makeRequest(int option); // G1
 
-int handleFigure();
+int mainMenuHandle(); // G1
 
-int handleServerRequest();
+int handleFigure(); // G2
 
-int ConnectServer();
+int handleServerRequest(); // G2
 
-void processRequest(int socketId, int option, char* animal);
+int ConnectServer(); // G1
+
+void processRequest(int socketId, int option, char* animal); // G0
+
+void readControlledInput(int min, int max, char exception); // G0
 
 int main() {
     int option = 1;
