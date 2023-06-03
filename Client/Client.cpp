@@ -588,6 +588,11 @@ RequestType Client::handleServerRequest() {
 
   Socket* socketBuffer = this->socket;
 
+  char code[2];
+  code[0] = '0';
+  code[1] = 4;
+  this->Write(code, 2);
+
   this->socket = new Socket('s', false);
   this->socket->InitSSL();
   std::string textInit = "ip address in dot decimal format";
@@ -604,6 +609,10 @@ RequestType Client::handleServerRequest() {
       "</TD>\n"
       "</TR>\n"); 
   }
+
+  char endOfTransmission = 4;
+
+  response.push_back(endOfTransmission);
 
   this->Write(response.c_str(), response.size());
 

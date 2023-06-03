@@ -166,11 +166,27 @@ class PiecesServer {
     char response[2];
     memset(response, 0, 2);
     response[0] = '0';
+
+    char code[2];
+
+    client->Read(code, 2);
     
     std::vector<std::pair<std::string, size_t>> requestedPieces;
 
-    // recibir piezas
-    processRequest(client, requestedPieces);
+    if (code[0] == 0) {
+       // recibir piezas
+      processRequest(client, requestedPieces);
+    } else {
+      char nachosBuffer[100];
+      int size = 0;
+      // recibir piezas de nachos
+      while () {
+
+      }
+      
+    }
+  
+   
 
     // amount of pieces found
     size_t piecesFountAmount = 0;
@@ -317,9 +333,9 @@ class PiecesServer {
           cyclesSinceEndOfBytes++;
         }
         character++;
-      } 
+      }
 
-      if (bufferSize != 500) {
+      if ((unsigned int) response[response.size() - 1] == 4) {
         break;
       }   
     }
