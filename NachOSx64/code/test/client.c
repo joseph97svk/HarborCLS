@@ -1,28 +1,37 @@
 #include "syscall.h"
 
+#define false 0
+#define true 1
+
 int socketFD;
+int bufferId;
+char* figureName;
+int figureSize;
+char connected;
 
 #define PORT 2816
 
-// G0 Esteban
-// G1 Johana
-// G2 Joseph
+void makeRequest(int option);
 
-void makeRequest(int option); // G1
+int mainMenuHandle();
 
-int mainMenuHandle(); // G1
+int handleFigure();
 
-int handleFigure(); // G2
+int handleServerRequest();
 
-int handleServerRequest(); // G2
+int ConnectServer();
 
-int ConnectServer(); // G1
+void processRequest(int socketId, int option, char* animal);
 
-void processRequest(int socketId, int option, char* animal); // G0
+int readControlledInput(int min, int max, char exception) {
 
-void readControlledInput(int min, int max, char exception); // G0
+}
 
 int main() {
+    char buffer[20];
+    figureName = &buffer[0];
+    figureSize = 0;
+    connected = false;
     int option = 1;
 
     while (option != 0) {
@@ -46,11 +55,65 @@ int main() {
 }
 
 void makeRequest(int option) {
+  //this->connectServer();
+    if (connected == true) {
+        ConnectServer();
+    }
+    char temp[100];
+    if (option == 1) {
+        Write("GET /lego/index.php HTTP/1.1\r\nhost: redes.ecci\r\n\r\n", 50, socketFD);
+        connected = true;
+    } else {
+        Create("bufferReq");
+        int file = Open("bufferReq");
+        Write("GET /lego/list.php?figure=", 26, file);
+        Write(figureName, figureSize, file);
+        Write(" HTTP/1.1\r\nhost: redes.ecci\r\n\r\n", 32, file);
+        int size = 58 + figureSize;
+        char buffer[size];
+        Read(buffer, -size, file);
+        Write(buffer,size, socketFD);
+        Close(file);
+    }
 
+    processRequest(socketFD, option, figureName);
+    return 1;
 }
 
-int mainMenuHandle() {
+int ConnectServer() {
+    if (socketFD != 0) {
+        Close(socketFD);
+    }
+    char * osn = (char *) "10.1.104.187";
+    socketFD = Socket(AF_INET_NachOS, SOCK_STREAM_NachOS, 1);
+    return Connect(socketFD, osn, 80);
+}
 
+
+int mainMenuHandle() {
+    // el regex imprime las figuras
+    int option;
+    Write("Select option:\n", 14, 1);
+    Write("0.Exit\n", 7, 1);
+    Write("r.Refresh\n", 10, 1);
+    // Read(&option, 1, 0);
+    int figureAmount = 0;
+    Read((char*)&figureAmount, -1, bufferId);
+    option = readControlledInput(0, figureAmount, 'r');
+    int index = 0;
+    while ( index < option) {
+        figureSize = Read(figureName, -20, bufferId);
+        index++;
+    }
+    if (option == 0) {
+        return 4;
+    }
+
+    if (option == 'r') {
+        return 1;
+    } 
+    
+    return 2;
 }
 
 int handleFigure() {
@@ -61,9 +124,6 @@ int handleServerRequest() {
 
 }
 
-int ConnectServer() {
-
-}
 
 
 // processRequest syscall
