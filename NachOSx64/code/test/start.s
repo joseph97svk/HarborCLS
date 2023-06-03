@@ -281,7 +281,17 @@ Shutdown:
 	syscall
 	j	$31
 	.end Shutdown
-
+ProcessRequest:
+	addiu $2,$0,SC_ProcessRequest
+	syscall
+	j	$31
+	.end ProcessRequest
+InputRequest:
+	addiu $2,$0,SC_InputRequest
+	syscall
+	j	$31
+	.end InputRequest
+	
 /* dummy function to keep gcc happy */
         .globl  __main
         .ent    __main

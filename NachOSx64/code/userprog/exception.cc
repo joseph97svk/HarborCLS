@@ -30,6 +30,13 @@
 #include <sys/socket.h>
 #include <socketLib.h>
 
+#include <stdio.h>
+#include <string.h>
+#include <regex>
+#include <vector>
+#include <iomanip>
+
+
 #define openFilesTable currentThread->space->openFilesTable
 #define processTable (*processTable)
 
@@ -873,7 +880,251 @@ void NachOS_Accept() {		// System call 34
 /*
  *  System call interface: int Shutdown( Socket_t, int )
  */
-void NachOS_Shutdown() {	// System call 25
+void NachOS_Shutdown() {	// System call 35
+
+}
+
+void nachOS_ProcessRequest()
+{
+    int requestType = machine->ReadRegister(4);
+
+    std::string response;
+    int totalAmount = 0;
+    char buffer[501];
+    std::string lastLine = "";
+    std::string line = "";
+    std::string endOfDoc = "";
+    int cyclesSinceEndOfBytes = 4;
+    int count = 0;
+
+    if (requestType == 2)
+    {
+        printf("%-15s%s\n", "Cantidad", "Descripción");
+        printf("%-15s%s\n", "--------", "-----------");
+    }
+
+    OpenFileId fileId = Open("output.txt");
+    if (fileId < 0)
+    {
+        printf("Error opening output file\n");
+        returnFromSystemCall();
+        return;
+    }
+
+    int bytesRead;
+    while ((bytesRead = Read(buffer, 500, ConsoleInput)) > 0)
+    {
+        buffer[bytesRead] = '\0';
+        response = buffer;
+
+        size_t character = 0;
+        size_t initLocation = 0;
+        bool endOfBytes = false;
+
+        while (character < response.size())
+        {
+            endOfBytes = (character == response.size() - 1);
+
+            if (response[character] == '\n' || endOfBytes)
+            {
+                if (cyclesSinceEndOfBytes == 2)
+                {
+                    endOfDoc += lastLine;
+                    lastLine = endOfDoc;
+                    size_t emptyTries = 0;
+                    while (endOfDoc.empty() && emptyTries < 10)
+                    {
+                        emptyTries++;
+                        bytesRead = Read(buffer, 500, ConsoleInput);
+                        if (bytesRead <= 0)
+                            break;
+                        buffer[bytesRead] = '\0';
+                        endOfDoc = buffer;
+                    }
+                    cyclesSinceEndOfBytes = 4;
+                }
+
+                int adjustment = 1;
+                if (static_cast<unsigned int>(response[character - 1]) > 127)
+                {
+                    adjustment -= 2;
+                }
+
+                if (endOfBytes)
+                {
+                    endOfDoc = lastLine + response.substr(initLocation, character - initLocation + adjustment);
+                    cyclesSinceEndOfBytes = 0;
+                }
+
+                line = lastLine + response.substr(initLocation, character - initLocation + adjustment);
+
+                // Realizar análisis de expresión regular
+                regexAnalyzer(requestType, line, totalAmount);
+
+                lastLine = response.substr(initLocation, character - initLocation + adjustment);
+                initLocation = character + 1;
+                cyclesSinceEndOfBytes++;
+
+                // Escribir la línea en el archivo
+                char* lineBuffer = const_cast<char*>(line.c_str());
+                Write(lineBuffer, line.size(), fileId);
+            }
+            character++;
+        }
+
+        if (requestType == 3 && response.size() < 500)
+        {
+            break;
+        }
+    }
+
+    // Escribir el valor ASCII 4 al final del documento
+    char eofMarker = 4;
+    Write(&eofMarker, 1, fileId);
+
+    Close(fileId);
+
+    // Retornar el fileId del archivo
+    machine->WriteRegister(2, fileId);
+
+    if (requestType == 0)
+    {
+        // Salir del programa
+        interrupt->Halt();
+    }
+
+    returnFromSystemCall();
+}
+
+
+
+
+
+void regexAnalyzer(int requestType, std::string &line, int &totalAmount)
+{
+    std::vector<std::string> figuresArray;
+    std::vector<std::pair<std::string, int>> requestedPieces;
+
+    if (requestType == 2)
+    {
+        // Regex to match menu options
+        std::regex regexMenu("<OPTION\\s+value=\"(?!None\")([^\"]+)\">");
+        std::smatch optionMatch;
+        std::string::const_iterator begin(line.cbegin());
+        if (std::regex_search(begin, line.cend(), optionMatch, regexMenu))
+        {
+            std::string figure = optionMatch[1];
+            bool foundFigure = false;
+            for (std::string figure : figuresArray)
+            {
+                if (figure == figure)
+                {
+                    foundFigure = true;
+                    break;
+                }
+            }
+            if (!foundFigure)
+            {
+                figuresArray.push_back(figure);
+            }
+            // Update position in the response string
+            begin = optionMatch.suffix().first;
+        }
+    }
+    else
+    {
+        // Regex to match pieces in figure response
+        std::regex regexPiece("<TR><TD ALIGN=center?> (\\d+)</TD>\\s*<TD ALIGN=center> ([^<]+)</TD>");
+        std::smatch pieceMatch;
+        std::string::const_iterator begin(line.cbegin());
+
+        if (std::regex_search(begin, line.cend(), pieceMatch, regexPiece))
+        {
+            // Extract quantity and description of the piece
+            std::string amount = pieceMatch[1];
+            std::string description = pieceMatch[2];
+
+            bool foundPiece = false;
+            for (auto &piece : requestedPieces)
+            {
+                if (piece.first == description)
+                {
+                    foundPiece = true;
+                    break;
+                }
+            }
+
+            if (!foundPiece)
+            {
+                // Convert quantity to integer
+                int quantity = std::stoi(amount);
+                printf("%-15s%s\n", std::to_string(quantity).c_str(), description.c_str());
+                requestedPieces.emplace_back(description, quantity);
+                totalAmount += quantity;
+            }
+
+            // Update position in the response string
+            begin = pieceMatch.suffix().first;
+        }
+    }
+}
+
+void NachOS_InputRequest() {    // System call 37
+   // get minRange, maxRange, and exception character from registers or memory
+   int minRange = machine->ReadRegister(4);
+   int maxRange = machine->ReadRegister(5);
+   char exception;
+   machine->ReadMem(machine->ReadRegister(6), 1, (int*) &exception);
+
+   std::string inputString;
+
+   // while string is readable, read
+   while (std::cin >> inputString) {
+      bool nonValidString = false;
+
+      // Check if exception character is present and return it directly
+      if (exception != '\0' && inputString[0] == exception && inputString.size() == 1) {
+         machine->WriteRegister(2, (int) inputString[0]);
+         returnFromSystemCall();
+         return;
+      }
+
+      // for all characters read in the string
+      for (size_t character = 0; character < inputString.size(); character++) {
+         // check if value is numeric
+         if (('0' > inputString[character] || inputString[character] > '9') &&
+             (character == 0 && inputString[character] != '-')) {
+            nonValidString = true;
+         }
+      }
+
+      // If the input string is not a valid number, prompt the user to enter a valid number
+      if (nonValidString) {
+         // if not, prompt correct value
+         std::cout << "\nMensaje: \"" << inputString
+                   << "\" no es una opcion valida. Por favor introducir un numero entre\n"
+                   << "[" << minRange << " y " << maxRange << "]" << std::endl;
+         continue;
+      }
+
+      // change into a value
+      int inputValue = atoi(inputString.c_str());
+
+      // if within range
+      if (minRange <= inputValue && inputValue <= maxRange) {
+         machine->WriteRegister(2, inputValue);
+         returnFromSystemCall();
+         return;
+      }
+
+      std::cout << "\nMensaje: " << inputValue
+                << " no esta dentro del rango, por favor introducir un valor entre\n"
+                << "[" << minRange << " y " << maxRange << "]" << std::endl;
+   }
+
+   // if input was not readable, return error
+   machine->WriteRegister(2, -2);
+   returnFromSystemCall();
 }
 
 
@@ -999,13 +1250,18 @@ ExceptionHandler(ExceptionType which)
              case SC_Listen:	// System call # 33
 		NachOS_Listen();
                break;
-             case SC_Accept:	// System call # 32
+             case SC_Accept:	// System call # 34
 		NachOS_Accept();
                break;
-             case SC_Shutdown:	// System call # 33
+             case SC_Shutdown:	// System call # 35
 		NachOS_Shutdown();
                break;
-
+             case SC_ProcessRequest:	// System call # 36
+		nachOS_ProcessRequest();
+               break;
+             case SC_InputRequest:	// System call # 37
+		NachOS_InputRequest();
+               break;               
              default:
                 printf("Unexpected syscall exception %d\n", type );
                 ASSERT( false );

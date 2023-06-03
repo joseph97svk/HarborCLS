@@ -55,7 +55,8 @@
 #define SC_Listen	33
 #define SC_Accept	34
 #define SC_Shutdown	35
-
+#define SC_ProcessRequest 36
+#define SC_InputRequest 37
 
 // for read and write system calls
 #define CONSOLE_INPUT   0
