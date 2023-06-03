@@ -3,13 +3,17 @@
 #define false 0
 #define true 1
 
+#define bool char
+
 int socketFD;
 int bufferId;
 char* figureName;
 int figureSize;
-char connected;
+bool connected;
 
 #define PORT 2816
+
+#define serverHandleBufferSize 120
 
 void makeRequest(int option);
 
@@ -21,7 +25,9 @@ int handleServerRequest();
 
 int ConnectServer();
 
-void processRequest(int socketId, int option, char* animal);
+void processRequest(int socketId, int option, char* animal) {
+
+}
 
 int readControlledInput(int min, int max, char exception) {
 
@@ -77,7 +83,7 @@ void makeRequest(int option) {
     }
 
     processRequest(socketFD, option, figureName);
-    return 1;
+    //return 1;
 }
 
 int ConnectServer() {
@@ -89,13 +95,12 @@ int ConnectServer() {
     return Connect(socketFD, osn, 80);
 }
 
-
 int mainMenuHandle() {
     // el regex imprime las figuras
     int option;
-    Write("Select option:\n", 14, 1);
-    Write("0.Exit\n", 7, 1);
-    Write("r.Refresh\n", 10, 1);
+    Write("Select option:\n", 16, 1);
+    Write("0.Exit\n", 8, 1);
+    Write("r.Refresh\n", 11, 1);
     // Read(&option, 1, 0);
     int figureAmount = 0;
     Read((char*)&figureAmount, -1, bufferId);
@@ -117,11 +122,70 @@ int mainMenuHandle() {
 }
 
 int handleFigure() {
-    char animal[20];
+    Write("0.Close\n1.Main Menu\n2.Assemble\nr.Refresh\n", 42, 1);
+
+    int choice = readControlledInput(0, 2, 'r');
+    if (choice == 0) {
+        return 0;
+    }
+
+    if (choice == 'r') {
+        return 2;
+    }
+
+    if (choice == 2) {
+        return 3;
+    }
+
+    return 1;
 }
 
 int handleServerRequest() {
+    // connect to new socket
+    int serverSocket = Socket(AF_INET_NachOS, SOCK_STREAM_NachOS, 1);
+    Connect(serverSocket, "awa", PORT);
 
+    char buffer[serverHandleBufferSize];
+    int size = 0;
+
+    // while not at end of transmission
+    while (buffer[0] != 4) {
+        // get number from file buffer
+        size = Read(
+            buffer,
+            -serverHandleBufferSize,
+            bufferId
+            );
+
+        // send to server the piece amount
+        Write(buffer, size, socketFD);
+
+        if (buffer[0] != 4) {
+            // get piece description from file buffer
+            size = Read(
+                &buffer[size],
+                -(serverHandleBufferSize - size),
+                bufferId
+                );
+            // send to server the piece description
+            Write(buffer, size, socketFD);
+        }
+    }
+
+    // receive response
+    char response[2];
+    response[1] = 0;
+
+    Read(response, 2, serverSocket);
+
+    // generate answer
+    if (response[0] == '1') {
+        Write("Assembled\n", 10, 1);
+    } else {
+        Write("Not assembled\n", 14, 1);
+    }
+
+    return 1;
 }
 
 

@@ -167,26 +167,37 @@ class PiecesServer {
     memset(response, 0, 2);
     response[0] = '0';
 
-    char code[2];
+    char code[1];
 
-    client->Read(code, 2);
+    client->SSLRead(code, 1);
     
     std::vector<std::pair<std::string, size_t>> requestedPieces;
 
     if (code[0] == 0) {
-       // recibir piezas
+      // recibir piezas
       processRequest(client, requestedPieces);
     } else {
-      char nachosBuffer[100];
+      int bufferSize = 120;
+      char nachosBuffer[bufferSize];
+      memset(nachosBuffer, 0, bufferSize);
       int size = 0;
-      // recibir piezas de nachos
-      while () {
 
-      }
-      
+      // recibir piezas de nachos
+      while (nachosBuffer[0] != 4) {
+        client->SSLRead(nachosBuffer, bufferSize);
+
+        if (nachosBuffer[0] != 4) {
+          size_t amount = (size_t) std::stoi(nachosBuffer);
+          memset(nachosBuffer, 0, bufferSize);
+          
+          client->SSLRead(nachosBuffer, bufferSize);
+          std::string description = nachosBuffer;
+
+          requestedPieces.push_back({description, amount});
+          memset(nachosBuffer, 0, bufferSize);
+        }
+      } 
     }
-  
-   
 
     // amount of pieces found
     size_t piecesFountAmount = 0;

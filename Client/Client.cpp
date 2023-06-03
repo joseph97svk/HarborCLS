@@ -588,15 +588,15 @@ RequestType Client::handleServerRequest() {
 
   Socket* socketBuffer = this->socket;
 
-  char code[2];
-  code[0] = '0';
-  code[1] = 4;
-  this->Write(code, 2);
+  char code[1];
+  code[0] = 0;
 
   this->socket = new Socket('s', false);
   this->socket->InitSSL();
   std::string textInit = "ip address in dot decimal format";
   this->socket->SSLConnect((char*)textInit.c_str(), CLIENT_PORT); // Same port as server
+
+  this->Write(code, 1);
 
   for (size_t piece = 0; piece < this->requestedPieces.size(); piece++) {
     response.append("<TR><TD ALIGN=center> ");

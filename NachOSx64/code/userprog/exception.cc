@@ -390,7 +390,14 @@ void NachOS_Read() {		// System call 7
    int bufferAddr = machine->ReadRegister(4); // get the address of the read buffer
    int size = machine->ReadRegister(5); // get the size of the buffer to be read
    OpenFileId descriptorFile = machine->ReadRegister(6); // Get the id of the file to be read
-   char* readBuffer = new char[size + 1];
+   
+   int bufferSize = size;
+
+   if (bufferSize < 0) {
+      bufferSize *= -1;
+   }
+   
+   char* readBuffer = new char[bufferSize + 1];
    //int bytesRead = 0;
 
    switch (descriptorFile) {
@@ -451,12 +458,19 @@ void NachOS_Read() {		// System call 7
                goto doneReading;
             }
 
-            // read unix file
-            bytesRead = read(
-               unixHandle,
-               readBuffer,
-               size
-            );
+            if (size < 0) {
+               size *= -1;
+               bytesRead = getline(readBuffer, size, unixHandle);
+            } else {
+               // read unix file
+               bytesRead = read(
+                  unixHandle,
+                  readBuffer,
+                  size
+               );
+            }
+
+            
 
             // for all bytes read
             for (int charPos = 0; charPos < bytesRead; charPos++) {
