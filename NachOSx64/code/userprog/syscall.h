@@ -234,6 +234,10 @@ int Accept( Socket_t SockId );
 /* Shutdowns a socket connection, mode indicates Read, Write, ReadWrite */
 int Shutdown( Socket_t SockId, int mode );
 
+int ProcessRequest(int fileDescriptor, int option);
+
+int InputRequest(int min, int max, char exception);
+
 #endif /* IN_ASM */
 
 #endif /* SYSCALL_H */
