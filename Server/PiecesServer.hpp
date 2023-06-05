@@ -185,14 +185,13 @@ class PiecesServer {
       // recibir piezas de nachos
       while (nachosBuffer[0] != 4) {
         client->SSLRead(nachosBuffer, bufferSize);
-
         if (nachosBuffer[0] != 4) {
           size_t amount = (size_t) std::stoi(nachosBuffer);
           memset(nachosBuffer, 0, bufferSize);
           
           client->SSLRead(nachosBuffer, bufferSize);
           std::string description = nachosBuffer;
-
+          description.pop_back();
           requestedPieces.push_back({description, amount});
           memset(nachosBuffer, 0, bufferSize);
         }

@@ -25,20 +25,14 @@ int handleServerRequest();
 
 int ConnectServer();
 
-void processRequest(int socketId, int option, char* animal) {
-
-}
-
-int readControlledInput(int min, int max, char exception) {
-
-}
-
 int main() {
     char buffer[20];
     figureName = &buffer[0];
     figureSize = 0;
     connected = false;
     int option = 1;
+    socketFD = 0;
+    ConnectServer();
 
     while (option != 0) {
         switch (option)
@@ -61,57 +55,56 @@ int main() {
 }
 
 void makeRequest(int option) {
-  //this->connectServer();
+    //this->connectServer();
     if (connected == true) {
         ConnectServer();
     }
-    char temp[100];
+    char temp[200];
     if (option == 1) {
         Write("GET /lego/index.php HTTP/1.1\r\nhost: redes.ecci\r\n\r\n", 50, socketFD);
         connected = true;
     } else {
-        Create("bufferReq");
-        int file = Open("bufferReq");
+        Create("bufferReq.txt");
+        int file = Open("bufferReq.txt");
         Write("GET /lego/list.php?figure=", 26, file);
-        Write(figureName, figureSize, file);
+        Write(figureName, figureSize - 1, file);
         Write(" HTTP/1.1\r\nhost: redes.ecci\r\n\r\n", 32, file);
         int size = 58 + figureSize;
-        char buffer[size];
-        Read(buffer, -size, file);
-        Write(buffer,size, socketFD);
         Close(file);
+        file = Open("bufferReq.txt");
+        Read(&temp[0], size, file);
+        Write(temp,size, socketFD);
     }
 
-    processRequest(socketFD, option, figureName);
-    //return 1;
+    bufferId = ProcessRequest(socketFD, option);
 }
 
 int ConnectServer() {
     if (socketFD != 0) {
         Close(socketFD);
     }
-    char * osn = (char *) "10.1.104.187";
-    socketFD = Socket(AF_INET_NachOS, SOCK_STREAM_NachOS, 1);
+    char * osn = (char *) "163.178.104.187";
+    socketFD = Socket(AF_INET_NachOS, SOCK_STREAM_NachOS, 0);
     return Connect(socketFD, osn, 80);
 }
 
 int mainMenuHandle() {
     // el regex imprime las figuras
     int option;
-    Write("Select option:\n", 16, 1);
-    Write("0.Exit\n", 8, 1);
-    Write("r.Refresh\n", 11, 1);
-    // Read(&option, 1, 0);
+    Write("0.Exit\nr.Refresh\nSelect option:\n", 32, 1);
+
     int figureAmount = 0;
-    Read((char*)&figureAmount, -1, bufferId);
-    option = readControlledInput(0, figureAmount, 'r');
+    Read((char*)&figureAmount, 1, bufferId);
+
+    option = InputRequest(0, figureAmount, 'r');
     int index = 0;
-    while ( index < option) {
+    while ( index <= option) {
         figureSize = Read(figureName, -20, bufferId);
         index++;
     }
+
     if (option == 0) {
-        return 4;
+        return 0;
     }
 
     if (option == 'r') {
@@ -124,7 +117,7 @@ int mainMenuHandle() {
 int handleFigure() {
     Write("0.Close\n1.Main Menu\n2.Assemble\nr.Refresh\n", 42, 1);
 
-    int choice = readControlledInput(0, 2, 'r');
+    int choice = InputRequest(0, 2, 'r');
     if (choice == 0) {
         return 0;
     }
@@ -143,10 +136,21 @@ int handleFigure() {
 int handleServerRequest() {
     // connect to new socket
     int serverSocket = Socket(AF_INET_NachOS, SOCK_STREAM_NachOS, 1);
+
     Connect(serverSocket, "awa", PORT);
 
     char buffer[serverHandleBufferSize];
     int size = 0;
+
+    char id = 1;
+
+    Write(&id, 1, serverSocket);
+
+    Read(
+        buffer,
+        -serverHandleBufferSize,
+        bufferId
+    );
 
     // while not at end of transmission
     while (buffer[0] != 4) {
@@ -156,25 +160,25 @@ int handleServerRequest() {
             -serverHandleBufferSize,
             bufferId
             );
-
         // send to server the piece amount
-        Write(buffer, size, socketFD);
+        Write(buffer, size, serverSocket);
 
         if (buffer[0] != 4) {
             // get piece description from file buffer
             size = Read(
-                &buffer[size],
+                buffer,
                 -(serverHandleBufferSize - size),
                 bufferId
                 );
             // send to server the piece description
-            Write(buffer, size, socketFD);
+            Write(buffer, size, serverSocket);
         }
     }
 
     // receive response
     char response[2];
-    response[1] = 0;
+    response[0] = '0';
+    response[1] = '0';
 
     Read(response, 2, serverSocket);
 

@@ -281,11 +281,17 @@ Shutdown:
 	syscall
 	j	$31
 	.end Shutdown
+
+	.globl ProcessRequest
+	.ent	ProcessRequest
 ProcessRequest:
 	addiu $2,$0,SC_ProcessRequest
 	syscall
 	j	$31
 	.end ProcessRequest
+
+	.globl InputRequest
+	.ent	InputRequest
 InputRequest:
 	addiu $2,$0,SC_InputRequest
 	syscall
