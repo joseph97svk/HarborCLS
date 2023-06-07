@@ -24,6 +24,21 @@ C_OFILES = $(THREAD_O) $(USERPROG_O)
 
 include ../Makefile.common
 include ../Makefile.dep
+
+# Test cases
+test:
+	@echo "icdiff --no-headers ../clientNachOs/tests/output001.txt <(./nachos -x ../clientNachOs/client < ../clientNachOs/tests/input001.txt)"
+	@bash -c "icdiff --no-headers ../clientNachOs/tests/output001.txt <(./nachos -x ../clientNachOs/client < ../clientNachOs/tests/input001.txt)"
+	@echo "icdiff --no-headers ../clientNachOs/tests/output002.txt <(./nachos -x ../clientNachOs/client < ../clientNachOs/tests/input002.txt)"
+	@bash -c "icdiff --no-headers ../clientNachOs/tests/output002.txt <(./nachos -x ../clientNachOs/client < ../clientNachOs/tests/input002.txt)"
+	@echo "icdiff --no-headers ../clientNachOs/tests/output003.txt <(./nachos -x ../clientNachOs/client < ../clientNachOs/tests/input003.txt)"
+	@bash -c "icdiff --no-headers ../clientNachOs/tests/output003.txt <(./nachos -x ../clientNachOs/client < ../clientNachOs/tests/input003.txt)"
+	@echo "icdiff --no-headers ../clientNachOs/tests/output004.txt <(./nachos -x ../clientNachOs/client < ../clientNachOs/tests/input004.txt)"
+	@bash -c "icdiff --no-headers ../clientNachOs/tests/output004.txt <(./nachos -x ../clientNachOs/client < ../clientNachOs/tests/input004.txt)"
+	@echo "icdiff --no-headers ../clientNachOs/tests/output005.txt <(./nachos -x ../clientNachOs/client < ../clientNachOs/tests/input005.txt)"
+	@bash -c "icdiff --no-headers ../clientNachOs/tests/output005.txt <(./nachos -x ../clientNachOs/client < ../clientNachOs/tests/input005.txt)"
+	@echo "icdiff --no-headers ../clientNachOs/tests/output006.txt <(./nachos -x ../clientNachOs/client < ../clientNachOs/tests/input006.txt)"
+	@bash -c "icdiff --no-headers ../clientNachOs/tests/output006.txt <(./nachos -x ../clientNachOs/client < ../clientNachOs/tests/input006.txt)"
 #-----------------------------------------------------------------
 # DO NOT DELETE THIS LINE -- make depend uses it
 # DEPENDENCIES MUST END AT END OF FILE

@@ -1,0 +1,122 @@
+Bytes required: 3520
+Space available: 32 :: Space requested: 28
+1. Horse
+2. blacksheep
+3. dragon
+4. duck
+5. elephant
+6. fish
+7. giraffe
+8. horse
+9. lion
+10. monkey
+11. penguin
+12. roadrunner
+13. shark
+14. squid
+15. swan
+16. turtle
+17. whitesheep
+0.Exit
+r.Refresh
+Select option:
+
+Cantidad       Descripción
+--------       -----------
+2              brick 2x6 plate grey
+3              brick 2x4 grey
+2              brick 2x2 grey
+1              brick 2x2 slope inverted grey
+1              brick 2x8 red
+2              brick 2x2 slope red
+1              brick 2x2 slope inverted red
+1              brick 2x2 slope grey
+2              brick 2x4 plate grey
+1              flag yellow
+2              brick 1x2 slope inverted red
+2              brick 2x4 red
+2              brick 2x3 red
+1              brick 1x1 eyes dark grey
+0.Close
+1.Main Menu
+2.Assemble
+r.Refresh
+
+Assembled
+
+1. Horse
+2. blacksheep
+3. dragon
+4. duck
+5. elephant
+6. fish
+7. giraffe
+8. horse
+9. lion
+10. monkey
+11. penguin
+12. roadrunner
+13. shark
+14. squid
+15. swan
+16. turtle
+17. whitesheep
+0.Exit
+r.Refresh
+Select option:
+
+Cantidad       Descripción
+--------       -----------
+2              brick 2x6 plate grey
+3              brick 2x4 grey
+2              brick 2x2 grey
+1              brick 2x2 slope inverted grey
+1              brick 2x8 red
+2              brick 2x2 slope red
+1              brick 2x2 slope inverted red
+1              brick 2x2 slope grey
+2              brick 2x4 plate grey
+1              flag yellow
+2              brick 1x2 slope inverted red
+2              brick 2x4 red
+2              brick 2x3 red
+1              brick 1x1 eyes dark grey
+0.Close
+1.Main Menu
+2.Assemble
+r.Refresh
+
+Assembled
+
+1. Horse
+2. blacksheep
+3. dragon
+4. duck
+5. elephant
+6. fish
+7. giraffe
+8. horse
+9. lion
+10. monkey
+11. penguin
+12. roadrunner
+13. shark
+14. squid
+15. swan
+16. turtle
+17. whitesheep
+0.Exit
+r.Refresh
+Select option:
+
+No threads ready or runnable, and no pending interrupts.
+Assuming the program completed.
+Machine halting!
+
+Ticks: total 12768, idle 0, system 9660, user 3108
+Disk I/O: reads 0, writes 0
+Console I/O: reads 0, writes 0
+Paging: faults 0
+Network I/O: packets received 0, sent 0
+
+Cleaning up...

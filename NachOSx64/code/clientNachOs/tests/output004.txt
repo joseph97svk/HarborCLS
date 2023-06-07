@@ -1,0 +1,568 @@
+Bytes required: 3520
+Space available: 32 :: Space requested: 28
+1. Horse
+2. blacksheep
+3. dragon
+4. duck
+5. elephant
+6. fish
+7. giraffe
+8. horse
+9. lion
+10. monkey
+11. penguin
+12. roadrunner
+13. shark
+14. squid
+15. swan
+16. turtle
+17. whitesheep
+0.Exit
+r.Refresh
+Select option:
+
+Cantidad       Descripción
+--------       -----------
+5              brick 2x2 yellow
+4              brick 2x4 white
+2              brick 2x4 yellow
+1              brick 2x6 yellow
+1              brick 2x3 yellow
+2              brick 1x1 yellow eye
+2              brick 2x1 yellow
+1              brick 2x2 white
+0.Close
+1.Main Menu
+2.Assemble
+r.Refresh
+
+1. Horse
+2. blacksheep
+3. dragon
+4. duck
+5. elephant
+6. fish
+7. giraffe
+8. horse
+9. lion
+10. monkey
+11. penguin
+12. roadrunner
+13. shark
+14. squid
+15. swan
+16. turtle
+17. whitesheep
+0.Exit
+r.Refresh
+Select option:
+
+Cantidad       Descripción
+--------       -----------
+3              brick 1x2 white
+2              brick 2x4 black
+1              brick 2x2 black
+0.Close
+1.Main Menu
+2.Assemble
+r.Refresh
+
+1. Horse
+2. blacksheep
+3. dragon
+4. duck
+5. elephant
+6. fish
+7. giraffe
+8. horse
+9. lion
+10. monkey
+11. penguin
+12. roadrunner
+13. shark
+14. squid
+15. swan
+16. turtle
+17. whitesheep
+0.Exit
+r.Refresh
+Select option:
+
+Cantidad       Descripción
+--------       -----------
+2              brick 2x6 plate grey
+3              brick 2x4 grey
+2              brick 2x2 grey
+1              brick 2x2 slope inverted grey
+1              brick 2x8 red
+2              brick 2x2 slope red
+1              brick 2x2 slope inverted red
+1              brick 2x2 slope grey
+2              brick 2x4 plate grey
+1              flag yellow
+2              brick 1x2 slope inverted red
+2              brick 2x4 red
+2              brick 2x3 red
+1              brick 1x1 eyes dark grey
+0.Close
+1.Main Menu
+2.Assemble
+r.Refresh
+
+1. Horse
+2. blacksheep
+3. dragon
+4. duck
+5. elephant
+6. fish
+7. giraffe
+8. horse
+9. lion
+10. monkey
+11. penguin
+12. roadrunner
+13. shark
+14. squid
+15. swan
+16. turtle
+17. whitesheep
+0.Exit
+r.Refresh
+Select option:
+
+Cantidad       Descripción
+--------       -----------
+1              brick 2x2 slope orange
+2              brick 2x3 yellow
+2              brick 2x2 yellow
+2              brick 1x1 yellow eye
+1              brick 2x1 yellow
+1              brick 2x4 slope orange
+0.Close
+1.Main Menu
+2.Assemble
+r.Refresh
+
+1. Horse
+2. blacksheep
+3. dragon
+4. duck
+5. elephant
+6. fish
+7. giraffe
+8. horse
+9. lion
+10. monkey
+11. penguin
+12. roadrunner
+13. shark
+14. squid
+15. swan
+16. turtle
+17. whitesheep
+0.Exit
+r.Refresh
+Select option:
+
+Cantidad       Descripción
+--------       -----------
+2              brick 2x2 black
+6              brick 2x2 grey
+5              brick 2x4 grey
+1              brick 2x3 grey
+10             brick 2x1 grey
+2              brick 1x1 black eye
+1              plate 2x4 grey
+0.Close
+1.Main Menu
+2.Assemble
+r.Refresh
+
+1. Horse
+2. blacksheep
+3. dragon
+4. duck
+5. elephant
+6. fish
+7. giraffe
+8. horse
+9. lion
+10. monkey
+11. penguin
+12. roadrunner
+13. shark
+14. squid
+15. swan
+16. turtle
+17. whitesheep
+0.Exit
+r.Refresh
+Select option:
+
+Cantidad       Descripción
+--------       -----------
+3              brick 2x4 yellow
+1              brick 2x3 yellow
+2              brick 1x1 yellow eye
+2              brick 2x2 translucent blue
+4              brick 2x2 translucent red
+0.Close
+1.Main Menu
+2.Assemble
+r.Refresh
+
+
+Mensaje: 7 no esta dentro del rango, por favor introducir un valor entre
+[0 y 2]
+1. Horse
+2. blacksheep
+3. dragon
+4. duck
+5. elephant
+6. fish
+7. giraffe
+8. horse
+9. lion
+10. monkey
+11. penguin
+12. roadrunner
+13. shark
+14. squid
+15. swan
+16. turtle
+17. whitesheep
+0.Exit
+r.Refresh
+Select option:
+
+Cantidad       Descripción
+--------       -----------
+5              brick 2x2 yellow
+4              brick 2x4 white
+2              brick 2x4 yellow
+1              brick 2x6 yellow
+1              brick 2x3 yellow
+2              brick 1x1 yellow eye
+2              brick 2x1 yellow
+1              brick 2x2 white
+0.Close
+1.Main Menu
+2.Assemble
+r.Refresh
+
+1. Horse
+2. blacksheep
+3. dragon
+4. duck
+5. elephant
+6. fish
+7. giraffe
+8. horse
+9. lion
+10. monkey
+11. penguin
+12. roadrunner
+13. shark
+14. squid
+15. swan
+16. turtle
+17. whitesheep
+0.Exit
+r.Refresh
+Select option:
+
+Cantidad       Descripción
+--------       -----------
+1              brick 2x8 yellow
+6              brick 2x2 yellow
+3              brick 2x4 yellow
+5              brick 1x4 yellow
+6              brick 1x2 yellow
+1              brick 2x4 black
+1              plate 2x3 yellow
+2              brick 1x2 black
+2              brick 2x2 black
+1              brick 2x2 red
+1              brick 1x1 eyes dark grey
+0.Close
+1.Main Menu
+2.Assemble
+r.Refresh
+
+1. Horse
+2. blacksheep
+3. dragon
+4. duck
+5. elephant
+6. fish
+7. giraffe
+8. horse
+9. lion
+10. monkey
+11. penguin
+12. roadrunner
+13. shark
+14. squid
+15. swan
+16. turtle
+17. whitesheep
+0.Exit
+r.Refresh
+Select option:
+
+Cantidad       Descripción
+--------       -----------
+1              brick 2x8 yellow
+6              brick 2x2 yellow
+3              brick 2x4 yellow
+5              brick 1x4 yellow
+6              brick 1x2 yellow
+1              brick 2x4 black
+1              plate 2x3 yellow
+2              brick 1x2 black
+2              brick 2x2 black
+1              brick 2x2 red
+1              brick 1x1 eyes dark grey
+0.Close
+1.Main Menu
+2.Assemble
+r.Refresh
+
+1. Horse
+2. blacksheep
+3. dragon
+4. duck
+5. elephant
+6. fish
+7. giraffe
+8. horse
+9. lion
+10. monkey
+11. penguin
+12. roadrunner
+13. shark
+14. squid
+15. swan
+16. turtle
+17. whitesheep
+0.Exit
+r.Refresh
+Select option:
+
+Cantidad       Descripción
+--------       -----------
+2              brick 2x2 slope inverted brown
+2              plate 2x2 brown
+1              plate 2x2 angle bracket tan
+1              brick-2x1 slope tan
+2              brick-1x1 slope tan
+2              tile-1x1 eye white
+1              plate-2x2 brown
+1              plate-1x2 brown
+2              brick-1x2 studs tan
+0.Close
+1.Main Menu
+2.Assemble
+r.Refresh
+
+1. Horse
+2. blacksheep
+3. dragon
+4. duck
+5. elephant
+6. fish
+7. giraffe
+8. horse
+9. lion
+10. monkey
+11. penguin
+12. roadrunner
+13. shark
+14. squid
+15. swan
+16. turtle
+17. whitesheep
+0.Exit
+r.Refresh
+Select option:
+
+Cantidad       Descripción
+--------       -----------
+1              plate 2x3 white
+1              brick 1x4 black
+2              brick 2x2 slope inverted white
+2              brick 1x2 black
+1              brick 2x2 white
+1              plate 2x3 red
+1              brick 2x2 black
+0.Close
+1.Main Menu
+2.Assemble
+r.Refresh
+
+1. Horse
+2. blacksheep
+3. dragon
+4. duck
+5. elephant
+6. fish
+7. giraffe
+8. horse
+9. lion
+10. monkey
+11. penguin
+12. roadrunner
+13. shark
+14. squid
+15. swan
+16. turtle
+17. whitesheep
+0.Exit
+r.Refresh
+Select option:
+
+Cantidad       Descripción
+--------       -----------
+2              brick 2x4 yellow
+2              brick 2x3 yellow
+2              brick 2x3 white
+1              plate 2x3 yellow
+2              plate 2x4 white
+2              brick 2x2 yellow
+1              plate 2x3 white
+3              plate 2x4 black
+2              brick 1x1 round eye yellow
+1              brick 1x2 yellow
+1              brick 2x2 slope translucent blue
+2              brick 1x2 translucent blue
+1              brick 1x2 translucent red
+6              brick 1x1 red
+0.Close
+1.Main Menu
+2.Assemble
+r.Refresh
+
+1. Horse
+2. blacksheep
+3. dragon
+4. duck
+5. elephant
+6. fish
+7. giraffe
+8. horse
+9. lion
+10. monkey
+11. penguin
+12. roadrunner
+13. shark
+14. squid
+15. swan
+16. turtle
+17. whitesheep
+0.Exit
+r.Refresh
+Select option:
+
+Cantidad       Descripción
+--------       -----------
+2              brick 2x2 slope inverted orange
+1              brick 2x2 slope inverted white
+3              brick 2x4 white
+1              brick 2x2 white
+1              brick 1x2 white
+2              brick 1x2 slope orange
+2              plate 2x4 white
+2              plate 2x4 orange
+2              brick 1x1 white
+1              brick 1x2 orange
+1              brick 2x2 orange
+1              brick 2x2 slope orange
+1              brick 2x3 orange
+1              plate 2x3 orange
+1              brick 1x1 eyes dark grey
+0.Close
+1.Main Menu
+2.Assemble
+r.Refresh
+
+1. Horse
+2. blacksheep
+3. dragon
+4. duck
+5. elephant
+6. fish
+7. giraffe
+8. horse
+9. lion
+10. monkey
+11. penguin
+12. roadrunner
+13. shark
+14. squid
+15. swan
+16. turtle
+17. whitesheep
+0.Exit
+r.Refresh
+Select option:
+
+Cantidad       Descripción
+--------       -----------
+4              plate 2x2 yellow
+8              brick 2x1 yellow
+6              brick 2x2 yellow
+2              brick 2x4 yellow
+1              plate 2x4 yellow
+3              brick 2x1 dark grey
+1              brick 1x1 eyes dark grey
+0.Close
+1.Main Menu
+2.Assemble
+r.Refresh
+
+1. Horse
+2. blacksheep
+3. dragon
+4. duck
+5. elephant
+6. fish
+7. giraffe
+8. horse
+9. lion
+10. monkey
+11. penguin
+12. roadrunner
+13. shark
+14. squid
+15. swan
+16. turtle
+17. whitesheep
+0.Exit
+r.Refresh
+Select option:
+
+Cantidad       Descripción
+--------       -----------
+1              plate 2x3 white
+2              brick 2x3 slope white
+1              brick 2x2 slope inverted white
+4              brick 1x2 white
+1              plate 2x4 white
+1              plate 2x3 orange
+1              brick 2x2 slope white
+0.Close
+1.Main Menu
+2.Assemble
+r.Refresh
+
+No threads ready or runnable, and no pending interrupts.
+Assuming the program completed.
+Machine halting!
+
+Ticks: total 35545, idle 0, system 26180, user 9365
+Disk I/O: reads 0, writes 0
+Console I/O: reads 0, writes 0
+Paging: faults 0
+Network I/O: packets received 0, sent 0
+
+Cleaning up...
