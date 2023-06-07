@@ -86,6 +86,8 @@ Para encontrar lego y su cantidad correspondiente:
 
 4. ([^<]+)</TD> -> Este otro grupo atrapa cualqueir carácter que no sea [<] una o más veces, tiene que estar seguida de la etiqueta [</TD>]
 ```
+
+
 ### Segunda entrega 📒
 
 Se crea Servidores de piezas con inventario de piezas.Es capaz de atender las solicitudes de los clientes por piezas para armar figuras y devolver el listado de las piezas para armar la figura, estas solicitudes utilizan el protocolo HTTP.
@@ -154,6 +156,27 @@ También se cuenta con 2 colas con control de concurrencia para tener control de
 
 8. processRequest(): Procesa la solicitud del cliente y extrae las piezas solicitadas de los datos recibidos.
 
+### Tercera entrega 📒
+
+Se desarrolla una versión del cliente que funcione como un programa de usuario de NachOS, para lo cual se programó llamados al sistema, manejo de hilos, manejo de memoria, memoria virtual y otros detalles en este ambiente.
+
+## Resolución: Clase client.c
+
+El código en cuestión implementa un programa que se comunica con un servidor utilizando solicitudes HTTP. El programa establece una conexión con el servidor y presenta un menú al usuario. Dependiendo de la opción seleccionada por el usuario, se envían diferentes solicitudes al servidor, como obtener una lista de figuras disponibles, manejar una figura específica o enviar una solicitud al servidor para ensamblar una figura. El programa maneja las respuestas del servidor y muestra mensajes correspondientes al usuario, como "Assembled" o "Not assembled". El flujo del programa continúa hasta que el usuario elija la opción de salida.
+
+### Partes relevantes de la clase
+
+El programa utiliza el archivo de encabezado "syscall.h" y define algunas constantes y variables necesarias para su ejecución, como el descriptor de archivo del socket (socketFD), el identificador del búfer (bufferId), el nombre y tamaño de la figura (figureName y figureSize), y una bandera de conexión (connected).
+
+1. main() inicia estableciendo los valores iniciales de las variables y llamando a la función ConnectServer para establecer una conexión con el servidor. Luego, se inicia un bucle while que solicita al usuario una opción del menú y realiza acciones según la opción seleccionada, como llamar a las funciones makeRequest, mainMenuHandle, handleFigure o handleServerRequest.
+
+2. makeRequest() realiza una solicitud al servidor dependiendo de la opción proporcionada. Si la opción es 1, se envía una solicitud GET a través del socket cliente para obtener el índice de las figuras disponibles. De lo contrario, se crea un archivo temporal, se escribe una solicitud GET específica para una figura en particular y se envía al servidor a través del socket cliente.
+
+3. ConnectServer() se encarga de cerrar el socket existente (si lo hay) y establecer una nueva conexión con el servidor mediante el uso de las funciones de la biblioteca syscall.h, como Socket y Connect.
+
+4. mainMenuHandle() y handleFigure son responsables de manejar las opciones del menú seleccionadas por el usuario y realizar acciones correspondientes, como mostrar las figuras disponibles, actualizar la opción seleccionada o iniciar el proceso de ensamblaje.
+
+5. handleServerRequest() establece una nueva conexión con el servidor a través de un socket distinto, envía una solicitud y recibe una respuesta. La respuesta se lee y se muestra en la salida estándar, indicando si la figura ha sido ensamblada correctamente o no.
 
 ## Manual de Usuario 📃
 
