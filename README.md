@@ -188,6 +188,12 @@ Para la compilación de los casos de prueba, se puede usar el siguiente comando 
 
 Con el fin de poder usar este comando se debe de descargar en el sistema  *icdiff* que es una herramienta de comparación de archivos y directorios.
 
+##### Pruebas cliente NachOs
+
+Dentro del directorio NachOSx64/code/userprog realizar el comando:
+
+`make test`
+
 ###### Sobre las pruebas
 
 Para el client:
@@ -259,7 +265,11 @@ Ejecuta bin/Client para comenzar con el programa:
 
 `bin/Client`
 
-Cuando se inicia el programa deberá aparecer lo siguiente:
+En el caso ejecutar en NachOs, realiza el siguiente comando en el directorio NachOSx64/code/userprog:
+
+`./nachos -x ../clientNachOs/client`
+
+Cuando se inicia el programa deberá aparecer algo parecido a lo siguiente:
 
 ![InicioProgramaClient](/images/ClientInit.png "Example")
 
