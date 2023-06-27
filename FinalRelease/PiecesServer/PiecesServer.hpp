@@ -49,6 +49,8 @@ class PiecesServer {
   }
 
   void start() {
+    broadcastPresence();
+
     // initiate all threads
 
     // start listeners
@@ -78,6 +80,10 @@ class PiecesServer {
     for (Handler* handler : this->handleTCP) {
       handler->waitToFinish();
     }
+  }
+
+  void broadcastPresence() {
+
   }
 
   void stopServer() {

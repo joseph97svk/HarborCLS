@@ -9,7 +9,6 @@
 #include <iostream>
 #include <string>
 
-
 class Listener : public virtual Thread {
  protected:
   Queue<Socket*>* queue;
