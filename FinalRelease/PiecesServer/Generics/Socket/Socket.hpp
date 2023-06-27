@@ -70,21 +70,16 @@ class Socket {
 
   Socket& operator <<(std::string& text) {
     if (this->isSSL()) {
-      std::cout << "SSL?" << std::endl;
       this->SSLWrite(text.data());
     } else {
-      std::cout << "writing:" << text << std::endl;
       this->Write(text.data());
     }
-
-    std::cout << "message sent" << std::endl;
 
     return *this;
   }
 
   template <typename dataType>
   Socket& operator <<(dataType data) {
-    std::cout << "wrong one" << std::endl;
     if (this->isSSL()) {
       this->SSLWrite(data, sizeof(dataType));
     } else {
@@ -96,7 +91,6 @@ class Socket {
 
   template <typename dataType>
   Socket& operator <<(std::vector<dataType> data) {
-    std::cout << "wrong one 1" << std::endl;
     if (this->isSSL()) {
       this->SSLWrite((void*) data.data(),
           (int) data.size() * sizeof(dataType));
