@@ -7,13 +7,21 @@
 #include "Socket/Socket.hpp"
 
 
+enum serverAction {
+  requestingFigures,
+  requestingParts,
+  requestingAssembly
+};
+
 struct Request {
   std::shared_ptr<Socket> socket;
   std::string figure;
+  serverAction requestType;
 
-  Request(Socket* socket, std::string figure)
+  Request(Socket* socket, std::string figure, serverAction requestType)
       : socket()
-      , figure(figure) {
+      , figure(figure)
+      , requestType(requestType) {
         this->socket.reset(socket);
       }
 };
@@ -21,12 +29,20 @@ struct Request {
 struct Response {
   std::shared_ptr<Socket> socket;
   std::string response;
+  serverAction requestType;
 
-  Response(Socket* socket, std::string response)
+  Response(Socket* socket, std::string response, serverAction requestType)
       : socket()
-      , response(response) {
-        this->socket.reset(socket);
-      }
+      , response(response)
+      , requestType(requestType) {
+    this->socket.reset(socket);
+  }
+
+  Response(std::shared_ptr<Socket> socket, std::string response, serverAction requestType)
+      : socket(socket)
+      , response(response)
+      , requestType(requestType) {
+  }
 };
 
 #endif

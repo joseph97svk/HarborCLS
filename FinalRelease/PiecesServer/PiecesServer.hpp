@@ -4,13 +4,13 @@
 #include <vector>
 
 class PiecesServer {
-  Listener* listenUDP;
-  Listener* listenTCP;
+  UDPListener* listenUDP;
+  TCPListener* listenTCP;
 
-  std::vector<Handler*> handleUDP;
-  std::vector<Handler*> handleTCP;
+  std::vector<UDPHandler*> handleUDP;
+  std::vector<TCPHandler*> handleTCP;
 
-  Queue<Socket*> UDPSockets;
+  Queue<std::pair<std::string, int>> UDPSockets;
   Queue<Socket*> TCPSockets;
 
   Socket* connectionSocket;
@@ -29,10 +29,11 @@ class PiecesServer {
         , 's'
         , stopping
         , processing);
+
     this->listenUDP = new UDPListener(&(this->UDPSockets)
         , connectionSocket
-        , nullptr
-        , nullptr
+        , {"", -1}
+        , {"", -1}
         , PIECES_UDP_PORT
         , false
         , 'd'
@@ -40,7 +41,7 @@ class PiecesServer {
         , processing);
 
     this->handleUDP.push_back(new UDPHandler(&(this->UDPSockets)
-        , nullptr));
+        , {"", -1}));
     this->handleTCP.push_back(new TCPHandler(&(this->TCPSockets)
         , nullptr));
 
@@ -51,18 +52,25 @@ class PiecesServer {
   void start() {
     broadcastPresence();
 
+    // bind server to port to listen
+    this->connectionSocket->Bind(PIECES_UDP_PORT);
+
+    this->communicationsSocket->Bind(PIECES_TCP_PORT);
+    this->communicationsSocket->Listen(16);
+    this->communicationsSocket->SSLInitServer("ci0123.pem", "key.pem");
+
     // initiate all threads
 
     // start listeners
-    this->listenTCP->start();
     this->listenUDP->start();
+    this->listenTCP->start();
 
     // start handlers
-    for (Handler* handler : this->handleUDP) {
+    for (UDPHandler* handler : this->handleUDP) {
       handler->start();
     }
 
-    for (Handler* handler : this->handleTCP) {
+    for (TCPHandler* handler : this->handleTCP) {
       handler->start();
     }
 
@@ -73,11 +81,11 @@ class PiecesServer {
     this->listenUDP->waitToFinish();
 
     // join handlers
-    for (Handler* handler : this->handleUDP) {
+    for (UDPHandler* handler : this->handleUDP) {
       handler->waitToFinish();
     }
 
-    for (Handler* handler : this->handleTCP) {
+    for (TCPHandler* handler : this->handleTCP) {
       handler->waitToFinish();
     }
   }

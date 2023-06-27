@@ -3,17 +3,17 @@
 
 #include "Thread.hpp"
 #include "Queue.hpp"
-#include "Socket/Socket.hpp"
 
+template <typename datatype>
 class Handler : public virtual Thread {
  protected:
-  Queue<Socket*>* consumingQueue;
+  Queue<datatype>* consumingQueue;
 
-  Socket* stopCondition;
+  datatype stopCondition;
 
  public:
-  Handler(Queue<Socket*>* consumingQueue,
-      Socket* stopCondition)
+  Handler(Queue<datatype>* consumingQueue,
+      datatype stopCondition)
     : consumingQueue(consumingQueue)
     , stopCondition(stopCondition) {
   }
@@ -24,7 +24,7 @@ class Handler : public virtual Thread {
  protected:
   void handle() {
     while (true) {
-      Socket* data = this->consumingQueue->pop();
+      datatype data = this->consumingQueue->pop();
 
       if (data == this->stopCondition) {
         break;
@@ -38,7 +38,7 @@ class Handler : public virtual Thread {
     this->handle();
   }
 
-  virtual void handleSingle(Socket* handlingSocket);
+  virtual void handleSingle(datatype handlingData);
 };
 
 #endif

@@ -34,19 +34,60 @@ class RequestHandler : public Handler<Request*>  {
  private:
   void handleSingle(Request* handlingData) {
     // use request to find ip and port from the map
+    serverAction requestType = handlingData->requestType;
+    std::string figure = handlingData->figure;
 
     // create socket
+    Socket piecesServerConnection('s', false);
 
+    std::string ip = (*this->routingMap)[figure].first;
+    int port = (*this->routingMap)[figure].second;
+
+    int tries = 1;
     // use information fetched to connect to pieces server
+    while (tries <= 3 && !piecesServerConnection.Connect(ip.data(), port)) {
+      // increase timeout
+
+      tries++;
+    }
+
+    if (tries == 3) {
+
+    }
+
+    std::string responseReceived;
 
     // send info to pieces server
+    switch(requestType) {
+      case serverAction::requestingFigures:
 
-    // receive info from pieces server
+        // receive info from pieces server
+
+        break;
+      case serverAction::requestingParts:
+
+        // receive info from pieces server
+
+        break;
+      case serverAction::requestingAssembly:
+        
+        // receive info from pieces server
+        break;
+      default:
+        break;
+    }
 
     // close socket
+    piecesServerConnection.Close();
 
     //enqueue response
-    (void) handlingData;
+    std::shared_ptr<Response> response = std::make_shared<Response>(
+        handlingData->socket,
+        responseReceived,
+        handlingData->requestType
+        );
+
+    this->responseQueue->push(response);
   }
 };
 

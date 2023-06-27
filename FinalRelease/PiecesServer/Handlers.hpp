@@ -1,7 +1,8 @@
 #include "Generics/Handler.hpp"
+#include <utility>
 
 // handle connections from the intermediary client
-class TCPHandler : public Handler {
+class TCPHandler : public Handler<Socket*> {
  public:
   TCPHandler(Queue<Socket*>* consumingQueue,
       Socket* stopCondition) : Handler (consumingQueue, stopCondition){}
@@ -13,13 +14,13 @@ class TCPHandler : public Handler {
 };
 
 // handle connections from broadcasts
-class UDPHandler : public Handler {
+class UDPHandler : public Handler<std::pair<std::string, int>> {
  public:
-  UDPHandler(Queue<Socket*>* consumingQueue,
-      Socket* stopCondition) : Handler (consumingQueue, stopCondition){}
+  UDPHandler(Queue<std::pair<std::string, int>>* consumingQueue,
+      std::pair<std::string, int> stopCondition) : Handler (consumingQueue, stopCondition){}
 
  private:
-  void handleSingle(Socket* handlingSocket) {
+  void handleSingle(std::pair<std::string, int> handlingSocket) {
     (void) handlingSocket;
   }
 };

@@ -9,13 +9,14 @@
 #include <iostream>
 #include <string>
 
+template <typename enqueutype>
 class Listener : public virtual Thread {
  protected:
-  Queue<Socket*>* queue;
+  Queue<enqueutype>* queue;
 
   Socket* listeningSocket;
-  Socket* stopCondition;
-  Socket* handlerStopCondition;
+  enqueutype stopCondition;
+  enqueutype handlerStopCondition;
 
   bool stopThread;
 
@@ -27,10 +28,10 @@ class Listener : public virtual Thread {
   char socketType;
 
  public:
-  Listener(Queue<Socket*>* queue,
+  Listener(Queue<enqueutype>* queue,
       Socket* listeningSocket,
-      Socket* stopCondition,
-      Socket* handlerStopCondition,
+      enqueutype stopCondition,
+      enqueutype handlerStopCondition,
       int stopPort,
       bool ssl,
       char socketType,
@@ -60,7 +61,7 @@ class Listener : public virtual Thread {
  private:
   void listen() {
     while (true) {
-      Socket* data = this->obtain();
+      enqueutype data = this->obtain();
 
       if (data == this->stopCondition || this->stopThread) {
         this->queue->push(data);
@@ -78,8 +79,9 @@ class Listener : public virtual Thread {
     this->listen();
   }
 
-  virtual Socket* obtain() = 0;
+  virtual enqueutype obtain() = 0;
 
+  // TODO: add UDP support
   void unlockListen() {
     Socket closingSocket(this->socketType, false);
 
