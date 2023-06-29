@@ -6,16 +6,15 @@
 class IntermediaryServer {
   Listener* listenClientConnections;
   Listener* listenPiecesServerUDP;
-  Listener* listenPiecesServerTCP;
 
   std::vector<Handler<Socket*>*> handleClientConnections;
   std::vector<Handler<Socket*>*> handleUDP;
-  std::vector<RequestHandler*> handleTCP;
+  std::vector<RequestHandler*> handleRequest;
   std::vector<ResponseHandler*> handleResponses;
 
   Queue<Socket*> ClientRequests;
   Queue<Socket*> UDPRequests;
-  Queue<Request*> TCPRequests;
+  Queue<Request*> RequestQueue;
   Queue<std::shared_ptr<Response>> responseQueue;
 
   Socket* clientSocket;
@@ -51,11 +50,12 @@ class IntermediaryServer {
     this->routingMap = new RoutingMap();
     
     this->handleClientConnections.push_back(new ClientHandler(&(this->ClientRequests)
+        , &(this->RequestQueue)
         , nullptr));
     this->handleUDP.push_back(new UDPHandler(&(this->UDPRequests)
         , nullptr
         , this->routingMap));
-    this->handleTCP.push_back(new RequestHandler(&(this->TCPRequests)
+    this->handleRequest.push_back(new RequestHandler(&(this->RequestQueue)
         , nullptr
         , this->routingMap
         , &(this->responseQueue)));
@@ -70,7 +70,7 @@ class IntermediaryServer {
 
     // start all listeners
     this->listenClientConnections->start();
-    this->listenPiecesServerTCP->start();
+    this->listenPiecesServerUDP->start();
 
     // start handlers
     for (Handler<Socket*>* handler : this->handleClientConnections) {
@@ -81,7 +81,7 @@ class IntermediaryServer {
       handler->start();
     }
 
-    for (RequestHandler* handler : this->handleTCP) {
+    for (RequestHandler* handler : this->handleRequest) {
       handler->start();
     }
 
@@ -104,7 +104,7 @@ class IntermediaryServer {
       handler->waitToFinish();
     }
 
-    for (RequestHandler* handler : this->handleTCP) {
+    for (RequestHandler* handler : this->handleRequest) {
       handler->waitToFinish();
     }
 
@@ -119,7 +119,6 @@ class IntermediaryServer {
 
   void stopServer() {
     this->listenClientConnections->stop();
-    this->listenPiecesServerTCP->stop();
-    this->listenPiecesServerTCP->stop();
+    this->listenPiecesServerUDP->stop();
   }
 };

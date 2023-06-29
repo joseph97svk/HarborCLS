@@ -1,15 +1,17 @@
 #include "Generics/Handler.hpp"
 #include "Generics/RoutingMap.hpp"
 
-
 // for handling whatever the client sent
-class ClientHandler : public Handler <Socket*> {
+class ClientHandler : public Handler <Socket*> { //Maneja lo que 
  private:
+ Queue<Request*>* responseQueue;
 
  public:
   ClientHandler(Queue<Socket*>* consumingQueue,
+      Queue<Request*>* responseQueue,
       Socket* stopCondition)
-          : Handler(consumingQueue, stopCondition) {}
+          : Handler(consumingQueue, stopCondition)
+          , responseQueue (responseQueue){}
 
  private:
   // socket of client from which request is to be read
@@ -92,7 +94,7 @@ class RequestHandler : public Handler<Request*>  {
 };
 
 // for handling the reponse to be sent to the client
-class ResponseHandler : public Handler<std::shared_ptr<Response>>  {
+class ResponseHandler : public Handler<std::shared_ptr<Response>>  { //Se encarga de las respuestas al cliente
  public:
   ResponseHandler(Queue<std::shared_ptr<Response>>* consumingQueue,
       std::shared_ptr<Response> stopCondition)
