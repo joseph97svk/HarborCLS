@@ -10,7 +10,9 @@
 enum serverAction {
   requestingFigures,
   requestingParts,
-  requestingAssembly
+  requestingAssembly,
+  piecesServerError,
+  inMapNotFound
 };
 
 struct Request {

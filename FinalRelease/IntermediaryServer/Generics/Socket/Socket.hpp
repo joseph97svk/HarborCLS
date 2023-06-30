@@ -23,6 +23,7 @@
 #include <vector>
 
 #include <iostream>
+#include <memory>
 
 class Socket {
 
@@ -39,6 +40,7 @@ class Socket {
   int Listen( int backlog );
   int Bind( int port );
   Socket * Accept();
+  //std::shared_ptr<Socket> Accept();
   int Shutdown( int mode );		// mode = { SHUT_RD, SHUT_WR, SHUT_RDWR }
   void SetIDSocket( int newId );
   int sendTo(void* message, int messageSize, void* socketAddress);
@@ -69,35 +71,47 @@ class Socket {
   void setBufferDefault(int size);
 
   Socket& operator <<(std::string& text) {
+    int bytesWriten = 0;
+
     if (this->isSSL()) {
-      this->SSLWrite(text.data());
+      bytesWriten = this->SSLWrite(text.data());
     } else {
-      this->Write(text.data());
+      bytesWriten = this->Write(text.data());
     }
+
+    this->bytesReadWritten = bytesWriten;
 
     return *this;
   }
 
   template <typename dataType>
   Socket& operator <<(dataType data) {
+    int bytesWriten = 0;
+
     if (this->isSSL()) {
-      this->SSLWrite(data, sizeof(dataType));
+      bytesWriten = this->SSLWrite(data, sizeof(dataType));
     } else {
-      this->Write(data, sizeof(dataType));
+      bytesWriten = this->Write(data, sizeof(dataType));
     }
+
+    this->bytesReadWritten = bytesWriten;
   
     return *this;
   }
 
   template <typename dataType>
   Socket& operator <<(std::vector<dataType> data) {
+    int bytesWriten = 0;
+
     if (this->isSSL()) {
-      this->SSLWrite((void*) data.data(),
+      bytesWriten = this->SSLWrite((void*) data.data(),
           (int) data.size() * sizeof(dataType));
     } else {
-      this->Write((void*) data.data(),
+      bytesWriten = this->Write((void*) data.data(),
           (int) data.size() * sizeof(dataType));
     }
+
+    this->bytesReadWritten = bytesWriten;
 
     return *this;
   }
@@ -105,13 +119,17 @@ class Socket {
   Socket& operator >>(std::string& text) {
     char buffer[this->bufferDefaultSize];
     memset(buffer, 0, this->bufferDefaultSize);
+    int bytesRead = 0;
 
     if (this->isSSL()) {
-      this->SSLRead(buffer, this->bufferDefaultSize);
+      bytesRead = this->SSLRead(buffer, this->bufferDefaultSize);
     } else {
-      this->Read(buffer, this->bufferDefaultSize);
+      bytesRead = this->Read(buffer, this->bufferDefaultSize);
     }
 
+    this->bytesReadWritten = bytesRead;
+
+    text.resize(bytesRead + 1);
     text = buffer;
     
     return *this;
@@ -119,11 +137,15 @@ class Socket {
 
   template <typename dataType>
   Socket& operator >>(dataType& data) {
+    int bytesRead = 0;
+
     if (this->isSSL()) {
-      this->SSLRead(data, sizeof(dataType));
+      bytesRead = this->SSLRead(data, sizeof(dataType));
     } else {
-      this->Read(data, sizeof(dataType));
+      bytesRead = this->Read(data, sizeof(dataType));
     }
+
+    this->bytesReadWritten = bytesRead;
 
     return *this;
   }
@@ -144,7 +166,13 @@ class Socket {
     data.resize(elementsRead);
     memcpy(data.data(), buffer, bytesRead);
 
+    this->bytesReadWritten = bytesRead;
+
     return *this;
+  }
+
+  operator int() {
+    return this->bytesReadWritten;
   }
 
  private:
@@ -157,6 +185,8 @@ class Socket {
   void * SSLStruct;	// SSL BIO basis input output
 
   int bufferDefaultSize = 500;
+
+  int bytesReadWritten = 0;
 };
 
 #endif

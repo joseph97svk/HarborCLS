@@ -3,6 +3,8 @@
 #include "Listeners.hpp"
 #include "Handlers.hpp"
 
+#define CLIENTPORT 2005
+
 class IntermediaryServer {
   Listener* listenClientConnections;
   Listener* listenPiecesServerUDP;
@@ -22,9 +24,12 @@ class IntermediaryServer {
 
   RoutingMap* routingMap;
 
+ public:
   IntermediaryServer() {
     this->clientSocket = new Socket('s', false);
-    this->connectionSocket = new Socket('d', false);
+    this->clientSocket->Bind(CLIENTPORT);
+
+    //this->connectionSocket = new Socket('d', false);
 
     std::string stopping = "stopping server\n";
     std::string processing = "request received\b";
@@ -32,29 +37,29 @@ class IntermediaryServer {
         , clientSocket
         , nullptr
         , nullptr
-        , 80
+        , CLIENTPORT
         , true
         , 's'
         , processing
         , stopping);
-    this->listenPiecesServerUDP = new UDPListener(&(this->UDPRequests)
-        , nullptr // No need for a socket that will need to be destroyed and restarted for every connection
-        , nullptr
-        , nullptr
-        , INTERMEDIARY_UDP_PORT
-        , false
-        , 'd'
-        , processing
-        , stopping);
+    // this->listenPiecesServerUDP = new UDPListener(&(this->UDPRequests)
+    //     , nullptr // No need for a socket that will need to be destroyed and restarted for every connection
+    //     , nullptr
+    //     , nullptr
+    //     , INTERMEDIARY_UDP_PORT
+    //     , false
+    //     , 'd'
+    //     , processing
+    //     , stopping);
 
     this->routingMap = new RoutingMap();
-    
+
     this->handleClientConnections.push_back(new ClientHandler(&(this->ClientRequests)
         , &(this->RequestQueue)
         , nullptr));
-    this->handleUDP.push_back(new UDPHandler(&(this->UDPRequests)
-        , nullptr
-        , this->routingMap));
+    // this->handleUDP.push_back(new UDPHandler(&(this->UDPRequests)
+    //     , nullptr
+    //     , this->routingMap));
     this->handleRequest.push_back(new RequestHandler(&(this->RequestQueue)
         , nullptr
         , this->routingMap
@@ -66,20 +71,22 @@ class IntermediaryServer {
   void start() {
     broadcastPresence();
 
+    this->clientSocket->Listen(15);
+
     // initiate all threads
 
     // start all listeners
     this->listenClientConnections->start();
-    this->listenPiecesServerUDP->start();
+    // this->listenPiecesServerUDP->start();
 
     // start handlers
     for (Handler<Socket*>* handler : this->handleClientConnections) {
       handler->start();
     }
 
-    for (Handler<Socket*>* handler : this->handleUDP) {
-      handler->start();
-    }
+    // for (Handler<Socket*>* handler : this->handleUDP) {
+    //   handler->start();
+    // }
 
     for (RequestHandler* handler : this->handleRequest) {
       handler->start();
@@ -93,26 +100,27 @@ class IntermediaryServer {
 
     // join listeners
     this->listenClientConnections->waitToFinish();
-    this->listenPiecesServerUDP->waitToFinish();
+    // this->listenPiecesServerUDP->waitToFinish();
 
     // join handlers
     for (Handler<Socket*>* handler : this->handleClientConnections) {
       handler->waitToFinish();
     }
 
-    for (Handler<Socket*>* handler : this->handleUDP) {
-      handler->waitToFinish();
-    }
+    // for (Handler<Socket*>* handler : this->handleUDP) {
+    //   handler->waitToFinish();
+    // }
 
-    for (RequestHandler* handler : this->handleRequest) {
-      handler->waitToFinish();
-    }
+    // for (RequestHandler* handler : this->handleRequest) {
+    //   handler->waitToFinish();
+    // }
 
-    for (ResponseHandler* handler : this->handleResponses) {
-      handler->waitToFinish();
-    }
+    // for (ResponseHandler* handler : this->handleResponses) {
+    //   handler->waitToFinish();
+    // }
   }
 
+ private:
   void broadcastPresence() {
     
   }

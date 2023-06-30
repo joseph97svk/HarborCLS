@@ -390,6 +390,26 @@ Socket * Socket::Accept(){
   return new Socket(socketFD);
 }
 
+// std::shared_ptr<Socket> Socket::Accept() {
+//   struct sockaddr_in server;
+//   socklen_t addr_len = sizeof(server);
+
+//   // accept system call
+//   int socketFD =
+//       accept(this->idSocket, // file descriptor of this existing socket
+//       (sockaddr*) &server, 
+//       &addr_len 
+//       );
+
+//   if (-1 == socketFD) {  // check for errors
+//     // in case the socket is closed abruptly, no need to mention error
+//     if (errno != 9) {
+//       perror("Socket::Accept");
+//     }
+//   }
+   
+//   return std::make_shared<Socket>(socketFD);
+// }
 
 /**
   * Shutdown method

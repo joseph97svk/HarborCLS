@@ -4,26 +4,20 @@
 #include <thread>
 
 class Thread {
-  std::thread* thread;
+ protected:
+  std::thread* thread = nullptr;
 
  public:
-  Thread()
-  : thread(nullptr){
+  Thread() {
   }
 
-  ~Thread() {
-    if (this->thread == nullptr) {
-      return;
-    }
-
-    delete this->thread;
-  }
+  virtual ~Thread() {
+    
+  };
 
   void start() {
     this->thread = new std::thread(&Thread::run, this);
   }
-
-  virtual void run();
 
   void waitToFinish() {
     this->thread->join();
@@ -31,6 +25,9 @@ class Thread {
     delete this->thread;
     this->thread = nullptr;
   }
+
+ protected:
+  virtual void run() = 0;
 };
 
 #endif

@@ -2,22 +2,34 @@
 #include "Generics/RoutingMap.hpp"
 
 // for handling whatever the client sent
-class ClientHandler : public Handler <Socket*> { //Maneja lo que 
+class ClientHandler : public Handler <Socket*> {
  private:
- Queue<Request*>* responseQueue;
+  Queue<Request*>* requestQueue;
 
  public:
   ClientHandler(Queue<Socket*>* consumingQueue,
-      Queue<Request*>* responseQueue,
+      Queue<Request*>* requestQueue,
       Socket* stopCondition)
           : Handler(consumingQueue, stopCondition)
-          , responseQueue (responseQueue){}
+          , requestQueue (requestQueue){}
 
  private:
   // socket of client from which request is to be read
-  void handleSingle(Socket* handlingData) {
+  void handleSingle(Socket* handlingData) { //Esta chuncha ya está conectada
+  //1 sslread, operador sobre cargado.
+    std::string buffer;
 
-    (void) handlingData;
+    std::cout << "Entered handlers" << std::endl;
+    int bytesRead = 500;
+    while ((*handlingData >> buffer) == 500) {
+      std::cout << buffer << std::endl;
+    }
+
+    std::cout << "exited handlers" << std::endl;
+
+    Request* request = new Request(handlingData, "Chicki", serverAction::requestingParts);
+
+    this->requestQueue->push(request);
   }
 };
 
@@ -34,30 +46,19 @@ class RequestHandler : public Handler<Request*>  {
           , responseQueue(responseQueue){}
 
  private:
-  void handleSingle(Request* handlingData) {
+  void handleSingle(Request* handlingData) { //HTTP
     // use request to find ip and port from the map
     serverAction requestType = handlingData->requestType;
     std::string figure = handlingData->figure;
 
+    std::cout << "Handling request and dummy connection to pieces server" << std::endl;
+    std::cout << "Figure: " << figure << std::endl;
     // create socket
-    Socket piecesServerConnection('s', false);
+    //Socket piecesServerConnection('s', false);
 
-    std::string ip = (*this->routingMap)[figure].first;
-    int port = (*this->routingMap)[figure].second;
+    //tryConnection(piecesServerConnection, figure);
 
-    int tries = 1;
-    // use information fetched to connect to pieces server
-    while (tries <= 3 && !piecesServerConnection.Connect(ip.data(), port)) {
-      // increase timeout
-
-      tries++;
-    }
-
-    if (tries == 3) {
-
-    }
-
-    std::string responseReceived;
+    std::string responseReceived = "sup";
 
     // send info to pieces server
     switch(requestType) {
@@ -80,7 +81,7 @@ class RequestHandler : public Handler<Request*>  {
     }
 
     // close socket
-    piecesServerConnection.Close();
+    //piecesServerConnection.Close();
 
     //enqueue response
     std::shared_ptr<Response> response = std::make_shared<Response>(
@@ -90,6 +91,25 @@ class RequestHandler : public Handler<Request*>  {
         );
 
     this->responseQueue->push(response);
+  }
+
+  bool tryConnection (
+      Socket& piecesServerSocket,
+      std::string figure) {
+      std::string ip = (*this->routingMap)[figure].first;
+      int port = (*this->routingMap)[figure].second;
+
+      int tries = 1;
+      // use information fetched to connect to pieces server
+      while (tries <= 3 && !piecesServerSocket.Connect(ip.data(), port)) {
+        // increase timeout
+
+        tries++;
+      }
+
+      if (tries == 3) {
+
+    }
   }
 };
 
@@ -101,9 +121,23 @@ class ResponseHandler : public Handler<std::shared_ptr<Response>>  { //Se encarg
           : Handler(consumingQueue, stopCondition) {}
 
  private:
-  void handleSingle(std::shared_ptr<Response> handlingData) {
+  void handleSingle(std::shared_ptr<Response> handlingData) { //HTTP Y HTML
+    std::cout << "Final step before sending back to client!" << std::endl;
 
-    (void) handlingData;
+    std::string response = 
+        // send header
+        "HTTP/1.1 200\r\n"
+        "Content-type: text/html; charset=UTF-8\r\n"
+        "Server: AttoServer v1.1\r\n"
+        "\r\n"
+        // send html format and title
+        "<!DOCTYPE html>\n"
+        "<html><body><h1>Conexión correcta!\n";
+
+    response += handlingData->response;   
+    response += "</h1></body></html>";
+
+    *handlingData->socket << response;
   }
 };
 

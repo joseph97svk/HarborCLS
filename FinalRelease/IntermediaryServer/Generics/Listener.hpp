@@ -27,7 +27,7 @@ class Listener : public virtual Thread {
   char socketType;
 
  public:
-  Listener(Queue<Socket*>* queue,
+  explicit Listener(Queue<Socket*>* queue,
       Socket* listeningSocket,
       Socket* stopCondition,
       Socket* handlerStopCondition,
@@ -36,7 +36,8 @@ class Listener : public virtual Thread {
       char socketType,
       std::string& afterReceivedMessage,
       std::string& stopMessage)
-    : queue(queue)
+    : Thread()
+    , queue(queue)
     , listeningSocket(listeningSocket)
     , stopCondition(stopCondition)
     , handlerStopCondition(handlerStopCondition)
@@ -48,7 +49,7 @@ class Listener : public virtual Thread {
     , socketType(socketType) {
   }
 
-  ~Listener() {
+  virtual ~Listener() {
   }
 
   void stop() {
@@ -74,7 +75,7 @@ class Listener : public virtual Thread {
     }
   }
 
-  void run() {
+  virtual void run() override {
     this->listen();
   }
 

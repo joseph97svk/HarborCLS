@@ -390,7 +390,6 @@ Socket * Socket::Accept(){
   return new Socket(socketFD);
 }
 
-
 /**
   * Shutdown method
   *    use "shutdown" Unix system call (man 3 shutdown)
