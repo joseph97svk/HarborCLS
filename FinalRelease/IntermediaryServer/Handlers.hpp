@@ -133,30 +133,29 @@ class ResponseHandler : public Handler<std::shared_ptr<Response>>  { //Se encarg
           : Handler(consumingQueue, stopCondition) {}
 
  private:
-  void handleSingle(std::shared_ptr<Response> handlingData) { //HTTP Y HTML
-    std::cout << "Final step before sending back to client!" << std::endl;
+void handleSingle(std::shared_ptr<Response> handlingData) {
+  std::cout << "Final step before sending back to client!" << std::endl;
 
-    std::string response =
-        // send header
-        "HTTP/1.1 200\r\n"
-        "Content-type: text/html; charset=UTF-8\r\n"
-        "Server: AttoServer v1.1\r\n"
-        "\r\n"
-        // send html format and title
-        "<!DOCTYPE html>\n"
-        "<html><body><h1>Conexión correcta!\n";
+  std::string response =
+    // send header
+    "HTTP/1.1 200\r\n"
+    "Content-type: text/html; charset=UTF-8\r\n"
+    "Server: AttoServer v1.1\r\n"
+    "\r\n"
+    // send html format and title
+    "<!DOCTYPE html>\n"
+    "<html><body><h1>¡Bienvenido al servidor intermedio!</h1>\n"
+    "<h2>Menú:</h2>\n"
+    "<a href='/armar_piezas'><button>Armar piezas</button></a><br>\n"
+    "<a href='/armar'><button>Armar</button></a><br>\n"
+    "<a href='/figuras'><button>Figuras</button></a>\n"
+    "</body></html>";
 
-    response += handlingData->response;   
-    response += "</h1></body></html>";
+  *handlingData->socket << response;
 
-    *handlingData->socket << response;
+  std::cout << "Request handling completed" << std::endl;
+}
 
-    std::cout << "Request handling completed" << std::endl;
-  }
-
-  void optionalToEnd () {
-    std::cerr << "response handler dying" << std::endl;
-  }
 };
 
 // handle all broadcasts received
