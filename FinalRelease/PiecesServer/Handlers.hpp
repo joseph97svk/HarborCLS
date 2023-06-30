@@ -21,6 +21,7 @@ class UDPHandler : public Handler<std::pair<std::string, int>> {
 
  private:
   void handleSingle(std::pair<std::string, int> handlingSocket) {
-    (void) handlingSocket;
+    std::cout << "ip address: " << handlingData->first <<
+        "\nport:" << handlingData->second << std::endl;
   }
 };

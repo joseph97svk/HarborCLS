@@ -20,7 +20,7 @@ class ClientHandler : public Handler <Socket*> {
     std::string buffer;
 
     std::cout << "Entered handlers" << std::endl;
-    int bytesRead = 500;
+
     while ((*handlingData >> buffer) == 500) {
       std::cout << buffer << std::endl;
     }
@@ -30,6 +30,11 @@ class ClientHandler : public Handler <Socket*> {
     Request* request = new Request(handlingData, "Chicki", serverAction::requestingParts);
 
     this->requestQueue->push(request);
+  }
+
+  void optionalToEnd () {
+    this->requestQueue->push(nullptr);
+    std::cerr << "Client handler dying" << std::endl;
   }
 };
 
@@ -53,6 +58,10 @@ class RequestHandler : public Handler<Request*>  {
 
     std::cout << "Handling request and dummy connection to pieces server" << std::endl;
     std::cout << "Figure: " << figure << std::endl;
+
+    if (handlingData == nullptr) {
+      std::cout << "Error!!!!" << std::endl;
+    }
     // create socket
     //Socket piecesServerConnection('s', false);
 
@@ -93,23 +102,26 @@ class RequestHandler : public Handler<Request*>  {
     this->responseQueue->push(response);
   }
 
+  void optionalToEnd () {
+    std::cerr << "request handler dying" << std::endl;
+    this->responseQueue->push(nullptr);
+  }
+
   bool tryConnection (
-      Socket& piecesServerSocket,
-      std::string figure) {
-      std::string ip = (*this->routingMap)[figure].first;
-      int port = (*this->routingMap)[figure].second;
+    Socket& piecesServerSocket,
+    std::string figure) {
+    std::string ip = (*this->routingMap)[figure].first;
+    int port = (*this->routingMap)[figure].second;
 
-      int tries = 1;
-      // use information fetched to connect to pieces server
-      while (tries <= 3 && !piecesServerSocket.Connect(ip.data(), port)) {
-        // increase timeout
+    int tries = 1;
+    // use information fetched to connect to pieces server
+    while (tries <= 3 && !piecesServerSocket.Connect(ip.data(), port)) {
+      // increase timeout
 
-        tries++;
-      }
-
-      if (tries == 3) {
-
+      tries++;
     }
+
+    return tries != 3;
   }
 };
 
@@ -124,7 +136,7 @@ class ResponseHandler : public Handler<std::shared_ptr<Response>>  { //Se encarg
   void handleSingle(std::shared_ptr<Response> handlingData) { //HTTP Y HTML
     std::cout << "Final step before sending back to client!" << std::endl;
 
-    std::string response = 
+    std::string response =
         // send header
         "HTTP/1.1 200\r\n"
         "Content-type: text/html; charset=UTF-8\r\n"
@@ -138,22 +150,34 @@ class ResponseHandler : public Handler<std::shared_ptr<Response>>  { //Se encarg
     response += "</h1></body></html>";
 
     *handlingData->socket << response;
+
+    std::cout << "Request handling completed" << std::endl;
+  }
+
+  void optionalToEnd () {
+    std::cerr << "response handler dying" << std::endl;
   }
 };
 
 // handle all broadcasts received
-class UDPHandler : public Handler<Socket*> {
+class UDPHandler : public Handler<std::shared_ptr<std::pair<std::string, int>>> {
  private:
   RoutingMap* routingMap;
  public:
-  UDPHandler(Queue<Socket*>* consumingQueue,
-      Socket* stopCondition, RoutingMap* routingMap)
+  UDPHandler(Queue<std::shared_ptr<std::pair<std::string, int>>>* consumingQueue,
+      std::shared_ptr<std::pair<std::string, int>> stopCondition,
+      RoutingMap* routingMap)
           : Handler(consumingQueue, stopCondition)
           , routingMap(routingMap){}
 
  private:
   // socket of client to send response
-  void handleSingle(Socket* handlingData) {
-    (void) handlingData;
+  void handleSingle(std::shared_ptr<std::pair<std::string, int>> handlingData) {
+    std::cout << "ip address: " << handlingData->first <<
+        "\nport:" << handlingData->second << std::endl;
+  }
+
+  void optionalToEnd () {
+    std::cerr << "udp handler dying" << std::endl;
   }
 };

@@ -12,7 +12,7 @@ class Thread {
   }
 
   virtual ~Thread() {
-    
+
   };
 
   void start() {

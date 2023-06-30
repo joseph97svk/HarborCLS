@@ -29,6 +29,8 @@ class Handler : public virtual Thread {
       datatype data = this->consumingQueue->pop();
 
       if (data == this->stopCondition) {
+        std::cout << "Handler stopping" << std::endl;
+        optionalToEnd();
         break;
       }
 
@@ -39,6 +41,9 @@ class Handler : public virtual Thread {
   virtual void run() override {
     this->handle();
   }
+
+  virtual void optionalToEnd () = 0;
+
 
   virtual void handleSingle(datatype handlingData) = 0;
 };

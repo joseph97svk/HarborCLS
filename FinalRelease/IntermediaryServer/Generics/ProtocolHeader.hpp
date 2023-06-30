@@ -5,12 +5,14 @@
 
 /*---------------------------------Ports--------------------------------------*/
 
-#define INTERMEDIARY_UDP_PORT 3141  /**< Intermediary Server UDP Port */
-#define INTERMEDIARY_TCP_PORT 3142  /**< Intermediary Server TCP Port */
-
-#define PIECES_UDP_PORT 4849  /**< Pieces Server UDP Port */
-#define PIECES_TCP_PORT 4850  /**< Pieces Server UDP Port */
-
+//#define INTERMEDIARY_UDP_PORT 3141  /**< Intermediary Server UDP Port */
+//#define INTERMEDIARY_TCP_PORT 3142  /**< Intermediary Server TCP Port */
+#define INTERMEDIARY_UDP_PORT 5012
+#define INTERMEDIARY_TCP_PORT 6012
+//#define PIECES_UDP_PORT 4849  /**< Pieces Server UDP Port */
+//#define PIECES_TCP_PORT 4850  /**< Pieces Server UDP Port */
+#define PIECES_UDP_PORT 7012
+#define PIECES_TCP_PORT 8012
 /*--------------------------------Timeouts------------------------------------*/
 
 #define FIRST_TIMEOUT 100  /**< First timeout: miliseconds */

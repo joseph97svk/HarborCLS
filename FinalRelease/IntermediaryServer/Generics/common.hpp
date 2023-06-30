@@ -47,4 +47,18 @@ struct Response {
   }
 };
 
+std::string getComputerIp () {
+  std::string host;
+  host.resize(256);
+
+  gethostname(host.data(), sizeof(host));
+
+  struct hostent* hostentry = gethostbyname(host.data());
+
+  host.clear();
+  host = inet_ntoa(*((struct in_addr*) hostentry->h_addr_list[0]));
+
+  return host;
+}
+
 #endif

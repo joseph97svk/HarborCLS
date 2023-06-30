@@ -51,7 +51,7 @@ void PiecesServer::stop() {
 PiecesServer& PiecesServer::getInstance() {
   static PiecesServer piecesServer("legoSource.txt", 's', false);
   return piecesServer;
-  }
+}
 
 /**
  * Read the Lego source file and populate the lego inventory map.

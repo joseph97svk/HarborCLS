@@ -12,13 +12,14 @@ class Handler : public virtual Thread {
   datatype stopCondition;
 
  public:
-  Handler(Queue<datatype>* consumingQueue,
+  explicit Handler(Queue<datatype>* consumingQueue,
       datatype stopCondition)
-    : consumingQueue(consumingQueue)
+    : Thread()
+    , consumingQueue(consumingQueue)
     , stopCondition(stopCondition) {
   }
 
-  ~Handler() {
+  virtual ~Handler() {
   }
 
  protected:
@@ -27,6 +28,7 @@ class Handler : public virtual Thread {
       datatype data = this->consumingQueue->pop();
 
       if (data == this->stopCondition) {
+        std::cout << "Handler stopping" << std::endl;
         break;
       }
 
@@ -34,11 +36,11 @@ class Handler : public virtual Thread {
     }
   }
 
-  void run() {
+  virtual void run() override {
     this->handle();
   }
 
-  virtual void handleSingle(datatype handlingData);
+  virtual void handleSingle(datatype handlingData) = 0;
 };
 
 #endif

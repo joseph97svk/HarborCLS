@@ -1,5 +1,6 @@
 #include "Generics/Listener.hpp"
 #include <utility>
+#include "Generics/ProtocolHeader.hpp"
 
 #include <netinet/in.h>
 
@@ -12,6 +13,7 @@ class TCPListener : public Listener<Socket*> {
       int stopPort,
       bool ssl,
       char socketType,
+      std::string& listeningMessage,
       std::string& afterReceivedMessage,
       std::string& stopMessage) : 
     Listener (
@@ -22,6 +24,7 @@ class TCPListener : public Listener<Socket*> {
         stopPort,
         ssl,
         socketType,
+        listeningMessage,
         afterReceivedMessage,
         stopMessage) {}
 
@@ -44,6 +47,7 @@ class UDPListener : public Listener<std::pair<std::string, int>> {
       int stopPort,
       bool ssl,
       char socketType,
+      std::string& listeningMessage,
       std::string& afterReceivedMessage,
       std::string& stopMessage) : 
     Listener (
@@ -54,6 +58,7 @@ class UDPListener : public Listener<std::pair<std::string, int>> {
         stopPort,
         ssl,
         socketType,
+        listeningMessage,
         afterReceivedMessage,
         stopMessage) {}
 
@@ -62,13 +67,21 @@ class UDPListener : public Listener<std::pair<std::string, int>> {
     char buffer[100];
     memset(buffer, 0, 100);
 
-    struct sockaddr sockStruct;
-    memset(&sockStruct, 0, sizeof(sockaddr));
+    // get struct for udp
+    struct sockaddr_in sockStruct;
+    memset(&sockStruct, 0, sizeof(sockaddr_in));
+
+    // set the port from where messages are expected
+    sockStruct.sin_port = htons(INTERMEDIARY_UDP_PORT);
+    // receive from any address
+    sockStruct.sin_addr.s_addr = INADDR_ANY;
 
     int bytesRead = this->listeningSocket->recvFrom((void*)buffer, 100, &sockStruct);
     int byte = 4;
 
     std::string ip;
+
+    std::cout << ">>" << buffer << std::endl;
 
     // interpret (4 bytes for code, 1 for separator, next ip until port)
     for (; byte < bytesRead; byte++) {
@@ -77,7 +90,7 @@ class UDPListener : public Listener<std::pair<std::string, int>> {
       }
       ip.push_back(buffer[byte]);
     }
-
+    
     int port = 0;
 
     // last 4 usable bytes are port

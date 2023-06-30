@@ -20,6 +20,7 @@ class Listener : public virtual Thread {
 
   bool stopThread;
 
+  std::string listeningMessage;
   std::string stopMessage;
   std::string afterReceivedMessage;
 
@@ -35,6 +36,7 @@ class Listener : public virtual Thread {
       int stopPort,
       bool ssl,
       char socketType,
+      std::string& listeningMessage,
       std::string& afterReceivedMessage,
       std::string& stopMessage)
     : queue(queue)
@@ -42,6 +44,7 @@ class Listener : public virtual Thread {
     , stopCondition(stopCondition)
     , handlerStopCondition(handlerStopCondition)
     , stopThread(false)
+    , listeningMessage(listeningMessage)
     , stopMessage(stopMessage)
     , afterReceivedMessage(afterReceivedMessage)
     , stopPort(stopPort)
@@ -56,19 +59,25 @@ class Listener : public virtual Thread {
     this->stopThread = true;
 
     this->unlockListen();
+
+    this->queue->push(handlerStopCondition);
   }
 
  private:
   void listen() {
     while (true) {
+      printf("%s", this->listeningMessage.data());
+
       enqueutype data = this->obtain();
 
       if (data == this->stopCondition || this->stopThread) {
         this->queue->push(data);
-        //std::cout << this->stopMessage << std::end;
+        printf("%s", this->stopMessage.data());
+        //std::cout << this->stopMessage.data() << std::end;
         break;
       }
 
+      printf("%s", this->afterReceivedMessage.data());
       //std::cout << this->afterReceivedMessage << std::endl;
 
       this->queue->push(data);
