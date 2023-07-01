@@ -6,9 +6,11 @@ static std::string certificate = "esjojo.pem";
 static std::string key = "key.pem";
 
 void signalHandler (int signal) {
-  std::cout << "Stopping program" << std::endl;
+  if (signal == SIGINT) {
+    std::cout << "Stopping program\n" << std::endl;
 
-  IntermediaryServer::getInstance(certificate, key).stopServer();
+    IntermediaryServer::getInstance(certificate, key).stopServer();
+  }
 }
 
 int main() {

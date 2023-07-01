@@ -75,7 +75,7 @@ class Listener : public virtual Thread {
   }
 
  private:
-  void listen() {
+  virtual void listen() {
     while (true) {
       printf("%s", this->listeningMessage.data());
 
@@ -120,6 +120,9 @@ class Listener : public virtual Thread {
 
     if (this->ssl) {
       closingSocket.SSLInit();
+      closingSocket.SSLConnect((char*) "any IP", this->stopPort);
+
+      return;
     }
 
     closingSocket.Connect("any IP", this->stopPort);

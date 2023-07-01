@@ -1,15 +1,16 @@
-#include "Generics/Listener.hpp"
 #include <utility>
-#include "Generics/ProtocolHeader.hpp"
-
+#include <memory>
 #include <netinet/in.h>
 
-class TCPListener : public Listener<Socket*> {
+#include "Generics/Listener.hpp"
+#include "Generics/ProtocolHeader.hpp"
+
+class TCPListener : public Listener<std::shared_ptr<Socket>> {
  public:
-  TCPListener (Queue<Socket*>* queue,
+  TCPListener (Queue<std::shared_ptr<Socket>>* queue,
       Socket* listeningSocket,
-      Socket* stopCondition,
-      Socket* handlerStopCondition,
+      std::shared_ptr<Socket> stopCondition,
+      std::shared_ptr<Socket> handlerStopCondition,
       int stopPort,
       bool ssl,
       char socketType,
@@ -29,8 +30,8 @@ class TCPListener : public Listener<Socket*> {
         stopMessage) {}
 
  private:
-  Socket* obtain() {
-    Socket* receivedConnection = this->listeningSocket->Accept();
+  std::shared_ptr<Socket> obtain() {
+    std::shared_ptr<Socket> receivedConnection = this->listeningSocket->Accept();
     receivedConnection->SSLCreate(this->listeningSocket);
     receivedConnection->SSLAccept();
 
@@ -38,12 +39,12 @@ class TCPListener : public Listener<Socket*> {
   }
 };
 
-class UDPListener : public Listener<std::pair<std::string, int>> {
+class UDPListener : public Listener<std::shared_ptr<std::vector<char>>> {
  public:
-  UDPListener (Queue<std::pair<std::string, int>>* queue,
+  UDPListener (Queue<std::shared_ptr<std::vector<char>>>* queue,
       Socket* listeningSocket,
-      std::pair<std::string, int> stopCondition,
-      std::pair<std::string, int> handlerStopCondition,
+      std::shared_ptr<std::vector<char>> stopCondition,
+      std::shared_ptr<std::vector<char>> handlerStopCondition,
       int stopPort,
       bool ssl,
       char socketType,
@@ -63,7 +64,7 @@ class UDPListener : public Listener<std::pair<std::string, int>> {
         stopMessage) {}
 
  private:
-  std::pair<std::string, int> obtain() {
+  std::shared_ptr<std::vector<char>> obtain() {
     char buffer[100];
     memset(buffer, 0, 100);
 
@@ -77,27 +78,13 @@ class UDPListener : public Listener<std::pair<std::string, int>> {
     sockStruct.sin_addr.s_addr = INADDR_ANY;
 
     int bytesRead = this->listeningSocket->recvFrom((void*)buffer, 100, &sockStruct);
-    int byte = 4;
 
-    std::string ip;
+    std::shared_ptr<std::vector<char>> vec = std::make_shared<std::vector<char>>();
 
-    std::cout << ">>" << buffer << std::endl;
+    vec->resize(bytesRead);
 
-    // interpret (4 bytes for code, 1 for separator, next ip until port)
-    for (; byte < bytesRead; byte++) {
-      if (buffer[byte] == 29) {
-        break;
-      }
-      ip.push_back(buffer[byte]);
-    }
-    
-    int port = 0;
+    memcpy(&vec->data()[0], buffer, bytesRead);
 
-    // last 4 usable bytes are port
-    memcpy(&port, &buffer[byte], 4);
-
-    // send pair with information
-    // copy is fine, information is little
-    return {ip, port};
+    return vec;
   }
 };

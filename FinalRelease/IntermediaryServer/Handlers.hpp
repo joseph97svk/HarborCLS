@@ -2,24 +2,24 @@
 #include "Generics/RoutingMap.hpp"
 
 // for handling whatever the client sent
-class ClientHandler : public Handler <Socket*> {
+class ClientHandler : public Handler <std::shared_ptr<Socket>> {
  private:
-  Queue<Request*>* requestQueue;
+  Queue<std::shared_ptr<Request>>* requestQueue;
 
  public:
-  ClientHandler(Queue<Socket*>* consumingQueue,
-      Queue<Request*>* requestQueue,
-      Socket* stopCondition)
+  ClientHandler(Queue<std::shared_ptr<Socket>>* consumingQueue,
+      Queue<std::shared_ptr<Request>>* requestQueue,
+      std::shared_ptr<Socket> stopCondition)
           : Handler(consumingQueue, stopCondition)
           , requestQueue (requestQueue){}
 
  private:
   // socket of client from which request is to be read
-  void handleSingle(Socket* handlingData) { //Esta chuncha ya está conectada
+  void handleSingle(std::shared_ptr<Socket> handlingData) { //Esta chuncha ya está conectada
   //1 sslread, operador sobre cargado.
     std::string buffer;
 
-    std::cout << "Entered handlers" << std::endl;
+    std::cerr << "Entered handlers" << std::endl;
 
     while ((*handlingData >> buffer) == 500) {
       std::cout << buffer << std::endl;
@@ -27,7 +27,7 @@ class ClientHandler : public Handler <Socket*> {
 
     std::cout << "exited handlers" << std::endl;
 
-    Request* request = new Request(handlingData, "Chicki", serverAction::requestingParts);
+    std::shared_ptr<Request> request = std::make_shared<Request>(handlingData, "Chicki", serverAction::requestingParts);
 
     this->requestQueue->push(request);
   }
@@ -38,12 +38,12 @@ class ClientHandler : public Handler <Socket*> {
   }
 };
 
-class RequestHandler : public Handler<Request*>  {
+class RequestHandler : public Handler<std::shared_ptr<Request>>  {
   RoutingMap* routingMap;
   Queue<std::shared_ptr<Response>>* responseQueue;
  public:
-  RequestHandler(Queue<Request*>* consumingQueue,
-      Request* stopCondition, 
+  RequestHandler(Queue<std::shared_ptr<Request>>* consumingQueue,
+      std::shared_ptr<Request> stopCondition, 
       RoutingMap* routingMap, 
       Queue<std::shared_ptr<Response>>* responseQueue)
           : Handler(consumingQueue, stopCondition)
@@ -51,7 +51,7 @@ class RequestHandler : public Handler<Request*>  {
           , responseQueue(responseQueue){}
 
  private:
-  void handleSingle(Request* handlingData) { //HTTP
+  void handleSingle(std::shared_ptr<Request> handlingData) { //HTTP
     // use request to find ip and port from the map
     serverAction requestType = handlingData->requestType;
     std::string figure = handlingData->figure;
@@ -160,21 +160,45 @@ class ResponseHandler : public Handler<std::shared_ptr<Response>>  { //Se encarg
 };
 
 // handle all broadcasts received
-class UDPHandler : public Handler<std::shared_ptr<std::pair<std::string, int>>> {
+class UDPHandler : public Handler<std::shared_ptr<std::vector<char>>> {
  private:
   RoutingMap* routingMap;
  public:
-  UDPHandler(Queue<std::shared_ptr<std::pair<std::string, int>>>* consumingQueue,
-      std::shared_ptr<std::pair<std::string, int>> stopCondition,
+  UDPHandler(Queue<std::shared_ptr<std::vector<char>>>* consumingQueue,
+      std::shared_ptr<std::vector<char>> stopCondition,
       RoutingMap* routingMap)
           : Handler(consumingQueue, stopCondition)
           , routingMap(routingMap){}
 
  private:
   // socket of client to send response
-  void handleSingle(std::shared_ptr<std::pair<std::string, int>> handlingData) {
-    std::cout << "ip address: " << handlingData->first <<
-        "\nport:" << handlingData->second << std::endl;
+  void handleSingle(std::shared_ptr<std::vector<char>> handlingData) {
+    LegoMessageCode code = (LegoMessageCode) 0;
+
+    // get the code from the message
+    memcpy(&code, (void*) handlingData->data(), sizeof(LegoMessageCode));
+    
+    std::string buffer;
+
+    buffer.resize(handlingData->size() - 5);
+
+    memcpy(buffer.data(), &handlingData->data()[5], buffer.size());
+
+    // get the host
+    std::string ip = buffer.substr(
+        0, // from start
+        buffer.find(':') - 1 // until separator
+        );
+
+    // get the port
+    int port = std::stoi(buffer.substr(
+        buffer.find(':') + 1, // from after separator
+        buffer.size() // until end of message
+        ));
+
+    std::cout << "CODE: " << code
+        << "\n\tip address: " << ip
+        << "\n\tport:" << port << std::endl;
   }
 
   void optionalToEnd () {

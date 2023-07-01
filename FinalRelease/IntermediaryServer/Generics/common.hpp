@@ -20,11 +20,10 @@ struct Request {
   std::string figure;
   serverAction requestType;
 
-  Request(Socket* socket, std::string figure, serverAction requestType)
-      : socket()
+  Request(std::shared_ptr<Socket> socket, std::string figure, serverAction requestType)
+      : socket(socket)
       , figure(figure)
       , requestType(requestType) {
-        this->socket.reset(socket);
       }
 };
 
@@ -33,12 +32,12 @@ struct Response {
   std::string response;
   serverAction requestType;
 
-  Response(Socket* socket, std::string response, serverAction requestType)
-      : socket()
-      , response(response)
-      , requestType(requestType) {
-    this->socket.reset(socket);
-  }
+  // Response(std::shared_ptr<Socket> socket, std::string response, serverAction requestType)
+  //     : socket()
+  //     , response(response)
+  //     , requestType(requestType) {
+  //   this->socket.reset(socket);
+  // }
 
   Response(std::shared_ptr<Socket> socket, std::string response, serverAction requestType)
       : socket(socket)

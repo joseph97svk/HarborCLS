@@ -21,9 +21,9 @@
 #include <cstring>
 #include <string>
 #include <vector>
+#include <memory>
 
 #include <iostream>
-#include <memory>
 
 class Socket {
 
@@ -39,8 +39,8 @@ class Socket {
   int Write( const char * buffer );	// size is calculated with strlen
   int Listen( int backlog );
   int Bind( int port );
-  Socket * Accept();
-  //std::shared_ptr<Socket> Accept();
+  //Socket * Accept();
+  std::shared_ptr<Socket> Accept();
   int Shutdown( int mode );		// mode = { SHUT_RD, SHUT_WR, SHUT_RDWR }
   void SetIDSocket( int newId );
   int sendTo(void* message, int messageSize, void* socketAddress);
@@ -70,7 +70,7 @@ class Socket {
   bool isSSL();
   void setBufferDefault(int size);
 
-  Socket& operator <<(std::string& text) {
+ Socket& operator <<(std::string& text) {
     int bytesWriten = 0;
 
     if (this->isSSL()) {

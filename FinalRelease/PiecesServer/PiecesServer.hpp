@@ -14,8 +14,8 @@ class PiecesServer {
   std::vector<UDPHandler*> handleUDP;
   std::vector<TCPHandler*> handleTCP;
 
-  Queue<std::pair<std::string, int>> UDPSockets;
-  Queue<Socket*> TCPSockets;
+  Queue<std::shared_ptr<std::vector<char>>> UDPSockets;
+  Queue<std::shared_ptr<Socket>> TCPSockets;
 
   Socket* connectionSocket;
   Socket* communicationsSocket;
@@ -47,8 +47,8 @@ class PiecesServer {
 
     this->listenUDP = new UDPListener(&(this->UDPSockets)
         , this->connectionSocket
-        , {"", -1}
-        , {"", -1}
+        , nullptr
+        , nullptr
         , PIECES_UDP_PORT
         , false
         , 'd'
@@ -57,7 +57,7 @@ class PiecesServer {
         , processing);
 
     this->handleUDP.push_back(new UDPHandler(&(this->UDPSockets)
-        , {"", -1}));
+        , nullptr));
     this->handleTCP.push_back(new TCPHandler(&(this->TCPSockets)
         , nullptr));
   }
@@ -101,35 +101,79 @@ class PiecesServer {
 
  private:
   void broadcastPresence() {
-    std::vector<sockaddr_in> islands(7);
+    Socket broadcastSocket('d', false);
+    sockaddr_in island;
+
+    union message_t {
+      int number;
+      char values[4];
+    };
+
+    message_t code;
+
+    code.number = LegoMessageCode::LEGO_PRESENT;
 
     // get the computer IP
-    std::string broadcastMessage = getComputerIp();
+    std::vector<char> broadcastMessage;
+
+    broadcastMessage.resize(4);
+    memcpy(broadcastMessage.data(), &code, 4);
+
+    broadcastMessage.push_back(29);
+
+    std::string buffer = getComputerIp();
+
+    for (char character : buffer) {
+      broadcastMessage.push_back(character);
+    }
+    
+    broadcastMessage.push_back(':');
+
+    buffer = std::to_string(INTERMEDIARY_TCP_PORT).data();
+
+    for (char character : buffer) {
+      broadcastMessage.push_back(character);
+    }
+
+    broadCastOnSamePC(island, broadcastMessage, broadcastSocket);
 
     // get the base for the broadcast IPs
     int broadcastIpId = 15;
-    std::string broadcastIpBase = std::to_string(PIECES_TCP_PORT) + ":172.16.123.";
+    std::string broadcastIpBase = "172.16.123.";
 
-    // for each island
-    for (sockaddr_in island : islands) {
+    // for each vlan
+    for (size_t vlan = 200; vlan < 207; vlan++) {
       // get the island broadcast ip
       std::string broadcastIp = broadcastIpBase + std::to_string(broadcastIpId);
 
       // set the ip and port for the message to be sent
       memset(&island, 0, sizeof(sockaddr_in));
-      islands[0].sin_port = htons(INTERMEDIARY_UDP_PORT);
-      inet_pton(AF_INET, broadcastIp.data(), &(islands[0].sin_addr));
+      island.sin_family = AF_INET;
+      island.sin_port = htons(INTERMEDIARY_UDP_PORT); // send to intermediary udp port
+      inet_pton(AF_INET, broadcastIp.data(), &(island.sin_addr));
 
       std::cout << "Broadcasting on: " << broadcastIp << std::endl;
 
       // send the broadcast
-      this->connectionSocket->sendTo(broadcastMessage.data(), broadcastMessage.size(), &island);
+      broadcastSocket.sendTo(broadcastMessage.data(), broadcastMessage.size(), &island);
 
       // set the next broadcast ip
       broadcastIpId += 16;
     }
 
     std::cout << std::endl;
+  }
+
+  void broadCastOnSamePC(sockaddr_in& island,std::vector<char>& broadcastMessage, Socket& broadcastSocket) {
+    memset(&island, 0, sizeof(sockaddr_in));
+    island.sin_family = AF_INET;
+    island.sin_port = htons(INTERMEDIARY_UDP_PORT);
+    island.sin_addr.s_addr = INADDR_ANY;
+
+    std::cout << "Broadcasting on: same computer" << std::endl;
+
+    // send the broadcast
+    broadcastSocket.sendTo(broadcastMessage.data(), broadcastMessage.size(), &island);
   }
 
   std::string getComputerIp () {

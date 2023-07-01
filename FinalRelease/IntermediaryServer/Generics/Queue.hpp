@@ -40,7 +40,6 @@ class Queue {
     sem_post(&this->canConsume); // Signal the semaphore to unblock consumers
   }
 
-
   /**
    * Pops an element from the queue.
    * If the queue is empty, the calling thread will block until an element becomes available.
@@ -49,7 +48,7 @@ class Queue {
   dataType pop() {
     sem_wait(&this->canConsume); // Wait until there is an element available in the queue
     this->canAccess.lock(); // Acquire the lock to access the queue
-    dataType& resultData = this->queue.front(); // Get the front element of the queue
+    dataType resultData = this->queue.front(); // Get the front element of the queue
     this->queue.pop(); // Remove the front element from the queue
     this->canAccess.unlock(); // Release the lock
     return resultData; // Return the popped element
