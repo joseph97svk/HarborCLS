@@ -22,60 +22,67 @@
 #include <string>
 #include <vector>
 #include <memory>
-
+#include <sys/types.h>
+#include <sys/socket.h>
 #include <iostream>
 
-class Socket {
+class Socket
+{
 
- public:
-  Socket( char type, bool IPv6 = false );	// char == 's' => stream, char == 'd' => datagram
-  Socket( int socketFD);				// int = socket descriptor
+public:
+  Socket(char type, bool IPv6 = false); // char == 's' => stream, char == 'd' => datagram
+  Socket(int socketFD);                 // int = socket descriptor
   ~Socket();
-  int Connect( const char * host, int port );
-  int Connect( const char * host, const char * service );
+  int Connect(const char *host, int port);
+  int Connect(const char *host, const char *service);
   void Close();
-  int Read( void * buffer, int bufferSize );
-  int Write( const void * buffer, int bufferSize );
-  int Write( const char * buffer );	// size is calculated with strlen
-  int Listen( int backlog );
-  int Bind( int port );
-  //Socket * Accept();
+  int Read(void *buffer, int bufferSize);
+  int Write(const void *buffer, int bufferSize);
+  int Write(const char *buffer); // size is calculated with strlen
+  int Listen(int backlog);
+  int Bind(int port);
+  // Socket * Accept();
   std::shared_ptr<Socket> Accept();
-  int Shutdown( int mode );		// mode = { SHUT_RD, SHUT_WR, SHUT_RDWR }
-  void SetIDSocket( int newId );
-  int sendTo(void* message, int messageSize, void* socketAddress);
-  int recvFrom(void* message, int messageSize, void* socketAddress);
+  int Shutdown(int mode); // mode = { SHUT_RD, SHUT_WR, SHUT_RDWR }
+  void SetIDSocket(int newId);
+  int sendTo(void *message, int messageSize, void *socketAddress);
+  int recvFrom(void *message, int messageSize, void *socketAddress);
 
   void InitSSL();
-  void SSLInit() {
+  void SSLInit()
+  {
     InitSSL();
   }
   void InitSSLContext();
   void SSLInitServerContext();
   void SSLInitServer(
-      const char* certificateFileName,
-      const char* keyFileName);
-  void SSLLoadCertificates(const char * certFileName,
-      const char * keyFileName);
-  void SSLCreate(Socket* parent);
+      const char *certificateFileName,
+      const char *keyFileName);
+  void SSLLoadCertificates(const char *certFileName,
+                           const char *keyFileName);
+  void SSLCreate(Socket *parent);
   void SSLShowCerts();
-  const char* SSLGetCipher();
-  const char* SSLAccept();
-  int SSLConnect(char * host, int port);
-  int SSLConnect(char * host, char * service);
-  int SSLRead(void * message, int messageSize);
-  int SSLWrite(const void * message, int messageSize);
-  int SSLWrite(const void * message);
+  const char *SSLGetCipher();
+  const char *SSLAccept();
+  int SSLConnect(char *host, int port);
+  int SSLConnect(char *host, char *service);
+  int SSLRead(void *message, int messageSize);
+  int SSLWrite(const void *message, int messageSize);
+  int SSLWrite(const void *message);
 
   bool isSSL();
   void setBufferDefault(int size);
 
- Socket& operator <<(std::string& text) {
+  Socket &operator<<(std::string &text)
+  {
     int bytesWriten = 0;
 
-    if (this->isSSL()) {
+    if (this->isSSL())
+    {
       bytesWriten = this->SSLWrite(text.data());
-    } else {
+    }
+    else
+    {
       bytesWriten = this->Write(text.data());
     }
 
@@ -85,30 +92,38 @@ class Socket {
   }
 
   template <typename dataType>
-  Socket& operator <<(dataType data) {
+  Socket &operator<<(dataType data)
+  {
     int bytesWriten = 0;
 
-    if (this->isSSL()) {
+    if (this->isSSL())
+    {
       bytesWriten = this->SSLWrite(data, sizeof(dataType));
-    } else {
+    }
+    else
+    {
       bytesWriten = this->Write(data, sizeof(dataType));
     }
 
     this->bytesReadWritten = bytesWriten;
-  
+
     return *this;
   }
 
   template <typename dataType>
-  Socket& operator <<(std::vector<dataType> data) {
+  Socket &operator<<(std::vector<dataType> data)
+  {
     int bytesWriten = 0;
 
-    if (this->isSSL()) {
-      bytesWriten = this->SSLWrite((void*) data.data(),
-          (int) data.size() * sizeof(dataType));
-    } else {
-      bytesWriten = this->Write((void*) data.data(),
-          (int) data.size() * sizeof(dataType));
+    if (this->isSSL())
+    {
+      bytesWriten = this->SSLWrite((void *)data.data(),
+                                   (int)data.size() * sizeof(dataType));
+    }
+    else
+    {
+      bytesWriten = this->Write((void *)data.data(),
+                                (int)data.size() * sizeof(dataType));
     }
 
     this->bytesReadWritten = bytesWriten;
@@ -116,14 +131,18 @@ class Socket {
     return *this;
   }
 
-  Socket& operator >>(std::string& text) {
+  Socket &operator>>(std::string &text)
+  {
     char buffer[this->bufferDefaultSize];
     memset(buffer, 0, this->bufferDefaultSize);
     int bytesRead = 0;
 
-    if (this->isSSL()) {
+    if (this->isSSL())
+    {
       bytesRead = this->SSLRead(buffer, this->bufferDefaultSize);
-    } else {
+    }
+    else
+    {
       bytesRead = this->Read(buffer, this->bufferDefaultSize);
     }
 
@@ -131,17 +150,21 @@ class Socket {
 
     text.resize(bytesRead + 1);
     text = buffer;
-    
+
     return *this;
   }
 
   template <typename dataType>
-  Socket& operator >>(dataType& data) {
+  Socket &operator>>(dataType &data)
+  {
     int bytesRead = 0;
 
-    if (this->isSSL()) {
+    if (this->isSSL())
+    {
       bytesRead = this->SSLRead(data, sizeof(dataType));
-    } else {
+    }
+    else
+    {
       bytesRead = this->Read(data, sizeof(dataType));
     }
 
@@ -151,13 +174,17 @@ class Socket {
   }
 
   template <typename dataType>
-  Socket& operator >>(std::vector<dataType>& data) {
+  Socket &operator>>(std::vector<dataType> &data)
+  {
     char buffer[this->bufferDefaultSize];
     memset(buffer, 0, this->bufferDefaultSize);
     int bytesRead = 0;
-    if (this->isSSL()) {
+    if (this->isSSL())
+    {
       bytesRead = this->SSLRead(buffer, this->bufferDefaultSize);
-    } else {
+    }
+    else
+    {
       bytesRead = this->Read(buffer, this->bufferDefaultSize);
     }
 
@@ -171,18 +198,39 @@ class Socket {
     return *this;
   }
 
-  operator int() {
+  operator int()
+  {
     return this->bytesReadWritten;
   }
 
- private:
+  void increaseTimeout(size_t time)
+  {
+    struct timeval timeout;
+    timeout.tv_sec = time;
+    timeout.tv_usec = 0;
+
+    if (setsockopt(this->idSocket, SOL_SOCKET, SO_RCVTIMEO, &timeout,
+                   sizeof timeout) < 0)
+    {
+      perror("RCV: setsockopt failed\n");
+    }
+ 
+    if (setsockopt(this->idSocket, SOL_SOCKET, SO_SNDTIMEO, &timeout,
+                   sizeof timeout) < 0)
+    {
+       perror("SND: setsockopt failed\n");
+    }
+   
+  }
+
+private:
   int idSocket;
   int port;
   bool ipv6;
   char type;
 
-  void * SSLContext;	// SSL context
-  void * SSLStruct;	// SSL BIO basis input output
+  void *SSLContext; // SSL context
+  void *SSLStruct;  // SSL BIO basis input output
 
   int bufferDefaultSize = 500;
 
@@ -190,5 +238,3 @@ class Socket {
 };
 
 #endif
-
-
