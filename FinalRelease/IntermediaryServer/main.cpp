@@ -1,4 +1,5 @@
 #include "IntermediaryServer.hpp"
+#include "Generics/RoutingMap.hpp"
 
 #include <csignal>
 
@@ -22,4 +23,10 @@ int main() {
   IntermediaryServer::getInstance(certificate, key);
 
   IntermediaryServer::getInstance(certificate, key).start();
+  // RoutingMap routingM;
+  // std::string figure = "Dragon";
+ 
+  // std::pair<std::string, std::pair<std::string, int>> figureStructure(figure,std::make_pair("", 9));
+  // routingM.insert(figureStructure);
+
 }

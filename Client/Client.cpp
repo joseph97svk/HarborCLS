@@ -300,7 +300,8 @@ void Client::processRequest(RequestType requestType)
         (some regex may need to analyze two lines at once) */
         line = lastLine +
                response.substr(initLocation, character - initLocation + adjustment);
-
+        std::cout << line << std::endl;
+        std::cout << "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<" << std::endl;
         // run regex to analyze line
         regexAnalyzer(requestType, line, totalAmount);
 
