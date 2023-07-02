@@ -3,16 +3,24 @@
 
 #include <utility>
 #include <memory>
-
+#include "PiecesServerStructure.hpp"
 // handle connections from the intermediary client
 class TCPHandler : public Handler<std::shared_ptr<Socket>> {
+ private:
+  LegoMap* legoMap;
  public:
   TCPHandler(Queue<std::shared_ptr<Socket>>* consumingQueue,
-      std::shared_ptr<Socket> stopCondition) : Handler (consumingQueue, stopCondition){}
+      std::shared_ptr<Socket> stopCondition, LegoMap* legoMap) : Handler (consumingQueue, stopCondition) {
+        this->legoMap = legoMap;
+      }
 
  private:
   void handleSingle(std::shared_ptr<Socket> handlingData) {
     (void) handlingData;
+    std::string figure;
+    std::string response;
+    response = "";
+    *handlingData << response;
   }
 };
 

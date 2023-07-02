@@ -5,7 +5,7 @@
 #include "PiecesServer.hpp"
 
 int main () {
-    PiecesServer piecesServer;
-
-    piecesServer.start();
+    PiecesServer piecesServer("PiecesServer/legoFile.txt");
+    piecesServer.readLegoSourceFile("PiecesServer/legoFile.txt");
+  
 }
