@@ -18,8 +18,25 @@ class TCPHandler : public Handler<std::shared_ptr<Socket>> {
   void handleSingle(std::shared_ptr<Socket> handlingData) {
     (void) handlingData;
     std::string figure;
-    std::string response;
-    response = "";
+    std::string figureImage = (*this->legoMap)[figure].first;
+    std::vector<Lego>& legos = (*this->legoMap)[figure].second;
+    size_t totalAmount = 0;
+    std::string response = "<HR>\n"
+                           "<CENTER><H2>Lista de piezas para armar la figura del final</H2></CENTER>\n"
+                           "<TABLE BORDER=1 BGCOLOR=\"lightblue\" CELLPADDING=5 ALIGN=CENTER>\n"
+                           "<TR><TH>Cantidad</TH><TH>Descripción</TH><TH>Imagen</TH></TR>\n";
+
+    for (auto& lego : legos) {
+      response += "<TR><TD ALIGN=center>" + std::to_string(lego.amount) + "</TD>\n"
+                  "<TD ALIGN=center>" + lego.description + "</TD>\n"
+                  "<TD ALIGN=center><IMG SRC=\"" + lego.imageFigure + "\" width=100 height=100></TD></TR>\n";
+      totalAmount += lego.amount;
+    }
+
+    response += "<TR><TD COLSPAN=3><IMG SRC=\"" + figureImage + "\" width=500 height=500></TD></TR>\n"
+                "<TR><TD COLSPAN=2>Total de piezas para armar esta figura</TD>"
+                "<TD ALIGN=center><H2>" + std::to_string(totalAmount) + "</H2></TD></TR>\n"
+                "</TABLE>";
     *handlingData << response;
   }
 };
