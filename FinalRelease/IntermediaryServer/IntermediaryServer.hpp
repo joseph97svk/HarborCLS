@@ -203,33 +203,63 @@ class IntermediaryServer {
       broadcastMessage.push_back(character);
     }
 
+    // attempt on normal for computer
     broadCastOnSamePC(island, broadcastMessage, broadcastSocket);
 
     // get the base for the broadcast IPs
     int broadcastIpId = 15;
     std::string broadcastIpBase = "172.16.123.";
 
+    // attempt broadcast on all
+    broadcastGlobal(island, broadcastMessage, broadcastSocket);
+
     // for each vlan
     for (size_t vlan = 200; vlan < 207; vlan++) {
-      // get the island broadcast ip
-      std::string broadcastIp = broadcastIpBase + std::to_string(broadcastIpId);
-
-      // set the ip and port for the message to be sent
-      memset(&island, 0, sizeof(sockaddr_in));
-      island.sin_family = AF_INET;
-      island.sin_port = htons(PIECES_UDP_PORT);
-      inet_pton(AF_INET, broadcastIp.data(), &(island.sin_addr));
-
-      std::cout << "Broadcasting on: " << broadcastIp << std::endl;
-
-      // send the broadcast
-      broadcastSocket.sendTo(broadcastMessage.data(), broadcastMessage.size(), &island);
-
+      broadcastIsland(island, broadcastMessage, broadcastSocket, broadcastIpId, broadcastIpBase);
+      
       // set the next broadcast ip
       broadcastIpId += 16;
     }
 
     std::cout << std::endl;
+  }
+
+  void broadcastIsland(
+      sockaddr_in& island,
+      std::vector<char>& broadcastMessage,
+      Socket& broadcastSocket,
+      int broadcastIpId,
+      std::string& broadcastIpBase
+      ) {
+    // get the island broadcast ip
+    std::string broadcastIp = broadcastIpBase + std::to_string(broadcastIpId);
+
+    // set the ip and port for the message to be sent
+    memset(&island, 0, sizeof(sockaddr_in));
+    island.sin_family = AF_INET;
+    island.sin_port = htons(PIECES_UDP_PORT);
+    inet_pton(AF_INET, broadcastIp.data(), &(island.sin_addr));
+
+    std::cout << "Broadcasting on: " << broadcastIp << std::endl;
+
+    // send the broadcast
+    broadcastSocket.sendTo(broadcastMessage.data(), broadcastMessage.size(), &island);
+  }
+
+  void broadcastGlobal(sockaddr_in& island, std::vector<char>& broadcastMessage, Socket& broadcastSocket) {
+    broadcastSocket.setBroadcast(true);
+
+    memset(&island, 0, sizeof(sockaddr_in));
+    island.sin_family = AF_INET;
+    island.sin_port = htons(PIECES_UDP_PORT);
+    island.sin_addr.s_addr = htonl(INADDR_ANY);
+
+    std::cout << "Broadcasting on: global" << std::endl;
+
+    // send the broadcast
+    broadcastSocket.sendTo(broadcastMessage.data(), broadcastMessage.size(), &island);
+
+    broadcastSocket.setBroadcast(true);
   }
 
   void broadCastOnSamePC(sockaddr_in& island, std::vector<char>& broadcastMessage, Socket& broadcastSocket) {

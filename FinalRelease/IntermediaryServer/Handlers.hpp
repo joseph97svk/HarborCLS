@@ -196,9 +196,9 @@ class UDPHandler : public Handler<std::shared_ptr<std::vector<char>>> {
         buffer.size() // until end of message
         ));
 
-    std::cout << "CODE: " << code
+    std::cout << std::endl << "CODE: " << code
         << "\n\tip address: " << ip
-        << "\n\tport:" << port << std::endl;
+        << "\n\tport:" << port << std::endl << std::endl;
   }
 
   void optionalToEnd () {

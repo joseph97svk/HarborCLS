@@ -198,13 +198,11 @@ public:
     return *this;
   }
 
-  operator int()
-  {
+  operator int() const {
     return this->bytesReadWritten;
   }
 
-  void increaseTimeout(size_t time)
-  {
+  void increaseTimeout(size_t time) {
     struct timeval timeout;
     timeout.tv_sec = time;
     timeout.tv_usec = 0;
@@ -220,7 +218,20 @@ public:
     {
        perror("SND: setsockopt failed\n");
     }
-   
+  }
+
+  void setBroadcast(bool activateBroadcast) {
+    int broadcastEnable = activateBroadcast ? 1 : 0;
+
+    if (setsockopt(
+        this->idSocket,
+        SOL_SOCKET,
+        SO_BROADCAST,
+        &broadcastEnable,
+        sizeof(broadcastEnable))
+        < 0) {
+      perror("Broadcast enable error!\n");
+    }
   }
 
 private:

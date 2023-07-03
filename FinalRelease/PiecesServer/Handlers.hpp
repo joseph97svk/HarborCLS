@@ -4,10 +4,12 @@
 #include <utility>
 #include <memory>
 #include "PiecesServerStructure.hpp"
+
 // handle connections from the intermediary client
 class TCPHandler : public Handler<std::shared_ptr<Socket>> {
  private:
   LegoMap* legoMap;
+
  public:
   TCPHandler(Queue<std::shared_ptr<Socket>>* consumingQueue,
       std::shared_ptr<Socket> stopCondition, LegoMap* legoMap) : Handler (consumingQueue, stopCondition) {
@@ -72,8 +74,8 @@ class UDPHandler : public Handler<std::shared_ptr<std::vector<char>>> {
         buffer.size() // until end of message
         ));
 
-    std::cout << "CODE: " << code
+    std::cout << std::endl << "CODE: " << code
         << "\n\tip address: " << ip
-        << "\n\tport:" << port << std::endl;
+        << "\n\tport:" << port << std::endl << std::endl;
   }
 };

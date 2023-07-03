@@ -147,7 +147,11 @@ class PiecesServer {
       broadcastMessage.push_back(character);
     }
 
-    broadCastOnSamePC(island, broadcastMessage, broadcastSocket);
+    // attempt broadcast on all
+    broadcastGlobal(island, broadcastMessage, broadcastSocket);
+    
+    // attempt on normal for computer
+    // broadCastOnSamePC(island, broadcastMessage, broadcastSocket);
 
     // get the base for the broadcast IPs
     int broadcastIpId = 15;
@@ -155,25 +159,51 @@ class PiecesServer {
 
     // for each vlan
     for (size_t vlan = 200; vlan < 207; vlan++) {
-      // get the island broadcast ip
-      std::string broadcastIp = broadcastIpBase + std::to_string(broadcastIpId);
-
-      // set the ip and port for the message to be sent
-      memset(&island, 0, sizeof(sockaddr_in));
-      island.sin_family = AF_INET;
-      island.sin_port = htons(INTERMEDIARY_UDP_PORT); // send to intermediary udp port
-      inet_pton(AF_INET, broadcastIp.data(), &(island.sin_addr));
-
-      std::cout << "Broadcasting on: " << broadcastIp << std::endl;
-
-      // send the broadcast
-      broadcastSocket.sendTo(broadcastMessage.data(), broadcastMessage.size(), &island);
+      broadcastIsland(island, broadcastMessage, broadcastSocket, broadcastIpId, broadcastIpBase);
 
       // set the next broadcast ip
       broadcastIpId += 16;
     }
 
     std::cout << std::endl;
+  }
+
+  void broadcastIsland(
+      sockaddr_in& island,
+      std::vector<char>& broadcastMessage,
+      Socket& broadcastSocket,
+      int broadcastIpId,
+      std::string& broadcastIpBase
+      ) {
+    // get the island broadcast ip
+    std::string broadcastIp = broadcastIpBase + std::to_string(broadcastIpId);
+
+    // set the ip and port for the message to be sent
+    memset(&island, 0, sizeof(sockaddr_in));
+    island.sin_family = AF_INET;
+    island.sin_port = htons(INTERMEDIARY_UDP_PORT); // send to intermediary udp port
+    inet_pton(AF_INET, broadcastIp.data(), &(island.sin_addr));
+
+    std::cout << "Broadcasting on: " << broadcastIp << std::endl;
+
+    // send the broadcast
+    broadcastSocket.sendTo(broadcastMessage.data(), broadcastMessage.size(), &island);
+  }
+
+  void broadcastGlobal(sockaddr_in& island, std::vector<char>& broadcastMessage, Socket& broadcastSocket) {
+    broadcastSocket.setBroadcast(true);
+
+    memset(&island, 0, sizeof(sockaddr_in));
+    island.sin_family = AF_INET;
+    island.sin_port = htons(INTERMEDIARY_UDP_PORT);
+    island.sin_addr.s_addr = htonl(INADDR_ANY);
+
+    std::cout << "Broadcasting on: global" << std::endl;
+
+    // send the broadcast
+    broadcastSocket.sendTo(broadcastMessage.data(), broadcastMessage.size(), &island);
+
+    broadcastSocket.setBroadcast(true);
   }
 
   void broadCastOnSamePC(sockaddr_in& island,std::vector<char>& broadcastMessage, Socket& broadcastSocket) {
@@ -208,65 +238,65 @@ class PiecesServer {
   // }
  public:
   int readLegoSourceFile(std::string legoSourceFileName) {
-  // if there is a new file name, replace the local one
-  if (legoSourceFileName.size() != 0) {
-    this->legoSourceFileName = legoSourceFileName;
-  }
+    // if there is a new file name, replace the local one
+    if (legoSourceFileName.size() != 0) {
+      this->legoSourceFileName = legoSourceFileName;
+    }
 
-  // Extract the file extension
-  std::string extension =
-      this->legoSourceFileName.substr(this->legoSourceFileName.size() - 4, 4);
+    // Extract the file extension
+    std::string extension =
+        this->legoSourceFileName.substr(this->legoSourceFileName.size() - 4, 4);
 
-  // Check if the file has a compatible .txt extension
-  if (extension != ".txt") {
-    std::cerr <<
-        "Provided file name does not have compatible .txt entension" <<
-        std::endl;
-    return -3;
-  }
+    // Check if the file has a compatible .txt extension
+    if (extension != ".txt") {
+      std::cerr <<
+          "Provided file name does not have compatible .txt entension" <<
+          std::endl;
+      return -3;
+    }
 
-  // Open the Lego source file
-  std::fstream fileLego;
-  fileLego.open("legoFIle.txt");
-  std::string buffer = "";
-  int count = 0;
-  if (!fileLego.is_open()) {
-    std::cout << "No se pudo abrir el archivo." << std::endl;
-    return -4;
-  } 
-  // Read the first line of the file
-  std::getline(fileLego, buffer);
-  std::cout << buffer << std::endl;
-  if (buffer != "Lego source File :: group ESJOJO") {
-    std::cerr <<
-        "text file name is not compatible with \"Lego source File :: group ESJOJO\""
-        << std::endl;
-    return -1;
-  }
+    // Open the Lego source file
+    std::fstream fileLego;
+    fileLego.open("legoFIle.txt");
+    std::string buffer = "";
 
-  
-  std::string figureName;
-  std::string figureImage;
-  std::string pieceName;
-  std::string pieceImage;
-  size_t pieceAmount;
+    if (!fileLego.is_open()) {
+      std::cout << "No se pudo abrir el archivo." << std::endl;
+      return -4;
+    } 
 
-  while (std::getline(fileLego, figureName)) {
+    // Read the first line of the file
+    std::getline(fileLego, buffer);
+    std::cout << buffer << std::endl;
+    if (buffer != "Lego source File :: group ESJOJO") {
+      std::cerr <<
+          "text file name is not compatible with \"Lego source File :: group ESJOJO\""
+          << std::endl;
+      return -1;
+    }
+
+    std::string figureName;
+    std::string figureImage;
+    std::string pieceName;
+    std::string pieceImage;
+    size_t pieceAmount;
+
+    while (std::getline(fileLego, figureName)) {
       std::getline(fileLego, figureImage);
       this->myFigures[figureName].first = figureImage;
 
       while (std::getline(fileLego, pieceName)) {
-          if (pieceName == "*") {
-              break;
-          }
+        if (pieceName == "*") {
+          break;
+        }
 
-          std::getline(fileLego, pieceImage);
-          fileLego >> pieceAmount;
-          fileLego.ignore();
+        std::getline(fileLego, pieceImage);
+        fileLego >> pieceAmount;
+        fileLego.ignore();
 
-          myFigures[figureName].second.push_back(Lego(pieceImage, pieceName, pieceAmount));
+        myFigures[figureName].second.push_back(Lego(pieceImage, pieceName, pieceAmount));
       }
-  }
+    }
     // // Acceder y mostrar los datos del std::map
     // for (const auto& figure : myFigures) {
     //     std::cout << "Figure: " << figure.first << std::endl;
@@ -280,8 +310,8 @@ class PiecesServer {
 
     //     std::cout << std::endl;
     // }
-  return EXIT_SUCCESS; // Return success status
-}
+    return EXIT_SUCCESS; // Return success status
+  }
 
  public:
   void stopServer() {

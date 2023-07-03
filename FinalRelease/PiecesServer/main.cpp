@@ -7,5 +7,7 @@
 int main () {
     PiecesServer piecesServer("PiecesServer/legoFile.txt");
     piecesServer.readLegoSourceFile("PiecesServer/legoFile.txt");
+
+    piecesServer.start();
   
 }

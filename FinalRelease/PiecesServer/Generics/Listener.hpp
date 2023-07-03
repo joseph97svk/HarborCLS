@@ -71,7 +71,7 @@ class Listener : public virtual Thread {
       enqueutype data = this->obtain();
 
       if (data == this->stopCondition || this->stopThread) {
-        this->queue->push(data);
+        this->queue->push(this->stopCondition);
         printf("%s", this->stopMessage.data());
         //std::cout << this->stopMessage.data() << std::end;
         break;
