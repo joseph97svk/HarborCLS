@@ -62,8 +62,9 @@ class RequestHandler : public Handler<std::shared_ptr<Request>>  {
     if (handlingData == nullptr) {
       std::cout << "Error!!!!" << std::endl;
     }
+
     // create socket
-    //Socket piecesServerConnection('s', false);
+    //Socket piecesServerConnection = std::move(tryConnection(figure)); // check for nullptr
 
     //tryConnection(piecesServerConnection, figure);
 
@@ -107,21 +108,35 @@ class RequestHandler : public Handler<std::shared_ptr<Request>>  {
     this->responseQueue->push(nullptr);
   }
 
-  bool tryConnection (
-    Socket& piecesServerSocket,
-    std::string figure) {
+  std::unique_ptr<Socket> tryConnection (std::string figure) {
+    std::unique_ptr<Socket> piecesServerSocket = std::make_unique<Socket>('s', false);
+
     std::string ip = (*this->routingMap)[figure].first;
     int port = (*this->routingMap)[figure].second;
 
-    int tries = 1;
-    // use information fetched to connect to pieces server
-    while (tries <= 3 && !piecesServerSocket.Connect(ip.data(), port)) {
-      // increase timeout
-
-      tries++;
+    // set timeout
+    piecesServerSocket->increaseTimeout(FIRST_TIMEOUT);
+    // first try
+    if(piecesServerSocket->Connect(ip.data(), port)) {
+      return piecesServerSocket;
     }
 
-    return tries != 3;
+    // increase timeout
+    piecesServerSocket->increaseTimeout(SECOND_TIMEOUT);
+    // second try
+    if(piecesServerSocket->Connect(ip.data(), port)) {
+      return piecesServerSocket;
+    }
+
+    // increase timeout
+    piecesServerSocket->increaseTimeout(THIRD_TIMEOUT);
+    // final try
+    if(piecesServerSocket->Connect(ip.data(), port)) {
+      return piecesServerSocket;
+    }
+
+    // report failure
+    return nullptr;
   }
 };
 

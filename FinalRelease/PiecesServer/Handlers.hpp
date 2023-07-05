@@ -18,12 +18,33 @@ class TCPHandler : public Handler<std::shared_ptr<Socket>> {
 
  private:
   void handleSingle(std::shared_ptr<Socket> handlingData) {
-    (void) handlingData;
-    std::string figure;
+    std::string buffer;
+
+    while(*handlingData >> buffer) {
+      std::cout << buffer << std::endl;
+    }
+
+    // code is irrelevant so far, so we are going to ignore it
+    std::string figure = buffer.substr(2, buffer.size());
+
+    std::string response;
+
+    // if figure was not found
+    if (this->legoMap.count(figure == 0)) {
+      // set response as not found
+      response = "404";
+
+      // send response back
+      *handlingData << response;
+
+      // no further task to do
+      return;
+    }
+
     std::string figureImage = (*this->legoMap)[figure].first;
     std::vector<Lego>& legos = (*this->legoMap)[figure].second;
     size_t totalAmount = 0;
-    std::string response = "<HR>\n"
+    response = "<HR>\n"
                            "<CENTER><H2>Lista de piezas para armar la figura del final</H2></CENTER>\n"
                            "<TABLE BORDER=1 BGCOLOR=\"lightblue\" CELLPADDING=5 ALIGN=CENTER>\n"
                            "<TR><TH>Cantidad</TH><TH>Descripción</TH><TH>Imagen</TH></TR>\n";
