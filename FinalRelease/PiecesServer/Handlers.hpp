@@ -30,7 +30,7 @@ class TCPHandler : public Handler<std::shared_ptr<Socket>> {
     std::string response;
 
     // if figure was not found
-    if (this->legoMap.count(figure == 0)) {
+    if (this->legoMap->count(figure) == 0) {
       // set response as not found
       response = "404";
 
