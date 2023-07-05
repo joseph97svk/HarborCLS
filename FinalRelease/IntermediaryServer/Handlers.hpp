@@ -173,22 +173,25 @@ class UDPHandler : public Handler<std::shared_ptr<std::vector<char>>> {
  private:
   // socket of client to send response
   void handleSingle(std::shared_ptr<std::vector<char>> handlingData) {
-    LegoMessageCode code = (LegoMessageCode) 0;
-
-    // get the code from the message
-    memcpy(&code, (void*) handlingData->data(), sizeof(LegoMessageCode));
-    
     std::string buffer;
 
-    buffer.resize(handlingData->size() - 5);
+    buffer.push_back((*handlingData)[0]);
 
-    memcpy(buffer.data(), &handlingData->data()[5], buffer.size());
+    int code = std::stoi(buffer);
+
+    buffer.clear();
+
+    buffer.resize(handlingData->size() - 2);
+
+    memcpy(buffer.data(), &handlingData->data()[2], buffer.size());
 
     // get the host
     std::string ip = buffer.substr(
         0, // from start
-        buffer.find(':') - 1 // until separator
+        buffer.find(':') // until separator
         );
+    
+    std::cout << ip << std::endl;
 
     // get the port
     int port = std::stoi(buffer.substr(
@@ -199,6 +202,54 @@ class UDPHandler : public Handler<std::shared_ptr<std::vector<char>>> {
     std::cout << std::endl << "CODE: " << code
         << "\n\tip address: " << ip
         << "\n\tport:" << port << std::endl << std::endl;
+
+    // insert figures
+    this->insertFigures(buffer, ip, port);
+  
+    std::string chiki = "Chicki";
+
+    std::cout << "{<" << (*this->routingMap)[chiki].first << ", "
+        << (*this->routingMap)[chiki].second << ">}" << std::endl;
+  }
+
+  void insertFigures(std::string& buffer, const std::string& ip, const int port) {
+    std::string figure;
+
+    size_t nextFigure = 0,
+        end = 0;
+
+    // remove everything before figure
+    nextFigure = buffer.find(29) + 1;
+
+    buffer = buffer.substr(nextFigure, buffer.size());
+    do {
+      // find next divisor
+      nextFigure = buffer.find(29) + 1;
+
+      // if no figure
+      if (nextFigure == std::string::npos) {
+        // exit and do nothing
+        break;
+      }
+
+      // check for end of figure
+      end = buffer.find(29);
+
+      // get figure
+      std::string figure = buffer.substr(nextFigure, end);
+
+      // insert the figure and the info 
+      this->routingMap->insert({figure, {ip, port}});
+
+      // remove figure
+      buffer = buffer.substr(nextFigure, buffer.size());
+
+      if (end == std::string::npos) {
+        end = buffer.size();
+      }
+
+    // as long as the end is not the end of the everything
+    } while (end != buffer.size());
   }
 
   void optionalToEnd () {

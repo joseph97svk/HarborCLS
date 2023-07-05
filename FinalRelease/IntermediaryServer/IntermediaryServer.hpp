@@ -168,28 +168,16 @@ class IntermediaryServer {
  private:
   void broadcastPresence() {
     Socket broadcastSocket('d', false);
-
     sockaddr_in island;
-
-    union message_t {
-      int number;
-      char values[4];
-    };
-
-    message_t code;
-
-    code.number = LegoMessageCode::LEGO_DISCOVER;
 
     // get the computer IP
     std::vector<char> broadcastMessage;
 
-    for (size_t byte = 0; byte < sizeof(LegoMessageCode); byte++) {
-      broadcastMessage.push_back(code.values[byte]);
-    }
+    broadcastMessage.push_back(std::to_string(int(LegoMessageCode::LEGO_PRESENT))[0]);
 
     broadcastMessage.push_back(29);
 
-    std::string buffer = getComputerIp().data();
+    std::string buffer = getComputerIp();
 
     for (char character : buffer) {
       broadcastMessage.push_back(character);
@@ -210,13 +198,12 @@ class IntermediaryServer {
     int broadcastIpId = 15;
     std::string broadcastIpBase = "172.16.123.";
 
-    // attempt broadcast on all
-    broadcastGlobal(island, broadcastMessage, broadcastSocket);
+    broadcastSocket.setBroadcast(true);
 
     // for each vlan
     for (size_t vlan = 200; vlan < 207; vlan++) {
       broadcastIsland(island, broadcastMessage, broadcastSocket, broadcastIpId, broadcastIpBase);
-      
+
       // set the next broadcast ip
       broadcastIpId += 16;
     }
@@ -244,22 +231,6 @@ class IntermediaryServer {
 
     // send the broadcast
     broadcastSocket.sendTo(broadcastMessage.data(), broadcastMessage.size(), &island);
-  }
-
-  void broadcastGlobal(sockaddr_in& island, std::vector<char>& broadcastMessage, Socket& broadcastSocket) {
-    broadcastSocket.setBroadcast(true);
-
-    memset(&island, 0, sizeof(sockaddr_in));
-    island.sin_family = AF_INET;
-    island.sin_port = htons(PIECES_UDP_PORT);
-    island.sin_addr.s_addr = htonl(INADDR_ANY);
-
-    std::cout << "Broadcasting on: global" << std::endl;
-
-    // send the broadcast
-    broadcastSocket.sendTo(broadcastMessage.data(), broadcastMessage.size(), &island);
-
-    broadcastSocket.setBroadcast(true);
   }
 
   void broadCastOnSamePC(sockaddr_in& island, std::vector<char>& broadcastMessage, Socket& broadcastSocket) {

@@ -51,21 +51,22 @@ class UDPHandler : public Handler<std::shared_ptr<std::vector<char>>> {
 
  private:
   void handleSingle(std::shared_ptr<std::vector<char>> handlingData) {
-    LegoMessageCode code = (LegoMessageCode) 0;
-
-    // get the code from the message
-    memcpy(&code, (void*) handlingData->data(), sizeof(LegoMessageCode));
-    
     std::string buffer;
 
-    buffer.resize(handlingData->size() - 5);
+    buffer.push_back((*handlingData)[0]);
 
-    memcpy(buffer.data(), &handlingData->data()[5], buffer.size());
+    int code = std::stoi(buffer);
+
+    buffer.clear();
+
+    buffer.resize(handlingData->size() - 2);
+
+    memcpy(buffer.data(), &handlingData->data()[2], buffer.size());
 
     // get the host
     std::string ip = buffer.substr(
         0, // from start
-        buffer.find(':') - 1 // until separator
+        buffer.find(':') // until separator
         );
 
     // get the port

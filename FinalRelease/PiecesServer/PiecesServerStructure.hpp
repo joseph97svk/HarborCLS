@@ -20,6 +20,8 @@ struct Lego {
 
 };
 
+// string: figure
+// pair.first: string: figure image
+// pair.second: vector: legos
 typedef std::map<std::string, std::pair<std::string,
  std::vector<Lego>>> LegoMap;
- 

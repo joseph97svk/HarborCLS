@@ -10,7 +10,6 @@
 #include <fstream>
 #include <iostream>
 
-
 class PiecesServer {
 
  private:
@@ -26,10 +25,8 @@ class PiecesServer {
   Socket* connectionSocket;
   Socket* communicationsSocket;
 
-
   std::string legoSourceFileName;
   LegoMap myFigures;
-
 
  public:
   PiecesServer(std::string legoSourceFileName = "") {
@@ -116,20 +113,10 @@ class PiecesServer {
     Socket broadcastSocket('d', false);
     sockaddr_in island;
 
-    union message_t {
-      int number;
-      char values[4];
-    };
-
-    message_t code;
-
-    code.number = LegoMessageCode::LEGO_PRESENT;
-
     // get the computer IP
     std::vector<char> broadcastMessage;
 
-    broadcastMessage.resize(4);
-    memcpy(broadcastMessage.data(), &code, 4);
+    broadcastMessage.push_back(std::to_string(int(LegoMessageCode::LEGO_PRESENT))[0]);
 
     broadcastMessage.push_back(29);
 
@@ -138,7 +125,7 @@ class PiecesServer {
     for (char character : buffer) {
       broadcastMessage.push_back(character);
     }
-    
+
     broadcastMessage.push_back(':');
 
     buffer = std::to_string(INTERMEDIARY_TCP_PORT).data();
@@ -147,15 +134,42 @@ class PiecesServer {
       broadcastMessage.push_back(character);
     }
 
-    // attempt broadcast on all
-    broadcastGlobal(island, broadcastMessage, broadcastSocket);
-    
+    broadcastMessage.push_back(29);
+
+    #define test
+
+    # ifdef test
+
+    std::string figure = "Chicki";
+
+    // add figure
+    for (char character : figure) {
+      broadcastMessage.push_back(character);
+    }
+
+    #else
+  
+    // for all figures
+    for (auto& figure : this->myFigures) {
+      // add the figure name
+      for (char character : figure.first) {
+        // add it to the message
+        broadcastMessage.push_back(character);
+      }
+
+      // add separator
+      broadcastMessage.push_back(29);
+    }
+
+    #endif
     // attempt on normal for computer
-    // broadCastOnSamePC(island, broadcastMessage, broadcastSocket);
+    broadCastOnSamePC(island, broadcastMessage, broadcastSocket);
 
     // get the base for the broadcast IPs
     int broadcastIpId = 15;
     std::string broadcastIpBase = "172.16.123.";
+
+    broadcastSocket.setBroadcast(true);
 
     // for each vlan
     for (size_t vlan = 200; vlan < 207; vlan++) {
@@ -188,22 +202,6 @@ class PiecesServer {
 
     // send the broadcast
     broadcastSocket.sendTo(broadcastMessage.data(), broadcastMessage.size(), &island);
-  }
-
-  void broadcastGlobal(sockaddr_in& island, std::vector<char>& broadcastMessage, Socket& broadcastSocket) {
-    broadcastSocket.setBroadcast(true);
-
-    memset(&island, 0, sizeof(sockaddr_in));
-    island.sin_family = AF_INET;
-    island.sin_port = htons(INTERMEDIARY_UDP_PORT);
-    island.sin_addr.s_addr = htonl(INADDR_ANY);
-
-    std::cout << "Broadcasting on: global" << std::endl;
-
-    // send the broadcast
-    broadcastSocket.sendTo(broadcastMessage.data(), broadcastMessage.size(), &island);
-
-    broadcastSocket.setBroadcast(true);
   }
 
   void broadCastOnSamePC(sockaddr_in& island,std::vector<char>& broadcastMessage, Socket& broadcastSocket) {
