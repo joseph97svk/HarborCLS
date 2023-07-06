@@ -3,7 +3,7 @@
 #include "Listeners.hpp"
 #include "Handlers.hpp"
 
-#define CLIENTPORT 2020
+#define CLIENTPORT 2002
 
 class IntermediaryServer {
   ClientListener* listenClientConnections;
