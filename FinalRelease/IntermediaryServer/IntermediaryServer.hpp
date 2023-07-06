@@ -175,7 +175,7 @@ class IntermediaryServer {
 
     broadcastMessage.push_back(std::to_string(int(LegoMessageCode::LEGO_PRESENT))[0]);
 
-    broadcastMessage.push_back(29);
+    broadcastMessage.push_back(SEPARATOR);
 
     std::string buffer = getComputerIp();
 

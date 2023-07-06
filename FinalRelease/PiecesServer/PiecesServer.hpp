@@ -118,7 +118,7 @@ class PiecesServer {
 
     broadcastMessage.push_back(std::to_string(int(LegoMessageCode::LEGO_PRESENT))[0]);
 
-    broadcastMessage.push_back(29);
+    broadcastMessage.push_back(SEPARATOR);
 
     std::string buffer = getComputerIp();
 
@@ -134,7 +134,7 @@ class PiecesServer {
       broadcastMessage.push_back(character);
     }
 
-    broadcastMessage.push_back(29);
+    broadcastMessage.push_back(SEPARATOR);
 
     // #define test
 
@@ -158,7 +158,7 @@ class PiecesServer {
       }
 
       // add separator
-      broadcastMessage.push_back(29);
+      broadcastMessage.push_back(SEPARATOR);
     }
 
     #endif

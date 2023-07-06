@@ -96,6 +96,8 @@ class UDPHandler : public Handler<std::shared_ptr<std::vector<char>>> {
         buffer.size() // until end of message
         ));
 
+    // send data back to int server
+
     std::cout << std::endl << "CODE: " << code
         << "\n\tip address: " << ip
         << "\n\tport:" << port << std::endl << std::endl;

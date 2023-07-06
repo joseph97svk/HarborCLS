@@ -297,12 +297,14 @@ class UDPHandler : public Handler<std::shared_ptr<std::vector<char>>> {
         end = 0;
 
     // remove everything before figure
-    nextFigure = buffer.find(29) + 1;
+    nextFigure = buffer.find(SEPARATOR);
 
     buffer = buffer.substr(nextFigure, buffer.size());
+
     do {
+      
       // find next divisor
-      nextFigure = buffer.find(29) + 1;
+      nextFigure = buffer.find(SEPARATOR) + 1;
 
       // if no figure
       if (nextFigure == std::string::npos) {
@@ -311,7 +313,12 @@ class UDPHandler : public Handler<std::shared_ptr<std::vector<char>>> {
       }
 
       // check for end of figure
-      end = buffer.find(29);
+      end = buffer.substr(1, buffer.size()).find(SEPARATOR);
+
+      // if no separator then the end is the last char
+      if (end == std::string::npos) {
+        end = buffer.size();
+      }
 
       // get figure
       std::string figure = buffer.substr(nextFigure, end);
@@ -320,14 +327,10 @@ class UDPHandler : public Handler<std::shared_ptr<std::vector<char>>> {
       this->routingMap->insert({figure, {ip, port}});
 
       // remove figure
-      buffer = buffer.substr(nextFigure, buffer.size());
-
-      if (end == std::string::npos) {
-        end = buffer.size();
-      }
+      buffer = buffer.substr(end + 1, buffer.size());
 
     // as long as the end is not the end of the everything
-    } while (end != buffer.size());
+    } while (end != buffer.size() && buffer.size() > 1);
   }
 
   void optionalToEnd () {
