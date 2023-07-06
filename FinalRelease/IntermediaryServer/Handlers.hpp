@@ -280,11 +280,14 @@ class UDPHandler : public Handler<std::shared_ptr<std::vector<char>>> {
 
     // insert figures
     this->insertFigures(buffer, ip, port);
-  
-    std::string chiki = "Chicki";
 
-    std::cout << "{<" << (*this->routingMap)[chiki].first << ", "
-        << (*this->routingMap)[chiki].second << ">}" << std::endl;
+    this->routingMap->showMap();
+
+
+    // std::string chiki = "Chicki";
+
+    // std::cout << "{<" << (*this->routingMap)[chiki].first << ", "
+    //     << (*this->routingMap)[chiki].second << ">}" << std::endl;
   }
 
   void insertFigures(std::string& buffer, const std::string& ip, const int port) {

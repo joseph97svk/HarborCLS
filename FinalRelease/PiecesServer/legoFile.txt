@@ -1,0 +1,77 @@
+Lego source File :: group ESJOJO
+Chiki
+.
+2x4 blanco
+.
+39
+2x4 rojo
+.
+2x4 piel
+.
+32
+2x3 piel
+.
+25
+2x3 blanco
+.
+2
+2x2 piel
+.
+8
+2x1 blanco
+.
+4
+1x1 piel
+.
+2
+1x4 blanco
+.
+2
+1x4 piel
+.
+10
+*
+Dragon
+.
+brick 2x6 plate grey
+.
+4
+brick 2x4 grey
+.
+6
+brick 2x2 grey
+.
+4
+brick 2x2 slope inverted grey
+.
+2
+brick 2x8 red
+.
+2
+brick 2x2 slope red
+.
+4
+brick 2x2 slope inverted red
+.
+2
+brick 2x2 slope grey
+.
+2
+brick 2x4 plate grey
+.
+4
+flag yellow
+.
+2
+brick 1x2 slope inverted red
+.
+4
+brick 2x4 red
+.
+4
+brick 2x3 
+.
+4
+brick 1x1 eyes dark 
+.
+2

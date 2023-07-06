@@ -136,7 +136,7 @@ class PiecesServer {
 
     broadcastMessage.push_back(29);
 
-    #define test
+    // #define test
 
     # ifdef test
 
@@ -162,6 +162,11 @@ class PiecesServer {
     }
 
     #endif
+    std::string msg;
+    msg.resize(broadcastMessage.size());
+    memcpy(&(msg.data()[0]), &(broadcastMessage.data()[0]), broadcastMessage.size());
+    
+    std::cout << msg << std::endl;
     // attempt on normal for computer
     broadCastOnSamePC(island, broadcastMessage, broadcastSocket);
 
@@ -255,7 +260,7 @@ class PiecesServer {
 
     // Open the Lego source file
     std::fstream fileLego;
-    fileLego.open("legoFIle.txt");
+    fileLego.open("legoFile.txt");
     std::string buffer = "";
 
     if (!fileLego.is_open()) {
@@ -295,19 +300,19 @@ class PiecesServer {
         myFigures[figureName].second.push_back(Lego(pieceImage, pieceName, pieceAmount));
       }
     }
-    // // Acceder y mostrar los datos del std::map
-    // for (const auto& figure : myFigures) {
-    //     std::cout << "Figure: " << figure.first << std::endl;
-    //     std::cout << "Image: " << figure.second.first << std::endl;
+    // Acceder y mostrar los datos del std::map
+    for (const auto& figure : myFigures) {
+        std::cout << "Figure: " << figure.first << std::endl;
+        std::cout << "Image: " << figure.second.first << std::endl;
 
-    //     for (const auto& piece : figure.second.second) {
-    //         std::cout << "Piece Name: " << piece.description << std::endl;
-    //         std::cout << "Piece Image: " << piece.imageFigure << std::endl;
-    //         std::cout << "Piece Amount: " << piece.amount << std::endl;
-    //     }
+        for (const auto& piece : figure.second.second) {
+            std::cout << "Piece Name: " << piece.description << std::endl;
+            std::cout << "Piece Image: " << piece.imageFigure << std::endl;
+            std::cout << "Piece Amount: " << piece.amount << std::endl;
+        }
 
-    //     std::cout << std::endl;
-    // }
+        std::cout << std::endl;
+    }
     return EXIT_SUCCESS; // Return success status
   }
 
