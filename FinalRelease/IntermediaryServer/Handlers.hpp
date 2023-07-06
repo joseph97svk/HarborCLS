@@ -1,7 +1,6 @@
 #include "Generics/Handler.hpp"
 #include "Generics/RoutingMap.hpp"
 
-
 // for handling whatever the client sent
 class ClientHandler : public Handler <std::shared_ptr<Socket>> {
  private:
@@ -20,14 +19,13 @@ class ClientHandler : public Handler <std::shared_ptr<Socket>> {
   //1 sslread, operador sobre cargado.
     std::string buffer;
 
-    std::cerr << "Entered handlers  kagsdkahkdhakhsdkahskdhkashdkahskdha" << std::endl;
+    std::cerr << "Entered handlers" << std::endl;
 
     while ((*handlingData >> buffer) == 500) {
       std::cout << buffer << std::endl;
     }
 
-    std::cout << "exited handlers lahsdkajhksdhakdkadhkakhsdhjkajhkdahksd" << std::endl;
-
+    std::cout << "exited handlers" << std::endl;
 
     std::shared_ptr<Request> request = std::make_shared<Request>(handlingData, "Chicki", serverAction::requestingParts);
 
@@ -40,16 +38,10 @@ class ClientHandler : public Handler <std::shared_ptr<Socket>> {
   }
 };
 
-
-
-
-// Clase RequestHandler para manejar las solicitudes recibidas
 class RequestHandler : public Handler<std::shared_ptr<Request>>  {
   RoutingMap* routingMap;
   Queue<std::shared_ptr<Response>>* responseQueue;
  public:
-  // Constructor de RequestHandler
-  // Toma una cola de solicitudes para consumir, una solicitud de parada, un mapa de enrutamiento y una cola de respuestas
   RequestHandler(Queue<std::shared_ptr<Request>>* consumingQueue,
       std::shared_ptr<Request> stopCondition, 
       RoutingMap* routingMap, 
@@ -59,9 +51,8 @@ class RequestHandler : public Handler<std::shared_ptr<Request>>  {
           , responseQueue(responseQueue){}
 
  private:
-  // Método para manejar una sola solicitud
-  void handleSingle(std::shared_ptr<Request> handlingData) {
-    // Utilizar la solicitud para obtener la acción del servidor y la figura asociada
+  void handleSingle(std::shared_ptr<Request> handlingData) { //HTTP
+    // use request to find ip and port from the map
     serverAction requestType = handlingData->requestType;
     std::string figure = handlingData->figure;
 
@@ -72,97 +63,82 @@ class RequestHandler : public Handler<std::shared_ptr<Request>>  {
       std::cout << "Error!!!!" << std::endl;
     }
 
-    // Crear un socket (Socket piecesServerConnection) para conectarse al servidor de piezas
-    // y enviar la solicitud y recibir la respuesta
-    // NOTA: El código para la conexión al servidor de piezas está comentado y se necesita implementar
+    // create socket
+    //Socket piecesServerConnection = std::move(tryConnection(figure)); // check for nullptr
 
-    // Enviar información al servidor de piezas según el tipo de solicitud (requestType)
+    //tryConnection(piecesServerConnection, figure);
+
+    std::string responseReceived = "sup";
+
+    // send info to pieces server
     switch(requestType) {
       case serverAction::requestingFigures:
-        // Enviar solicitud de figuras al servidor de piezas
 
-        // Recibir información del servidor de piezas
+        // receive info from pieces server
 
         break;
       case serverAction::requestingParts:
-        // Enviar solicitud de partes al servidor de piezas
 
-        // Recibir información del servidor de piezas
+        // receive info from pieces server
 
         break;
       case serverAction::requestingAssembly:
-        // Enviar solicitud de ensamblaje al servidor de piezas
-
-        // Recibir información del servidor de piezas
-
+        
+        // receive info from pieces server
         break;
       default:
         break;
     }
 
-    // Cerrar el socket de conexión con el servidor de piezas
-    // NOTA: El código para cerrar el socket está comentado y se necesita implementar
+    // close socket
+    //piecesServerConnection.Close();
 
-    // Crear un objeto de respuesta compartido y asignarle los valores necesarios
+    //enqueue response
     std::shared_ptr<Response> response = std::make_shared<Response>(
         handlingData->socket,
-        "responseReceived asdhaksdhkahsdkhaksdh", // Aquí debe ir la respuesta recibida del servidor de piezas
+        responseReceived,
         handlingData->requestType
-    );
+        );
 
-    // Agregar la respuesta a la cola de respuestas
     this->responseQueue->push(response);
   }
 
-  // Método opcional para finalizar el manejo de solicitudes
-  void optionalToEnd() {
+  void optionalToEnd () {
     std::cerr << "request handler dying" << std::endl;
     this->responseQueue->push(nullptr);
   }
 
-  // Método para intentar establecer la conexión con el servidor de piezas
   std::unique_ptr<Socket> tryConnection (std::string figure) {
     std::unique_ptr<Socket> piecesServerSocket = std::make_unique<Socket>('s', false);
 
     std::string ip = (*this->routingMap)[figure].first;
     int port = (*this->routingMap)[figure].second;
 
-    // Establecer un tiempo de espera (timeout) para la conexión
+    // set timeout
     piecesServerSocket->increaseTimeout(FIRST_TIMEOUT);
-
-    // Intento de conexión 1
+    // first try
     if(piecesServerSocket->Connect(ip.data(), port)) {
       return piecesServerSocket;
     }
 
-    // Establecer un tiempo de espera (timeout) más largo
+    // increase timeout
     piecesServerSocket->increaseTimeout(SECOND_TIMEOUT);
-
-    // Intento de conexión 2
+    // second try
     if(piecesServerSocket->Connect(ip.data(), port)) {
       return piecesServerSocket;
     }
 
-    // Establecer un tiempo de espera (timeout) aún más largo
+    // increase timeout
     piecesServerSocket->increaseTimeout(THIRD_TIMEOUT);
-
-    // Intento de conexión 3
+    // final try
     if(piecesServerSocket->Connect(ip.data(), port)) {
       return piecesServerSocket;
     }
 
-    // Si ninguno de los intentos anteriores tiene éxito, se devuelve un puntero nulo para indicar el fallo en la conexión
+    // report failure
     return nullptr;
   }
 };
-
-
-
-
-
-
-
-
 
 // for handling the reponse to be sent to the client
 class ResponseHandler : public Handler<std::shared_ptr<Response>>  { //Se encarga de las respuestas al cliente
@@ -172,7 +148,7 @@ class ResponseHandler : public Handler<std::shared_ptr<Response>>  { //Se encarg
           : Handler(consumingQueue, stopCondition) {}
 
  private:
-void handleSingle(std::shared_ptr<Response> handlingData) {
+  void handleSingle(std::shared_ptr<Response> handlingData) {
     std::cout << "Final step before sending back to client!" << std::endl;
 
     std::string response =
@@ -185,41 +161,35 @@ void handleSingle(std::shared_ptr<Response> handlingData) {
         "<!DOCTYPE html>\n"
         "<html>\n"
         "<head>\n"
-        "<style>\n"
-        "body {\n"
-        "  text-align: center;\n"
-        "  font-family: Arial, sans-serif;\n"
-        "  font-size: 32px;\n"  // Tamaño de fuente original duplicado (16px * 2 = 32px)
-        "  background-color: beige;\n"  // Fondo beige agregado
+        "<script>\n"
+        "function goFigure(form) {\n"
+        "  var figure = form.figures.value;\n"
+        "  if (figure !== 'none') {\n"
+        "    form.action = '/figure?name=' + figure;\n"
+        "    form.submit();\n"
+        "  }\n"
         "}\n"
-        "#title {\n"
-        "  font-size: 64px;\n"  // Tamaño de fuente más grande duplicado (32px * 2 = 64px)
-        "  animation: colorChange 0.5s infinite linear;\n"  // Cambio de color más rápido (0.5s)
-        "}\n"
-        "strong {\n"
-        "  font-weight: bold;\n"  // Negrita agregada
-        "}\n"
-        "select[name=\"figures\"] {\n"
-        "  font-size: 48px;\n"  // Tamaño de fuente un poco más pequeño (32px * 1.5 = 48px)
-        "}\n"
-        "@keyframes colorChange {\n"
-        "  0% { color: red; }\n"
-        "  14% { color: orange; }\n"
-        "  28% { color: yellow; }\n"
-        "  42% { color: green; }\n"
-        "  57% { color: blue; }\n"
-        "  71% { color: indigo; }\n"
-        "  85% { color: violet; }\n"
-        "  100% { color: red; }\n"
-        "}\n"
-        "</style>\n"
-        "<title>ESJOJO</title>\n"
+        "</script>\n"
         "</head>\n"
         "<body>\n"
-        "<h1 id=\"title\">ESJOJO</h1>\n"
-        "<p><strong>¡Bienvenido al servidor intermedio!</strong></p>\n" // Texto añadido en negrita
-        "<p><strong>Escoge una figura</strong></p>\n" // Texto añadido en negrita
+        "<div class=\"st14\">\n"
+        "<table width=\"100%\">\n"
+        "   <tbody><tr>\n"
+        "      <td>\n"
+        "         <h1> Universidad de Costa Rica </h1>\n"
+        "         <h2> Escuela de Ciencias de la Computación e Informática </h2>\n"
+        "         <h3> CI-0123 PI de sistemas operativos y redes </h3>\n"
+        "         <h3> Ejemplos de servicio </h3>\n"
+        "      </td>\n"
+        "      <td>\n"
+        "         <img src=\"/images/ECCI-new-logo-transparent.png\" width=\"100px\">\n"
+        "      </td>\n"
+        "   </tr><tr>\n"
+        "   </tr></tbody></table>\n"
+        "</div>\n"
+        "<center>\n"
         "<div class=\"st12\">\n"
+        "   <h1> Figuras </h1>\n"
         "   <form>\n"
         "      <select name=\"figures\" onchange=\"goFigure(this.form)\">\n"
         "         <option value=\"none\"> Elegir </option>\n"
@@ -227,15 +197,17 @@ void handleSingle(std::shared_ptr<Response> handlingData) {
         "         <option value=\"elephant\"> Elefante </option>\n"
         "         <option value=\"giraffe\"> Jirafa </option>\n"
         "         <option value=\"whitesheep\"> Oveja blanca </option>\n"
-       "         <option value=\"blacksheep\"> Oveja negra </option>\n"
+        "         <option value=\"blacksheep\"> Oveja negra </option>\n"
         "         <option value=\"duck\"> Pato </option>\n"
         "         <option value=\"fish\"> Pez </option>\n"
         "         <option value=\"chiki\"> Chiki </option>\n" // Agregada la opción "chiki"
         "      </select>\n"
         "   </form>\n"
         "</div>\n"
+        "</center>\n"
         "</body>\n"
         "</html>\n";
+
 
     response += handlingData->response;
     response += "</h1></body></html>";
@@ -245,15 +217,10 @@ void handleSingle(std::shared_ptr<Response> handlingData) {
     std::cout << "Request handling completed" << std::endl;
 }
 
-
   void optionalToEnd () {
     std::cerr << "response handler dying" << std::endl;
   }
 };
-
-
-
-
 
 // handle all broadcasts received
 class UDPHandler : public Handler<std::shared_ptr<std::vector<char>>> {
