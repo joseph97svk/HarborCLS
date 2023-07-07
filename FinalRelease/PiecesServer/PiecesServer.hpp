@@ -221,15 +221,14 @@ class PiecesServer {
   }
 
   void broadCastOnSamePC(sockaddr_in& island,std::vector<char>& broadcastMessage, Socket& broadcastSocket) {
-    memset(&island, 0, sizeof(sockaddr_in));
-    island.sin_family = AF_INET;
-    island.sin_port = htons(INTERMEDIARY_UDP_PORT);
-    island.sin_addr.s_addr = INADDR_ANY;
-
-    std::cout << "Broadcasting on: same computer" << std::endl;
-
-    // send the broadcast
-    broadcastSocket.sendTo(broadcastMessage.data(), broadcastMessage.size(), &island);
+    // memset(&island, 0, sizeof(sockaddr_in));
+    // island.sin_family = AF_INET;
+    // island.sin_port = htons(INTERMEDIARY_UDP_PORT);
+    // island.sin_addr.s_addr = INADDR_ANY;
+    // std::cout << "Broadcasting on: same computer" << std::endl;
+    // // send the broadcast
+    // broadcastSocket.sendTo(broadcastMessage.data(), broadcastMessage.size(), &island);
+    broadcastSocket("",INTERMEDIARY_UDP_PORT) << broadcastMessage;
   }
 
   std::string getComputerIp () {

@@ -24,12 +24,69 @@
 #include <memory>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <utility>
 #include <iostream>
+#include <fstream>
+#include <sstream>
+#include <cstdlib>
+#include <unistd.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+
 
 class Socket
 {
+public:
+  class udpStream
+  {
+  private:
+    Socket &socket;
+    sockaddr_in sockinfo;
+    bool broadcast;
+  public:
+    udpStream(Socket& mySocket, std::string& ip, int port, bool broadcast) : socket(mySocket), broadcast(broadcast)
+    {
+      memset(&(this->sockinfo), 0, sizeof(sockaddr_in));
+      sockinfo.sin_family = AF_INET;
+      sockinfo.sin_port = htons(port);
+
+      this->broadcast = broadcast;
+      if (ip.size() > 0) {
+        inet_pton(AF_INET, ip.data(), &(this->sockinfo.sin_addr));
+      } else {
+        this->sockinfo.sin_addr.s_addr = INADDR_ANY;
+      }
+    }
+    template <typename dataType>
+    udpStream& operator << (std::vector<dataType>& data){
+      if (this->broadcast) {
+        this->socket.setBroadcast(true);
+      }
+      this->socket.sendTo(data.data(), data.size(), &this->sockinfo);
+      return *this;
+    }
+    template <typename dataType>
+    udpStream& operator >> (std::vector<dataType>& data){
+      if (this->broadcast) {
+        this->socket.setBroadcast(true);
+      }
+      this->socket.recvFrom(data.data(), data.size(), &this->sockinfo);
+      return *this;
+    }
+  };
 
 public:
+  udpStream operator()(std::string ip, int port) {
+    bool broadcast = false;
+    if (ip.size() > 0) {
+      broadcast = ip[0] == '-';
+    }
+    if (broadcast) {
+      ip = ip.substr(1, ip.size());
+    }
+    return udpStream(*this, ip, port, broadcast);
+  }
+  
   Socket(char type, bool IPv6 = false); // char == 's' => stream, char == 'd' => datagram
   Socket(int socketFD);                 // int = socket descriptor
   ~Socket();
@@ -198,11 +255,13 @@ public:
     return *this;
   }
 
-  operator int() const {
+  operator int() const
+  {
     return this->bytesReadWritten;
   }
 
-  void increaseTimeout(size_t time) {
+  void increaseTimeout(size_t time)
+  {
     struct timeval timeout;
     timeout.tv_sec = time;
     timeout.tv_usec = 0;
@@ -212,24 +271,25 @@ public:
     {
       perror("RCV: setsockopt failed\n");
     }
- 
+
     if (setsockopt(this->idSocket, SOL_SOCKET, SO_SNDTIMEO, &timeout,
                    sizeof timeout) < 0)
     {
-       perror("SND: setsockopt failed\n");
+      perror("SND: setsockopt failed\n");
     }
   }
 
-  void setBroadcast(bool activateBroadcast) {
+  void setBroadcast(bool activateBroadcast)
+  {
     int broadcastEnable = activateBroadcast ? 1 : 0;
 
     if (setsockopt(
-        this->idSocket,
-        SOL_SOCKET,
-        SO_BROADCAST,
-        &broadcastEnable,
-        sizeof(broadcastEnable))
-        < 0) {
+            this->idSocket,
+            SOL_SOCKET,
+            SO_BROADCAST,
+            &broadcastEnable,
+            sizeof(broadcastEnable)) < 0)
+    {
       perror("Broadcast enable error!\n");
     }
   }
