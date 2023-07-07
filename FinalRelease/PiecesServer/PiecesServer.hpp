@@ -117,14 +117,21 @@ class PiecesServer {
     for (TCPHandler* handler : this->handleTCP) {
       handler->waitToFinish();
     }
+    this->release();
   }
 
  private:
-  void broadcastPresence() {
+  void release() {
+    std::vector<char> empty;
+    this->broadcast(empty, LEGO_RELEASE);
+
+  }
+
+  void broadcast(std::vector<char>& message, int code) {
     Socket broadcastSocket('d', false);
     sockaddr_in island;
 
-    // get the computer IP
+        // get the computer IP
     std::vector<char> broadcastMessage;
 
     broadcastMessage.push_back(std::to_string(int(LegoMessageCode::LEGO_PRESENT))[0]);
@@ -146,6 +153,38 @@ class PiecesServer {
     }
 
     broadcastMessage.push_back(SEPARATOR);
+    broadcastMessage.resize(broadcastMessage.size() + message.size());
+    memcpy(&(broadcastMessage[broadcastMessage.size()]), message.data(), message.size());
+    std::string msg;
+    msg.resize(broadcastMessage.size());
+    memcpy(&(msg.data()[0]), &(broadcastMessage.data()[0]), broadcastMessage.size());
+
+    std::cout << msg << std::endl;
+    // attempt on normal for computer
+    broadCastOnSamePC(island, broadcastMessage, broadcastSocket);
+
+    // get the base for the broadcast IPs
+    int broadcastIpId = 15;
+    std::string broadcastIpBase = "172.16.123.";
+
+    broadcastSocket.setBroadcast(true);
+
+    // for each vlan
+    for (size_t vlan = 200; vlan < 207; vlan++) {
+      broadcastIsland(island, broadcastMessage, broadcastSocket, broadcastIpId, broadcastIpBase);
+
+      // set the next broadcast ip
+      broadcastIpId += 16;
+    }
+
+    std::cout << std::endl;
+  }
+
+  void broadcastPresence() {
+    Socket broadcastSocket('d', false);
+    sockaddr_in island;
+    std::vector<char> broadcastMessage;
+
 
     // #define test
 
@@ -173,29 +212,8 @@ class PiecesServer {
     }
 
     #endif
-    std::string msg;
-    msg.resize(broadcastMessage.size());
-    memcpy(&(msg.data()[0]), &(broadcastMessage.data()[0]), broadcastMessage.size());
-
-    std::cout << msg << std::endl;
-    // attempt on normal for computer
-    broadCastOnSamePC(island, broadcastMessage, broadcastSocket);
-
-    // get the base for the broadcast IPs
-    int broadcastIpId = 15;
-    std::string broadcastIpBase = "172.16.123.";
-
-    broadcastSocket.setBroadcast(true);
-
-    // for each vlan
-    for (size_t vlan = 200; vlan < 207; vlan++) {
-      broadcastIsland(island, broadcastMessage, broadcastSocket, broadcastIpId, broadcastIpBase);
-
-      // set the next broadcast ip
-      broadcastIpId += 16;
-    }
-
-    std::cout << std::endl;
+    this->broadcast(broadcastMessage, LEGO_PRESENT);
+    
   }
 
   void broadcastIsland(
