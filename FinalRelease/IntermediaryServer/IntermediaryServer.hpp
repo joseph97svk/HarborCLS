@@ -94,6 +94,7 @@ class IntermediaryServer {
 
  public:
   void start() {
+    this->clientSocket->setBufferDefault(1024);
     this->clientSocket->Listen(16);
     this->clientSocket->SSLInitServer(this->SSLCert.data(), this->SSLKey.data());
 

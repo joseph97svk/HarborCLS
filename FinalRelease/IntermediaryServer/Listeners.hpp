@@ -29,6 +29,7 @@ class ClientListener : public Listener<std::shared_ptr<Socket>> {
     std::shared_ptr<Socket> receivedConnection = this->listeningSocket->Accept();
     receivedConnection->SSLCreate(this->listeningSocket);
     receivedConnection->SSLAccept();
+    receivedConnection->setBufferDefault(2048);
 
     return receivedConnection;
   }

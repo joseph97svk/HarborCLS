@@ -644,7 +644,7 @@ int Socket::SSLWrite(const void * message) {
 
 
 bool Socket::isSSL() {
-  return this->SSLStruct != nullptr && this->SSLContext != nullptr;
+  return this->SSLStruct != nullptr || this->SSLContext != nullptr;
 }
 
 

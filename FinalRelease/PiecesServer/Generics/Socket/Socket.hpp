@@ -236,12 +236,9 @@ public:
     char buffer[this->bufferDefaultSize];
     memset(buffer, 0, this->bufferDefaultSize);
     int bytesRead = 0;
-    if (this->isSSL())
-    {
+    if (this->isSSL()){
       bytesRead = this->SSLRead(buffer, this->bufferDefaultSize);
-    }
-    else
-    {
+    } else {
       bytesRead = this->Read(buffer, this->bufferDefaultSize);
     }
 

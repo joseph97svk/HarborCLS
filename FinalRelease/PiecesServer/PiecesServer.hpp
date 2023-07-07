@@ -10,6 +10,8 @@
 #include <fstream>
 #include <iostream>
 
+#include "common.hpp"
+
 class PiecesServer {
 
  private:
@@ -65,10 +67,14 @@ class PiecesServer {
         , processing
         , stopping);
 
-    this->handleUDP.push_back(new UDPHandler(&(this->UDPSockets)
-        , nullptr));
-    this->handleTCP.push_back(new TCPHandler(&(this->TCPSockets)
-        , nullptr, &this->myFigures));
+    this->handleUDP.push_back(
+        new UDPHandler(&(this->UDPSockets)
+        , nullptr
+        , &(this->myFigures)));
+    this->handleTCP.push_back(
+        new TCPHandler(&(this->TCPSockets)
+        , nullptr
+        , &this->myFigures));
 
 
     this->listenUDP->setAsUDP();
@@ -84,9 +90,9 @@ class PiecesServer {
 
   void start() {
     // bind server to port to listen
-  
+    this->communicationsSocket->setBufferDefault(1024);
     this->communicationsSocket->Listen(16);
-    this->communicationsSocket->SSLInitServer("esjojo.pem", "key.pem");
+    this->communicationsSocket->SSLInitServer("ci0123.pem", "ci0123.pem");
 
     // initiate all threads
     // start listeners
@@ -123,58 +129,7 @@ class PiecesServer {
   void release() {
     std::vector<char> empty;
     std::cout << "Sending realease" << std::endl;
-    this->broadcast(empty, LEGO_RELEASE);
-  }
-
-  void broadcast(std::vector<char>& message, int code) {
-    Socket broadcastSocket('d', false);
-    sockaddr_in island;
-
-    // get the computer IP
-    std::vector<char> broadcastMessage;
-
-    broadcastMessage.push_back(std::to_string(code)[0]);
-
-    broadcastMessage.push_back(SEPARATOR);
-
-    std::string buffer = getComputerIp();
-
-    for (char character : buffer) {
-      broadcastMessage.push_back(character);
-    }
-
-    broadcastMessage.push_back(':');
-
-    buffer = std::to_string(PIECES_TCP_PORT).data();
-
-    for (char character : buffer) {
-      broadcastMessage.push_back(character);
-    }
-
-    broadcastMessage.push_back(SEPARATOR);
-    size_t startPosition = broadcastMessage.size();
-
-    broadcastMessage.resize(broadcastMessage.size() + message.size());
-    memcpy(&(broadcastMessage.data()[startPosition]), message.data(), message.size());
-
-    // attempt on normal for computer
-    broadCastOnSamePC(broadcastMessage, broadcastSocket);
-
-    // get the base for the broadcast IPs
-    int broadcastIpId = 15;
-    std::string broadcastIpBase = "172.16.123.";
-
-    broadcastSocket.setBroadcast(true);
-
-    // for each vlan
-    for (size_t vlan = 200; vlan < 207; vlan++) {
-      broadcastIsland(island, broadcastMessage, broadcastSocket, broadcastIpId, broadcastIpBase);
-
-      // set the next broadcast ip
-      broadcastIpId += 16;
-    }
-
-    std::cout << std::endl;
+    broadcast(empty, LEGO_RELEASE);
   }
 
   void broadcastPresence() {
@@ -204,51 +159,10 @@ class PiecesServer {
     }
 
     #endif
-    this->broadcast(broadcastMessage, LEGO_PRESENT);
+    broadcast(broadcastMessage, LEGO_PRESENT);
   }
 
-  void broadcastIsland(
-      sockaddr_in& island,
-      std::vector<char>& broadcastMessage,
-      Socket& broadcastSocket,
-      int broadcastIpId,
-      std::string& broadcastIpBase
-      ) {
-    // get the island broadcast ip
-    std::string broadcastIp;
-    broadcastIp.push_back('-');
-    broadcastIp += broadcastIpBase + std::to_string(broadcastIpId);
-    (void) island;
-    // // set the ip and port for the message to be sent
-    // memset(&island, 0, sizeof(sockaddr_in));
-    // island.sin_family = AF_INET;
-    // island.sin_port = htons(INTERMEDIARY_UDP_PORT); // send to intermediary udp port
-    // inet_pton(AF_INET, broadcastIp.data(), &(island.sin_addr));
-    broadcastSocket(broadcastIp, INTERMEDIARY_UDP_PORT) << broadcastMessage;
 
-    std::cout << "Broadcasting on: " << broadcastIp.substr(1, broadcastIp.size()) << std::endl;
-
-    // send the broadcast
-    //broadcastSocket.sendTo(broadcastMessage.data(), broadcastMessage.size(), &island);
-  }
-
-  void broadCastOnSamePC(std::vector<char>& broadcastMessage, Socket& broadcastSocket) {
-    broadcastSocket("", INTERMEDIARY_UDP_PORT) << broadcastMessage;
-  }
-
-  std::string getComputerIp () {
-    std::string host;
-    host.resize(256);
-
-    gethostname(host.data(), sizeof(host));
-
-    struct hostent* hostentry = gethostbyname(host.data());
-
-    host.clear();
-    host = inet_ntoa(*((struct in_addr*) hostentry->h_addr_list[0]));
-
-    return host;
-  }
 
   // PiecesServer& getInstance() {
   //   static PiecesServer piecesServer("legoSource.txt");
@@ -316,19 +230,19 @@ class PiecesServer {
       }
     }
 
-    // Acceder y mostrar los datos del std::map
-    // for (const auto& figure : myFigures) {
-    //     std::cout << "Figure: " << figure.first << std::endl;
-    //     std::cout << "Image: " << figure.second.first << std::endl;
+    //Acceder y mostrar los datos del std::map
+    for (const auto& figure : myFigures) {
+        std::cout << "Figure: " << figure.first << std::endl;
+        // std::cout << "Image: " << figure.second.first << std::endl;
 
-    //     for (const auto& piece : figure.second.second) {
-    //         std::cout << "Piece Name: " << piece.description << std::endl;
-    //         std::cout << "Piece Image: " << piece.imageFigure << std::endl;
-    //         std::cout << "Piece Amount: " << piece.amount << std::endl;
-    //     }
+        // for (const auto& piece : figure.second.second) {
+        //     std::cout << "Piece Name: " << piece.description << std::endl;
+        //     std::cout << "Piece Image: " << piece.imageFigure << std::endl;
+        //     std::cout << "Piece Amount: " << piece.amount << std::endl;
+        // }
 
-    //     std::cout << std::endl;
-    // }
+        std::cout << std::endl;
+    }
     return EXIT_SUCCESS; // Return success status
   }
 
