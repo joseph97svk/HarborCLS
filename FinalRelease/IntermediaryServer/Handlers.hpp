@@ -278,22 +278,17 @@ class UDPHandler : public Handler<std::shared_ptr<std::vector<char>>> {
         << "\n\tip address: " << ip
         << "\n\tport:" << port << std::endl << std::endl;
 
-    // insert figures
-    this->insertFigures(buffer, ip, port);
-    
-
-
-    this->routingMap->showMap();
-    std::string chiki = "Chiki";
-    this->routingMap->erase((*this->routingMap)[chiki]);
-     std::cout<<"borrando"<< std::endl;
-    this->routingMap->showMap();
-    std::cout<<"se boorró"<< std::endl;
-
-    // std::string chiki = "Chicki";
-
-    // std::cout << "{<" << (*this->routingMap)[chiki].first << ", "
-    //     << (*this->routingMap)[chiki].second << ">}" << std::endl;
+    switch(code) {
+      case LEGO_PRESENT:
+         // insert figures
+        this->insertFigures(buffer, ip, port);
+        break;
+      case LEGO_RELEASE:
+        // remove figures asociated with server
+        std::pair<std::string, int> piecesServerInfo = {ip, port};
+        this->routingMap->erase(piecesServerInfo);
+        break;
+    }
   }
 
   void insertFigures(std::string& buffer, const std::string& ip, const int port) {

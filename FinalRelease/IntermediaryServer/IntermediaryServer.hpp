@@ -167,13 +167,19 @@ class IntermediaryServer {
 
  private:
   void broadcastPresence() {
+    std::vector<char> empty;
+    std::cout << "Broadcasting for discover" << std::endl;
+    this->broadcast(empty, LEGO_DISCOVER);
+  }
+
+  void broadcast(std::vector<char>& message, int code) {
     Socket broadcastSocket('d', false);
     sockaddr_in island;
 
     // get the computer IP
     std::vector<char> broadcastMessage;
 
-    broadcastMessage.push_back(std::to_string(int(LegoMessageCode::LEGO_PRESENT))[0]);
+    broadcastMessage.push_back(std::to_string(code)[0]);
 
     broadcastMessage.push_back(SEPARATOR);
 
@@ -191,8 +197,14 @@ class IntermediaryServer {
       broadcastMessage.push_back(character);
     }
 
+    broadcastMessage.push_back(SEPARATOR);
+    size_t startPosition = broadcastMessage.size();
+
+    broadcastMessage.resize(broadcastMessage.size() + message.size());
+    memcpy(&(broadcastMessage.data()[startPosition]), message.data(), message.size());
+
     // attempt on normal for computer
-    broadCastOnSamePC(island, broadcastMessage, broadcastSocket);
+    broadCastOnSamePC(broadcastMessage, broadcastSocket);
 
     // get the base for the broadcast IPs
     int broadcastIpId = 15;
@@ -218,30 +230,36 @@ class IntermediaryServer {
       int broadcastIpId,
       std::string& broadcastIpBase
       ) {
+    (void) island;
     // get the island broadcast ip
-    std::string broadcastIp = broadcastIpBase + std::to_string(broadcastIpId);
+    std::string broadcastIp;
+    broadcastIp.push_back('-');
+    broadcastIp += broadcastIpBase + std::to_string(broadcastIpId);
 
     // set the ip and port for the message to be sent
-    memset(&island, 0, sizeof(sockaddr_in));
-    island.sin_family = AF_INET;
-    island.sin_port = htons(PIECES_UDP_PORT);
-    inet_pton(AF_INET, broadcastIp.data(), &(island.sin_addr));
+    // memset(&island, 0, sizeof(sockaddr_in));
+    // island.sin_family = AF_INET;
+    // island.sin_port = htons(PIECES_UDP_PORT);
+    // inet_pton(AF_INET, broadcastIp.data(), &(island.sin_addr));
 
-    std::cout << "Broadcasting on: " << broadcastIp << std::endl;
+    broadcastSocket(broadcastIp, PIECES_UDP_PORT) << broadcastMessage;
+
+    std::cout << "Broadcasting on: " << broadcastIp.substr(1, broadcastIp.size()) << std::endl;
 
     // send the broadcast
-    broadcastSocket.sendTo(broadcastMessage.data(), broadcastMessage.size(), &island);
+    //broadcastSocket.sendTo(broadcastMessage.data(), broadcastMessage.size(), &island);
   }
 
-  void broadCastOnSamePC(sockaddr_in& island, std::vector<char>& broadcastMessage, Socket& broadcastSocket) {
-    memset(&island, 0, sizeof(sockaddr_in));
-    island.sin_family = AF_INET;
-    island.sin_port = htons(PIECES_UDP_PORT);
-    island.sin_addr.s_addr = INADDR_ANY;
+  void broadCastOnSamePC(std::vector<char>& broadcastMessage, Socket& broadcastSocket) {
+    // memset(&island, 0, sizeof(sockaddr_in));
+    // island.sin_family = AF_INET;
+    // island.sin_port = htons(PIECES_UDP_PORT);
+    // island.sin_addr.s_addr = INADDR_ANY;
+    broadcastSocket("", PIECES_UDP_PORT) << broadcastMessage;
 
     std::cout << "Broadcasting on: same computer" << std::endl;
 
     // send the broadcast
-    broadcastSocket.sendTo(broadcastMessage.data(), broadcastMessage.size(), &island);
+    //broadcastSocket.sendTo(broadcastMessage.data(), broadcastMessage.size(), &island);
   }
 };

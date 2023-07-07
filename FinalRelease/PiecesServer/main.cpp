@@ -22,6 +22,8 @@ void signal_handler(int signal)
 
 int main(int argc, char** argv)
 {
+    (void) argc;
+    (void) argv;
     // Set signal handlers for SIGINT, SIGTERM and SIGSTOP signals
     signal(SIGINT, signal_handler);
     signal(SIGTERM, signal_handler);
