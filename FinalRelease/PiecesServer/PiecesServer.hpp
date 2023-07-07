@@ -69,6 +69,9 @@ class PiecesServer {
         , nullptr));
     this->handleTCP.push_back(new TCPHandler(&(this->TCPSockets)
         , nullptr, &this->myFigures));
+
+
+    this->listenUDP->setAsUDP();
   }
   /**
  * Get the singleton instance of the PiecesServer.
@@ -104,25 +107,15 @@ class PiecesServer {
 
     // join listeners
     this->listenTCP->waitToFinish();
-
-
-      std::cout << "listenTCP" << std::endl;
     this->listenUDP->waitToFinish();
-
-       std::cout << "listenUDP" << std::endl;
 
     // join handlers
     for (UDPHandler* handler : this->handleUDP) {
-      std::cout << "joiningUDP..." << std::endl;
       handler->waitToFinish();
-       std::cout << "joinedUDP" << std::endl;
     }
 
     for (TCPHandler* handler : this->handleTCP) {
-       std::cout << "joiningTCP..." << std::endl;
       handler->waitToFinish();
-             std::cout << "joinedTCP" << std::endl;
-
     }
   }
 
