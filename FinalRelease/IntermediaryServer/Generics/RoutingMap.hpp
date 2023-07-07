@@ -52,6 +52,28 @@ class RoutingMap {
     this->access.unlock();
   }
 
+  void erase(std::pair<std::string, int>& pairToDelete) {
+    this->access.lock();
+    // for (auto& pair : myRouteMap) {
+    //   if (pair.second == pairToDelete) {
+    //     std::cout << "1" << std::endl;
+    //     myRouteMap.erase(pair.first);
+    //     std::cout << "2" << std::endl;
+        
+    //   }
+    // }
+    for(auto it = myRouteMap.begin(); it != myRouteMap.end();) {
+      if (it->second == pairToDelete) {
+        std::cout << "1" << std::endl;
+        myRouteMap.erase(it++);
+        std::cout << "2" << std::endl;
+      } else {
+        it++;
+      }     
+    }
+    this->access.unlock();
+  }
+
 };
 
 #endif

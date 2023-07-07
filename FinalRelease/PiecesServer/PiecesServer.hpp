@@ -70,6 +70,14 @@ class PiecesServer {
     this->handleTCP.push_back(new TCPHandler(&(this->TCPSockets)
         , nullptr, &this->myFigures));
   }
+  /**
+ * Get the singleton instance of the PiecesServer.
+ * @return A reference to the PiecesServer singleton instance.
+ */
+  static PiecesServer& getInstance() {
+    static PiecesServer piecesServer("legoFile.txt");
+    return piecesServer;
+  }
 
   void start() {
     // bind server to port to listen
@@ -96,15 +104,25 @@ class PiecesServer {
 
     // join listeners
     this->listenTCP->waitToFinish();
+
+
+      std::cout << "listenTCP" << std::endl;
     this->listenUDP->waitToFinish();
+
+       std::cout << "listenUDP" << std::endl;
 
     // join handlers
     for (UDPHandler* handler : this->handleUDP) {
+      std::cout << "joiningUDP..." << std::endl;
       handler->waitToFinish();
+       std::cout << "joinedUDP" << std::endl;
     }
 
     for (TCPHandler* handler : this->handleTCP) {
+       std::cout << "joiningTCP..." << std::endl;
       handler->waitToFinish();
+             std::cout << "joinedTCP" << std::endl;
+
     }
   }
 
@@ -165,7 +183,7 @@ class PiecesServer {
     std::string msg;
     msg.resize(broadcastMessage.size());
     memcpy(&(msg.data()[0]), &(broadcastMessage.data()[0]), broadcastMessage.size());
-    
+
     std::cout << msg << std::endl;
     // attempt on normal for computer
     broadCastOnSamePC(island, broadcastMessage, broadcastSocket);
