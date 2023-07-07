@@ -1,6 +1,8 @@
 #include "Generics/Handler.hpp"
 #include "Generics/RoutingMap.hpp"
 
+#include <regex>
+
 // for handling whatever the client sent
 class ClientHandler : public Handler <std::shared_ptr<Socket>> {
  private:
@@ -25,9 +27,45 @@ class ClientHandler : public Handler <std::shared_ptr<Socket>> {
       std::cout << buffer << std::endl;
     }
 
+    std::regex findHttp("(.* )HTTP/1.1");
+
+    std::smatch requestMatch;
+
+    std::string::const_iterator begin(buffer.cbegin());
+
+    std::string httpRequest;
+
+    if (std::regex_search(begin, buffer.cend(), requestMatch, findHttp)) {
+      std::cout << "found something" << std::endl;
+      httpRequest = requestMatch[0];
+      std::cout << "request: " << httpRequest << std::endl;
+      httpRequest = requestMatch[1];
+      std::cout << "request: ," << httpRequest << "," << std::endl;
+      httpRequest = requestMatch[2];
+      std::cout << "request: " << httpRequest << std::endl;
+    }
+// http://localhost:2020
+
+    // default is asking for figures
+    serverAction action = serverAction::requestingFigures;
+
+    // if asking for icon
+    if (httpRequest == "favicon.ico" || httpRequest == "favicon.ico ") {
+      action = serverAction::requestingBrowserIcon;
+    // for all else, as long as not empty request
+    } else if (httpRequest != " ") {
+      action = serverAction::requestingFigures;
+      size_t figureStartingPos = httpRequest.find('=') + 1;
+      httpRequest = httpRequest.substr(figureStartingPos, httpRequest.size());
+    }
+
+    std::cout << "Figure: " << httpRequest << std::endl;
+    
+    // http://localhost:2020/lego/list.php?figure=chiki
+
     std::cout << "exited handlers" << std::endl;
 
-    std::shared_ptr<Request> request = std::make_shared<Request>(handlingData, "Chicki", serverAction::requestingParts);
+    std::shared_ptr<Request> request = std::make_shared<Request>(handlingData, httpRequest, action);
 
     this->requestQueue->push(request);
   }
@@ -57,7 +95,7 @@ class RequestHandler : public Handler<std::shared_ptr<Request>>  {
     std::string figure = handlingData->figure;
 
     std::cout << "Handling request and dummy connection to pieces server" << std::endl;
-    std::cout << "Figure: " << figure << std::endl;
+    std::cout << "RequestHandler :: Figure: " << figure << std::endl;
 
     if (handlingData == nullptr) {
       std::cout << "Error!!!!" << std::endl;
@@ -73,7 +111,10 @@ class RequestHandler : public Handler<std::shared_ptr<Request>>  {
     // send info to pieces server
     switch(requestType) {
       case serverAction::requestingFigures:
+        for (auto figure : *(this->routingMap)) {
+          responseReceived += figure.first;
 
+        }
         // receive info from pieces server
 
         break;
@@ -151,75 +192,76 @@ class ResponseHandler : public Handler<std::shared_ptr<Response>>  { //Se encarg
   void handleSingle(std::shared_ptr<Response> handlingData) {
     std::cout << "Final step before sending back to client!" << std::endl;
 
-    std::string response =
-        // send header
-        "HTTP/1.1 200\r\n"
-        "Content-type: text/html; charset=UTF-8\r\n"
-        "Server: AttoServer v1.1\r\n"
-        "\r\n"
-        // send html format and title
-        "<!DOCTYPE html>\n"
-        "<html>\n"
-        "<head>\n"
-        "<script>\n"
-        "function goFigure(form) {\n"
-        "  var figure = form.figures.value;\n"
-        "  if (figure !== 'none') {\n"
-        "    form.action = '/figure?name=' + figure;\n"
-        "    form.submit();\n"
-        "  }\n"
-        "}\n"
-        "</script>\n"
-        "<style>\n"
-        "body {\n"
-        "  text-align: center;\n"
-        "  font-family: Arial, sans-serif;\n"
-        "  font-size: 32px;\n"  // Tamaño de fuente original duplicado (16px * 2 = 32px)
-        "  background-color: beige;\n"  // Fondo beige agregado
-        "}\n"
-        "h1 {\n"
-        "  font-size: 64px;\n"  // Tamaño de fuente más grande duplicado (32px * 2 = 64px)
-        "}\n"
-        "h1.colorful {\n"
-        "  animation: rainbow 0.5s infinite linear;\n"  // Animación de cambio de color
-        "}\n"
-        "select[name=\"figures\"] {\n"
-        "  font-size: 24px;\n"  // Tamaño de fuente un poco más pequeño (32px * 0.75 = 24px)
-        "  width: 150px;\n" // Reducir el ancho del cuadro
-        "}\n"
-        "@keyframes rainbow {\n"
-        "  0% { color: red; }\n"
-        "  14% { color: orange; }\n"
-        "  28% { color: yellow; }\n"
-        "  42% { color: green; }\n"
-        "  57% { color: blue; }\n"
-        "  71% { color: indigo; }\n"
-        "  85% { color: violet; }\n"
-        "  100% { color: red; }\n"
-        "}\n"
-        "</style>\n"
-        "</head>\n"
-        "<body>\n"
-        "<h1 class=\"colorful\">ESJOJO</h1>\n" // Texto "ESJOJO" en grande y cambiante de color
-        "<div class=\"st12\">\n"
-        "   <h1>¡Bienvenido al servidor intermedio!</h1>\n" // Texto "¡Bienvenido al servidor intermedio!" en grande sin cambio de color
-        "   <form>\n"
-        "      <select name=\"figures\" onchange=\"goFigure(this.form)\">\n"
-        "         <option value=\"none\"> Elegir </option>\n"
-        "         <option value=\"horse\"> Caballo </option>\n"
-        "         <option value=\"elephant\"> Elefante </option>\n"
-        "         <option value=\"giraffe\"> Jirafa </option>\n"
-        "         <option value=\"whitesheep\"> Oveja blanca </option>\n"
-        "         <option value=\"blacksheep\"> Oveja negra </option>\n"
-        "         <option value=\"duck\"> Pato </option>\n"
-        "         <option value=\"fish\"> Pez </option>\n"
-        "         <option value=\"chiki\"> Chiki </option>\n" // Agregada la opción "chiki"
-        "      </select>\n"
-        "   </form>\n"
-        "</div>\n"
-        "</body>\n"
-        "</html>\n";
-
+  std::string response =
+    // send header
+    "HTTP/1.1 200 OK\r\n"
+    "Content-type: text/html; charset=UTF-8\r\n"
+    "Server: AttoServer v1.1\r\n"
+    "\r\n"
+    // send html format and title
+    "<!DOCTYPE html>\n"
+    "<html>\n"
+    "<head>\n"
+    "<script>\n"
+    "function goFigure(form) {\n"
+    "   figure = form.figures.options[form.figures.selectedIndex].value;\n"
+    "   form.figures.selectedIndex = 0;\n"
+    "   if (figure === 'caballo') {\n"
+    "       location.href = '/lego/horse.php';\n"
+    "   } else {\n"
+    "       location.href = '/lego/list.php?figure=' + figure;\n"
+    "   }\n"
+    "}\n"
+    "</script>\n"
+    "<style>\n"
+    "body {\n"
+    "  text-align: center;\n"
+    "  font-family: Arial, sans-serif;\n"
+    "  font-size: 32px;\n"
+    "  background-color: beige;\n"
+    "}\n"
+    "h1 {\n"
+    "  font-size: 64px;\n"
+    "}\n"
+    "h1.colorful {\n"
+    "  animation: rainbow 5s infinite linear;\n"
+    "}\n"
+    "@keyframes rainbow {\n"
+    "  0% { color: red; }\n"
+    "  14% { color: orange; }\n"
+    "  28% { color: yellow; }\n"
+    "  42% { color: green; }\n"
+    "  57% { color: blue; }\n"
+    "  71% { color: indigo; }\n"
+    "  85% { color: violet; }\n"
+    "  100% { color: red; }\n"
+    "}\n"
+    "select[name=\"figures\"] {\n"
+    "  font-size: 24px;\n"
+    "  width: 150px;\n"
+    "}\n"
+    "</style>\n"
+    "</head>\n"
+    "<body>\n"
+    "<h1 class=\"colorful\">ESJOJO</h1>\n"
+    "<div class=\"st12\">\n"
+    "   <h1>¡Bienvenido al servidor intermedio!</h1>\n"
+    "   <form>\n"
+    "      <select name=\"figures\" onchange=\"goFigure(this.form)\">\n"
+    "         <option value=\"None\"> Elegir </option>\n"
+    "         <option value=\"caballo\"> Caballo </option>\n"
+    "         <option value=\"elefante\"> Elefante </option>\n"
+    "         <option value=\"jirafa\"> Jirafa </option>\n"
+    "         <option value=\"ovejablanca\"> Oveja blanca </option>\n"
+    "         <option value=\"ovejanegra\"> Oveja negra </option>\n"
+    "         <option value=\"pato\"> Pato </option>\n"
+    "         <option value=\"pez\"> Pez </option>\n"
+    "         <option value=\"chiki\"> Chiki </option>\n"
+    "      </select>\n"
+    "   </form>\n"
+    "</div>\n"
+    "</body>\n"
+    "</html>\n";
 
     response += handlingData->response;
     response += "</h1></body></html>";

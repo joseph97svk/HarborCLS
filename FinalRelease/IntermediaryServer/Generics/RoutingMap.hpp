@@ -64,6 +64,20 @@ class RoutingMap {
     this->access.unlock();
   }
 
+  auto begin() {
+    this->access.lock();
+    auto it = this->myRouteMap.begin();
+    this->access.unlock();
+    return it;
+  }
+
+  auto end() {
+    this->access.lock();
+    auto it = this->myRouteMap.end();
+    this->access.unlock();
+    return it;
+  }
+
 };
 
 #endif

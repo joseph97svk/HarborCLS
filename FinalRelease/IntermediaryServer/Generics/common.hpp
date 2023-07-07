@@ -12,6 +12,7 @@ enum serverAction {
   requestingParts,
   requestingAssembly,
   piecesServerError,
+  requestingBrowserIcon,
   inMapNotFound
 };
 
