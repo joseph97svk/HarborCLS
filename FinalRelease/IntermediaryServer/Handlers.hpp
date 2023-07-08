@@ -75,7 +75,6 @@ class ClientHandler : public Handler <std::shared_ptr<Socket>> {
       httpRequest = requestMatch[1];
       std::cout << "request: ," << httpRequest << "," << std::endl;
     }
-// http://localhost:2020
 
     // default is asking for figures
     serverAction action = serverAction::requestingFigures;
@@ -85,8 +84,14 @@ class ClientHandler : public Handler <std::shared_ptr<Socket>> {
       action = serverAction::requestingBrowserIcon;
     // for all else, as long as not empty request
     } else if (httpRequest != " " && !isMainPage(httpRequest)) {
+      // for requesting parts
+      if (!assembleFigure(httpRequest)) {
+        action = serverAction::requestingParts;
+      // for assembling figure
+      } else {
+        action = serverAction::requestingAssembly;
+      }
 
-      action = serverAction::requestingParts;
       size_t figureStartingPos = httpRequest.find('=') + 1;
       httpRequest = httpRequest.substr(figureStartingPos, httpRequest.size());
 
@@ -128,6 +133,32 @@ class ClientHandler : public Handler <std::shared_ptr<Socket>> {
     }
     return false;
   }
+
+  bool assembleFigure(std::string& buffer) {
+    std::regex findAssemble ("assemble");
+
+    std::smatch requestMatch;
+
+    std::string::const_iterator begin(buffer.cbegin());
+
+    if (std::regex_search(begin, buffer.cend(), requestMatch, findAssemble)) {
+      return true;
+    }
+    return false;
+  }
+
+  std::string getImage(std::string& buffer) {
+    std::regex findImage("images");
+
+    std::smatch requestMatch;
+
+    std::string::const_iterator begin(buffer.cbegin());
+
+    if (std::regex_search(begin, buffer.cend(), requestMatch, findImage)) {
+      return requestMatch[1];
+    }
+    return std::string();
+  }
 };
 
 class RequestHandler : public Handler<std::shared_ptr<Request>>  {
@@ -161,13 +192,22 @@ class RequestHandler : public Handler<std::shared_ptr<Request>>  {
         this->fillMainPage(responseString);
         break;
       case serverAction::requestingParts:
-
         // receive info from pieces server
         this->getParts(responseString, figure);
 
         break;
       case serverAction::requestingAssembly:
+        // for the case where the figure still exists
+        if (this->routiungMap->count(figure) != 0) {
+          // write response
         
+        // for the case where the figure does not exist
+        } else {
+          // erase the figure from the map
+
+          // write response
+
+        }
         // receive info from pieces server
         break;
       default:
@@ -182,6 +222,14 @@ class RequestHandler : public Handler<std::shared_ptr<Request>>  {
         );
 
     this->responseQueue->push(response);
+  }
+
+  void reportAssembled (std::string& response, std::string figure) {
+
+  }
+
+  void reportNotAssemble (std::string& response, std::string figure) {
+
   }
 
   void getParts(std::string& response, std::string figure) {
@@ -207,13 +255,22 @@ class RequestHandler : public Handler<std::shared_ptr<Request>>  {
     request += figure;
 
     *piecesServerConnection << request;
-
+    
+    // 
     response +=
         "<SCRIPT LANGUAGE=javascript>\n"
         "function home() {\n"
           "window.location( \"/lego/index.php\" );\n"
         "}\n"
         "</SCRIPT>\n";
+
+    response +=
+        "<SCRIPT LANGUAGE=javascript>\n"
+        "function assemble() {\n"
+          "window.location( \"/lego/assemble\" );\n"
+        "}\n"
+        "</SCRIPT>\n";
+
     response += 
         "<DIV class=\"st10\">"
         "<TABLE WIDTH=100%>\n";
@@ -226,6 +283,11 @@ class RequestHandler : public Handler<std::shared_ptr<Request>>  {
     response +=
       "<TR>\n"
       "<TD> <A HREF=\"/lego/index.php\"> Regresar </A>\n"
+      "</TR>\n";
+
+    response +=
+      "<TR>\n"
+      "<TD> <A HREF=\"/lego/assemble\"> Armar </A>\n"
       "</TR>\n";
     
     response += "</TABLE>\n";
