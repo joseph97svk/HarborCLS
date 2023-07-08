@@ -190,32 +190,45 @@ public:
 
   Socket &operator>>(std::string &text)
   {
+    std::cout << "~~~~~ Socket& operator>>(std::string& text) ~~~~~" << std::endl;
+
+    // Inicialización de variables
     char buffer[this->bufferDefaultSize];
     memset(buffer, 0, this->bufferDefaultSize);
     int bytesRead = 0;
 
+    // Reporte de estructuras SSL
+    std::cout << "SSL struct " << (this->SSLStruct == nullptr ? "nulo" : "NO nulo") << std::endl; 
+    std::cout << "SSL context " << (this->SSLContext == nullptr ? "nulo" : "NO nulo") << std::endl; 
+
+    // Lectura selectiva con o sin SSL
     if (this->isSSL())
     {
-      std::cout<<"BUFFER SSL"<<(const char *)(char *) buffer<<std::endl;
+      std::cout << "Leido usando SSL" << std::endl;
       bytesRead = this->SSLRead((void *)buffer, this->bufferDefaultSize);
       
     }
     else
     {
-      std::cout<<"BUFFER SIN SSL "<<(const char *)(char *) buffer<<std::endl;
+      std::cout << "Leido SIN usar SSL" << std::endl;
       bytesRead = this->Read(buffer, this->bufferDefaultSize);
     }
 
-    std::cout<<"ESTE ES EL ante-BUFFER "<<(const char *)(char *) buffer<<std::endl;
+    // Buffer y bytes leídos
+    std::cout << "Buffer antes de asignacion = " << (const char*) (char*) buffer << std::endl;
+    std::cout << "Bytes read = " << bytesRead << std::endl;
 
     this->bytesReadWritten = bytesRead;
 
+    // Asignación de buffer a hilera
     text.resize(bytesRead + 1);
     text = buffer;
 
-    std::cout<<"ESTE ES EL BUFFER "<<(const char *)(char *) buffer<<std::endl;
-    std::cout<<"BITES QUE ESTA TOMANDO "<<bytesRead<<std::endl;
+    std::cout << "Buffer despues de asignacion " <<(const char *)(char *) buffer<<std::endl;
+    std::cout << "Hilera despues de asginacion " << text << std::endl; 
+    std::cout << "Bytes Read Written = " << bytesRead<<std::endl;
 
+    // Retorno por referencia para encadenamiento de métodos
     return *this;
   }
 

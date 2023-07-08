@@ -31,6 +31,9 @@ class ClientListener : public Listener<std::shared_ptr<Socket>> {
     receivedConnection->SSLAccept();
     receivedConnection->setBufferDefault(2048);
 
+    // Check if SSL struct is null
+    std::cout << "Received connection is " << (receivedConnection->isSSL() ? "actually" : "not") << " SSL" << std::endl;
+
     return receivedConnection;
   }
 };
