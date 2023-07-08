@@ -196,17 +196,25 @@ public:
 
     if (this->isSSL())
     {
-      bytesRead = this->SSLRead(buffer, this->bufferDefaultSize);
+      std::cout<<"BUFFER SSL"<<(const char *)(char *) buffer<<std::endl;
+      bytesRead = this->SSLRead((void *)buffer, this->bufferDefaultSize);
+      
     }
     else
     {
+      std::cout<<"BUFFER SIN SSL "<<(const char *)(char *) buffer<<std::endl;
       bytesRead = this->Read(buffer, this->bufferDefaultSize);
     }
+
+    std::cout<<"ESTE ES EL ante-BUFFER "<<(const char *)(char *) buffer<<std::endl;
 
     this->bytesReadWritten = bytesRead;
 
     text.resize(bytesRead + 1);
     text = buffer;
+
+    std::cout<<"ESTE ES EL BUFFER "<<(const char *)(char *) buffer<<std::endl;
+    std::cout<<"BITES QUE ESTA TOMANDO "<<bytesRead<<std::endl;
 
     return *this;
   }
@@ -303,7 +311,7 @@ private:
   void *SSLContext; // SSL context
   void *SSLStruct;  // SSL BIO basis input output
 
-  int bufferDefaultSize = 500;
+  int bufferDefaultSize = 1024;
 
   int bytesReadWritten = 0;
 };

@@ -17,7 +17,7 @@ class ClientHandler : public Handler <std::shared_ptr<Socket>> {
 
  private:
   // socket of client from which request is to be read
-  void handleSingle(std::shared_ptr<Socket> handlingData) { //Esta chuncha ya está conectada
+  void handleSingle(std::shared_ptr<Socket> handlingData) {
   //1 sslread, operador sobre cargado.
     std::string buffer;
 
@@ -27,7 +27,10 @@ class ClientHandler : public Handler <std::shared_ptr<Socket>> {
       std::cout << buffer << std::endl;
     }
 
-    std::regex findHttp("(.* )HTTP/1.1");
+    std::cout<<"CONTENIDO DESPUES DEL WHILE "<<buffer<<std::endl;
+    std::cout<<"ESTO ES TODO "<<std::endl;
+
+    std::regex findHttp("((.* )HTTP/1.1)");
 
     std::smatch requestMatch;
 
@@ -91,6 +94,7 @@ class RequestHandler : public Handler<std::shared_ptr<Request>>  {
  private:
   void handleSingle(std::shared_ptr<Request> handlingData) { //HTTP
     // use request to find ip and port from the map
+    //std::cout<<"ALMACENAMIENTO DENTRO DE handlingData" << handlingData->figure<< std::endl;
     serverAction requestType = handlingData->requestType;
     std::string figure = handlingData->figure;
 
@@ -106,7 +110,7 @@ class RequestHandler : public Handler<std::shared_ptr<Request>>  {
 
     //tryConnection(piecesServerConnection, figure);
 
-    std::string responseReceived = "sup";
+    std::string responseReceived = " ";
 
     // send info to pieces server
     switch(requestType) {
@@ -119,7 +123,7 @@ class RequestHandler : public Handler<std::shared_ptr<Request>>  {
 
         break;
       case serverAction::requestingParts:
-
+      responseReceived = requestingParts;
         // receive info from pieces server
 
         break;

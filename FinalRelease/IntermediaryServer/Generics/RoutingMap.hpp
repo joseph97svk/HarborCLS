@@ -23,7 +23,7 @@ class RoutingMap {
     std::pair<std::string, int>& pair = myRouteMap[figure];
     this->access.unlock();
     return pair;
-  } 
+  }
 
   size_t count(std::string& figure) {
     this->access.lock();
