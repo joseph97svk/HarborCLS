@@ -242,9 +242,6 @@ int Socket::Connect( const char *host, const char *service ) {
 int Socket::Read( void * buffer, int bufferSize ) {
   int st = read(this->idSocket, buffer, bufferSize);
 
-  // Informe de bytes leidos
-  std::cout << "Read devolvio " << st << std::endl; 
-
   // checkear status
   if (-1 == st) {
     perror("Socket::Read");
@@ -557,12 +554,7 @@ void Socket::SSLCreate(Socket* parent) {
 
   this->SSLStruct = (void*) ssl;
 
-  int st = SSL_set_fd(ssl, this->idSocket);
-
-  if (st == 0)
-  {
-    perror("Socket::SSLCreate, SSL_set_fd");
-  }
+  SSL_set_fd(ssl, this->idSocket);
 }
 
 void Socket::SSLShowCerts() {
@@ -652,8 +644,8 @@ int Socket::SSLWrite(const void * message) {
 
 
 bool Socket::isSSL() {
-  std::cout << ">>>>>>>>>>IS SSL: " << !(this->SSLStruct == nullptr || this->SSLContext == nullptr) << std::endl;
-  return !(this->SSLStruct == nullptr || this->SSLContext == nullptr);
+  std::cout << ">>>>>>>>>>IS SSL: " << (this->SSLStruct != nullptr || this->SSLContext != nullptr) << std::endl;
+  return this->SSLStruct != nullptr && this->SSLContext != nullptr;
   
 }
 
