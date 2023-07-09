@@ -1,11 +1,11 @@
 Lego source File :: group ESJOJO
 Chicki
-.
+/lego/Chicki.jpg
 2x4 blanco
 .
 39
 2x4 rojo
-.
+lego/images/fig1
 2x4 piel
 .
 32
@@ -28,11 +28,11 @@ Chicki
 .
 2
 1x4 piel
-.
+fig3
 10
 *
 Dragon
-.
+fig2
 brick 2x6 plate grey
 .
 4
@@ -73,5 +73,5 @@ brick 2x3
 .
 4
 brick 1x1 eyes dark 
-.
+fig4
 2

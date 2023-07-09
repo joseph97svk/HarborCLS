@@ -240,8 +240,6 @@ class PiecesServer {
         //     std::cout << "Piece Image: " << piece.imageFigure << std::endl;
         //     std::cout << "Piece Amount: " << piece.amount << std::endl;
         // }
-
-        std::cout << std::endl;
     }
     return EXIT_SUCCESS; // Return success status
   }

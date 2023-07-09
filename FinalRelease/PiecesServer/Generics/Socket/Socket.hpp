@@ -291,6 +291,10 @@ public:
     }
   }
 
+  int getBufferSize() {
+    return this-> bufferDefaultSize;
+  }
+
 private:
   int idSocket;
   int port;

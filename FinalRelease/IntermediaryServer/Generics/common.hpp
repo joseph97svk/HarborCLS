@@ -13,6 +13,7 @@ enum serverAction {
   requestingAssembly,
   piecesServerError,
   requestingBrowserIcon,
+  requestingImage,
   inMapNotFound
 };
 
@@ -32,6 +33,7 @@ struct Response {
   std::shared_ptr<Socket> socket;
   std::string response;
   serverAction requestType;
+  std::vector<char> responseVec;
 
   // Response(std::shared_ptr<Socket> socket, std::string response, serverAction requestType)
   //     : socket()
@@ -40,10 +42,11 @@ struct Response {
   //   this->socket.reset(socket);
   // }
 
-  Response(std::shared_ptr<Socket> socket, std::string response, serverAction requestType)
+  Response(std::shared_ptr<Socket> socket, std::string& response, serverAction requestType, std::vector<char>& responseVector)
       : socket(socket)
-      , response(response)
-      , requestType(requestType) {
+      , response(std::move(response))
+      , requestType(requestType)
+      , responseVec(std::move(responseVector)) {
   }
 };
 

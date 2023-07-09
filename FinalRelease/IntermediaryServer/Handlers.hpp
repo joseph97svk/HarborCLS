@@ -52,13 +52,9 @@ class ClientHandler : public Handler <std::shared_ptr<Socket>> {
  private:
   // socket of client from which request is to be read
   void handleSingle(std::shared_ptr<Socket> handlingData) { //Esta chuncha ya está conectada
-  //1 sslread, operador sobre cargado.
     std::string buffer;
 
-    std::cerr << "Entered handlers" << std::endl;
-
     while ((*handlingData >> buffer) == 2048) {
-      std::cout << buffer << std::endl;
     }
 
     std::regex findHttp("(.* )HTTP/1.1");
@@ -69,11 +65,8 @@ class ClientHandler : public Handler <std::shared_ptr<Socket>> {
 
     std::string httpRequest;
 
-    std::cout << "Buffer: " << buffer << std::endl;
-
     if (std::regex_search(begin, buffer.cend(), requestMatch, findHttp)) {
       httpRequest = requestMatch[1];
-      std::cout << "request: ," << httpRequest << "," << std::endl;
     }
 
     // default is asking for figures
@@ -83,13 +76,15 @@ class ClientHandler : public Handler <std::shared_ptr<Socket>> {
     if (iconRequest(httpRequest)) {
       action = serverAction::requestingBrowserIcon;
     // for all else, as long as not empty request
-    } else if (httpRequest != " " && !isMainPage(httpRequest)) {
+    } 
+    
+    if (httpRequest != " " && !isMainPage(httpRequest)) {
       // for requesting parts
-      if (!assembleFigure(httpRequest)) {
-        action = serverAction::requestingParts;
+      if (assembleFigure(httpRequest)) {
+        action = serverAction::requestingAssembly;
       // for assembling figure
       } else {
-        action = serverAction::requestingAssembly;
+        action = serverAction::requestingParts;
       }
 
       size_t figureStartingPos = httpRequest.find('=') + 1;
@@ -97,6 +92,10 @@ class ClientHandler : public Handler <std::shared_ptr<Socket>> {
 
       httpRequest.pop_back();
     }
+
+    if (getImage(httpRequest)) {
+      action = serverAction::requestingImage;
+    } 
 
     std::shared_ptr<Request> request = std::make_shared<Request>(handlingData, httpRequest, action);
 
@@ -142,22 +141,23 @@ class ClientHandler : public Handler <std::shared_ptr<Socket>> {
     std::string::const_iterator begin(buffer.cbegin());
 
     if (std::regex_search(begin, buffer.cend(), requestMatch, findAssemble)) {
+      std::cout << "Assembling!!!" << std::endl;
       return true;
     }
     return false;
   }
 
-  std::string getImage(std::string& buffer) {
-    std::regex findImage("images");
+  bool getImage(std::string& buffer) {
+    std::regex findImage("lego/[^((index)||(list)||(assemble))]");
 
     std::smatch requestMatch;
 
     std::string::const_iterator begin(buffer.cbegin());
 
     if (std::regex_search(begin, buffer.cend(), requestMatch, findImage)) {
-      return requestMatch[1];
+      return true;
     }
-    return std::string();
+    return false;
   }
 };
 
@@ -184,6 +184,7 @@ class RequestHandler : public Handler<std::shared_ptr<Request>>  {
     }
 
     std::string responseString;
+    std::vector<char> responseVector;
 
     // send info to pieces server
     switch(requestType) {
@@ -191,17 +192,21 @@ class RequestHandler : public Handler<std::shared_ptr<Request>>  {
         // receive info from pieces server
         this->fillMainPage(responseString);
         break;
+
       case serverAction::requestingParts:
         // receive info from pieces server
         this->getParts(responseString, figure);
-
         break;
+
       case serverAction::requestingAssembly:
+        {
         // for the case where the figure still exists
-        if (this->routingMap->count(figure) != 0) {
+        std::cout << figure << std::endl;
+        std::string figureName = figure.substr(9, figure.size());
+        std::cout << figureName << std::endl;
+        if (this->tryConnection(figureName) != nullptr) {
           // write response
-          this->reportAssembled(responseString, figure);
-        
+
         // for the case where the figure does not exist
         } else {
           // erase the figure from the map
@@ -209,8 +214,17 @@ class RequestHandler : public Handler<std::shared_ptr<Request>>  {
           // write response
           this->reportNotAssemble(responseString, figure);
         }
+
+        responseString += "suuuuuuuuuup\n";
+
         // receive info from pieces server
+        }
         break;
+
+      case serverAction::requestingImage:
+        this->requestImage(figure, responseString, responseVector);
+        break;
+
       default:
         break;
     }
@@ -219,28 +233,73 @@ class RequestHandler : public Handler<std::shared_ptr<Request>>  {
     std::shared_ptr<Response> response = std::make_shared<Response>(
         handlingData->socket,
         responseString,
-        handlingData->requestType
+        handlingData->requestType,
+        responseVector
         );
 
     this->responseQueue->push(response);
   }
 
-  void reportAssembled(std::string& response, std::string figure) {
-    response +=
-        "<SCRIPT LANGUAGE=javascript>\n"
-        "function home() {\n"
-          "window.location( \"/lego/index.php\" );\n"
-        "}\n"
-        "</SCRIPT>\n";
+  void requestImage(std::string& figure, std::string& response, std::vector<char>& responseVector) {
+    int pos = figure.size() - 1;
 
-    response +=
-        "<DIV class=\"st10\">"
-        "<TABLE WIDTH=100%>\n";
-    response += pageHeader;
+    while (figure[pos] != '/' && pos != 0) {
+      pos--;
+    }
 
-    response += 
-        "<HR>\n"
-        "<CENTER><H2>" + figure + " ha sido armada</H2></CENTER>\n";
+    int end = figure.size() - 1;
+
+    while (figure[end] != '.' && end != 0) {
+      end--;
+    }
+
+    if (pos == 0 || end == 0) {
+      response += "404";
+      return;
+    }
+
+    std::string figureBuffer = figure.substr(pos + 1, end - pos - 1);
+
+    if (this->routingMap->count(figureBuffer) == 0) {
+      response += "404";
+      return;
+    }
+
+    std::unique_ptr<Socket> piecesServerConnection =
+        std::move(tryConnection(figureBuffer)); // check for nullptr
+
+    if (piecesServerConnection == nullptr) {
+      response += "404";
+      return;
+    }
+
+    int imageBufferSize = 16384; // 100 kb lol
+
+    piecesServerConnection->setBufferDefault(imageBufferSize);
+
+    // receive info from pieces server
+    std::string request;
+    request.push_back(LEGO_REQUEST);
+    request.push_back(SEPARATOR);
+    request += figure;
+
+    *piecesServerConnection << request;
+
+    std::vector<char> responseBuffer;
+
+    int bytesRead = 0;
+
+    // just receive the stream of bytes in raw
+    while ((bytesRead = (*piecesServerConnection >> responseBuffer)) > 0) {
+      responseVector = std::move(responseBuffer);
+      if (bytesRead != imageBufferSize) {
+        break;
+      }
+    }
+    piecesServerConnection->Close();
+  }
+
+  void reportAssembled (std::string& response, std::string figure) {
 
     response +=
       "<TR>\n"
@@ -299,7 +358,7 @@ class RequestHandler : public Handler<std::shared_ptr<Request>>  {
     request += figure;
 
     *piecesServerConnection << request;
-    
+
     // 
     response +=
         "<SCRIPT LANGUAGE=javascript>\n"
@@ -311,7 +370,7 @@ class RequestHandler : public Handler<std::shared_ptr<Request>>  {
     response +=
         "<SCRIPT LANGUAGE=javascript>\n"
         "function assemble() {\n"
-          "window.location( \"/lego/assemble\" );\n"
+          "window.location( \"/assemble\" );\n"
         "}\n"
         "</SCRIPT>\n";
 
@@ -331,7 +390,12 @@ class RequestHandler : public Handler<std::shared_ptr<Request>>  {
 
     response +=
       "<TR>\n"
-      "<TD> <A HREF=\"/lego/assemble\"> Armar </A>\n"
+      "<TD> <A HREF=\"/assemble/";
+
+    response += figure;
+
+    response +=
+      "\"> Armar </A>\n"
       "</TR>\n";
     
     response += "</TABLE>\n";
@@ -342,6 +406,8 @@ class RequestHandler : public Handler<std::shared_ptr<Request>>  {
     }
 
     response += responseBuffer;
+
+    piecesServerConnection->Close();
   }
 
   void fillMainPage(std::string& response) {
@@ -382,34 +448,52 @@ class RequestHandler : public Handler<std::shared_ptr<Request>>  {
     this->responseQueue->push(nullptr);
   }
 
-  std::unique_ptr<Socket> tryConnection (std::string figure) {
+  std::unique_ptr<Socket> tryConnection (std::string& figure) {
     std::unique_ptr<Socket> piecesServerSocket = std::make_unique<Socket>('s', false);
     piecesServerSocket->InitSSL();
 
     std::string ip = (*this->routingMap)[figure].first;
     int port = (*this->routingMap)[figure].second;
-    std::cout << "Connecting!" << std::endl;
+
     // set timeout
-    //piecesServerSocket->increaseTimeout(FIRST_TIMEOUT);
+    piecesServerSocket->increaseTimeout(FIRST_TIMEOUT);
     // first try
-    if(piecesServerSocket->SSLConnect(ip.data(), port)) {
-      return piecesServerSocket;
+    int connectionResult = piecesServerSocket->SSLConnect(ip.data(), port);
+    switch(connectionResult) {
+      case 1:
+          return piecesServerSocket;
+        break;
+      case ECONNREFUSED:
+        this->routingMap->erase((*this->routingMap)[figure]);
+        return nullptr;
     }
 
     // increase timeout
     piecesServerSocket->increaseTimeout(SECOND_TIMEOUT);
     // second try
-    if(piecesServerSocket->SSLConnect(ip.data(), port)) {
-      return piecesServerSocket;
+    connectionResult = piecesServerSocket->SSLConnect(ip.data(), port);
+    switch(connectionResult) {
+      case 1:
+          return piecesServerSocket;
+        break;
+      case ECONNREFUSED:
+        this->routingMap->erase((*this->routingMap)[figure]);
+        return nullptr;
     }
 
     // increase timeout
     piecesServerSocket->increaseTimeout(THIRD_TIMEOUT);
     // final try
-    if(piecesServerSocket->SSLConnect(ip.data(), port)) {
-      return piecesServerSocket;
+    connectionResult = piecesServerSocket->SSLConnect(ip.data(), port);
+    switch(connectionResult) {
+      case 1:
+          return piecesServerSocket;
+        break;
+      case ECONNREFUSED:
+        break;
     }
 
+    this->routingMap->erase((*this->routingMap)[figure]);
     // report failure
     return nullptr;
   }
@@ -424,32 +508,59 @@ class ResponseHandler : public Handler<std::shared_ptr<Response>>  { //Se encarg
 
  private:
   void handleSingle(std::shared_ptr<Response> handlingData) {
-    std::cout << "Final step before sending back to client!" << std::endl;
 
-  std::string response =
-    // send header
-    "HTTP/1.1 200 OK\r\n"
-    "Content-type: text/html; charset=UTF-8\r\n"
-    "Server: AttoServer v1.1\r\n"
-    "\r\n"
-    // send html format and title
-    "<!DOCTYPE html>\n"
-    "<html>\n"
-    "<head>\n";
+    if (handlingData->requestType == serverAction::requestingImage) {
+      if (handlingData->response == "404") {
+        *handlingData->socket << handlingData->response;
+        handlingData->socket->Close();
+        return;
+      }
+
+      std::string response =
+       // send header
+        "HTTP/1.1 200 OK\r\n"
+        "Content-Type: image/jpg\r\n"
+        "Content-Transfer-Enconding: binary\r\n"
+        "Content-Length: ";
+      response += std::to_string(handlingData->responseVec.size());
+      response += "\r\n"
+        "\r\n";
+
+      std::vector<char> responseVector;
+      responseVector.resize(response.size() + handlingData->responseVec.size());
+      memcpy(&responseVector[0], response.data(), response.size());
+      memcpy(&responseVector[response.size()], handlingData->responseVec.data(), handlingData->responseVec.size());
+
+      handlingData->socket->setBufferDefault(100000);
+      *handlingData->socket << responseVector;
+
+      handlingData->socket->Close();
+      return;
+    }
+
+    std::string response =
+      // send header
+      "HTTP/1.1 200 OK\r\n"
+      "Content-type: text/html; charset=UTF-8\r\n"
+      "Server: AttoServer v1.1\r\n"
+      "\r\n"
+      // send html format and title
+      "<!DOCTYPE html>\n"
+      "<html>\n"
+      "<head>\n";
 
     response += handlingData->response;
 
     response +=
-    "</div>\n"
-    "</body>\n"
-    "</html>\n";
+      "</div>\n"
+      "</body>\n"
+      "</html>\n";
 
     response += "</h1></body></html>";
-
+  
     *handlingData->socket << response;
-
-    std::cout << "Request handling completed" << std::endl;
-}
+    handlingData->socket->Close();
+  }
 
   void optionalToEnd () {
     std::cerr << "response handler dying" << std::endl;
@@ -487,8 +598,6 @@ class UDPHandler : public Handler<std::shared_ptr<std::vector<char>>> {
         0, // from start
         buffer.find(':') // until separator
         );
-    
-    std::cout << ip << std::endl;
 
     // get the port
     int port = std::stoi(buffer.substr(
