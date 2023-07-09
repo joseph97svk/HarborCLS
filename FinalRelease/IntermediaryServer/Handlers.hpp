@@ -210,9 +210,9 @@ class RequestHandler : public Handler<std::shared_ptr<Request>>  {
         // for the case where the figure does not exist
         } else {
           // erase the figure from the map
-
+          this->routingMap->erase(figure);
           // write response
-
+          this->reportNotAssemble(responseString, figure);
         }
 
         responseString += "suuuuuuuuuup\n";
@@ -301,10 +301,38 @@ class RequestHandler : public Handler<std::shared_ptr<Request>>  {
 
   void reportAssembled (std::string& response, std::string figure) {
 
+    response +=
+      "<TR>\n"
+      "<TD> <A HREF=\"/lego/index.php\"> Regresar </A>\n"
+      "</TR>\n";
+
+    response += "</TABLE>\n";
   }
 
-  void reportNotAssemble (std::string& response, std::string figure) {
 
+  void reportNotAssemble(std::string& response, std::string figure) {
+    response +=
+        "<SCRIPT LANGUAGE=javascript>\n"
+        "function home() {\n"
+          "window.location( \"/lego/index.php\" );\n"
+        "}\n"
+        "</SCRIPT>\n";
+
+    response +=
+        "<DIV class=\"st10\">"
+        "<TABLE WIDTH=100%>\n";
+    response += pageHeader;
+
+    response += 
+        "<HR>\n"
+        "<CENTER><H2>" + figure + " no ha sido armada</H2></CENTER>\n";
+
+    response +=
+      "<TR>\n"
+      "<TD> <A HREF=\"/lego/index.php\"> Regresar </A>\n"
+      "</TR>\n";
+
+    response += "</TABLE>\n";
   }
 
   void getParts(std::string& response, std::string figure) {
