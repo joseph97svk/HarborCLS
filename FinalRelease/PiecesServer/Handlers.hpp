@@ -10,6 +10,9 @@
 
 #include "common.hpp"
 
+#include <fstream>
+#include <regex>
+
 // handle connections from the intermediary client
 class TCPHandler : public Handler<std::shared_ptr<Socket>> {
  private:
@@ -23,51 +26,20 @@ class TCPHandler : public Handler<std::shared_ptr<Socket>> {
 
  private:
   void handleSingle(std::shared_ptr<Socket> handlingData) {
-    std::string figure;
+    std::string response;
 
-    std::cout << "reading from socket" << std::endl;
+    std::string figure;
 
     std::vector<char> buffer;
 
     while ((*handlingData >> buffer) == 500) {
     }
 
-    std::cout << "Buffer size: " << buffer.size() << std::endl;
-
     figure.resize(buffer.size() - 2);
     memcpy(figure.data(), &(buffer.data()[2]), buffer.size() - 2);
-
-    std::cout << "buffer read: " << figure.size() << std::endl;
-
-    std::cout << "Buffer: " << figure << std::endl;
-
-    std::string response;
-
-    // if nothing was received it was an error
-    if (figure.size() == 0) {
-      // set response as not found
-      response = "404";
-
-      // send response back
-      *handlingData << response;
-
-      std::cout << "Responding on empty request" << std::endl;
-
-      // no further task to do
-      return;
-    }
-
-    // if figure was not found
-    if (this->legoMap->count(figure) == 0) {
-      // set response as not found
-      response = "404";
-
-      // send response back
-      *handlingData << response;
-
-      std::cout << "Responding on invalid request" << std::endl;
-
-      // no further task to do
+    
+    // in case it is an image request, get the image
+    if (getImage(figure, handlingData)) {
       return;
     }
 
@@ -92,6 +64,108 @@ class TCPHandler : public Handler<std::shared_ptr<Socket>> {
         "<TD ALIGN=center><H2>" + std::to_string(totalAmount) + "</H2></TD></TR>\n"
         "</TABLE>";
     *handlingData << response;
+  }
+
+  bool getImage(std::string& buffer, std::shared_ptr<Socket> connection) {
+    std::string response;
+  
+    if (isImage(buffer)) {
+      int pos = buffer.size() - 1;
+
+      while (buffer[pos] != '/' && pos != 0) {
+        pos--;
+      }
+
+      int end = buffer.size() - 1;
+
+      while (buffer[end] != '.' && end != 0) {
+
+        end--;
+      }
+
+      if (pos == 0 || end == 0) {
+        // set response as not found
+        response = "404";
+
+        // send response back
+        *connection << response;
+
+        std::cout << "Invalid image request!" << std::endl;
+
+        // no further task to do
+        return false;
+      }
+
+      // get the image
+      std::string figureBuffer = buffer.substr(pos + 1, end - pos - 1);
+
+      std::cout << buffer << std::endl;
+
+      if (!sendImage(buffer, connection)) {
+        std::string response  = "404";
+        *connection << response;
+      }
+
+      return true;
+    }
+
+    return false;
+  }
+
+  bool isImage(std::string& buffer) {
+    std::regex findImage("lego/");
+
+    std::smatch requestMatch;
+
+    std::string::const_iterator begin(buffer.cbegin());
+
+    if (std::regex_search(begin, buffer.cend(), requestMatch, findImage)) {
+      return true;
+    }
+    return false;
+  }
+
+  bool sendImage(std::string& path, std::shared_ptr<Socket> connection) {
+    std::fstream imageFile;
+
+    imageFile.open(path, std::ios::binary | std::ios::in);
+
+    if (!imageFile.is_open()) {
+      return false;
+    }
+
+    int bufferSize = connection->getBufferSize();
+    int newBufferSize = 50000;
+    connection->setBufferDefault(newBufferSize);
+
+    char buffer[512];
+
+    std::vector<char> message;
+
+    std::fstream newFile;
+    newFile.open("newAwa.jpg", std::ios_base::out);
+
+    int size = 0;
+
+    while(imageFile.read(buffer, 512)) {
+      int currentSize = imageFile.gcount();
+      size += currentSize;
+
+      int initPos = message.size();
+
+      message.resize(message.size() + currentSize);
+      memcpy(&message[initPos], buffer, currentSize);
+    }
+
+    newFile.write(message.data(), size);
+
+    connection->setBufferDefault(bufferSize);
+  
+    *connection << message;
+
+    newFile.close();
+    imageFile.close();
+    return true;
   }
 };
 
