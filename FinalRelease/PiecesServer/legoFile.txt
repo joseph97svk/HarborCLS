@@ -2,76 +2,77 @@ Lego source File :: group ESJOJO
 Chicki
 /lego/Chicki.jpg
 2x4 blanco
-.
+/Chicki/lego/pictures/brick-2x4-blanco.jpg
 39
 2x4 rojo
-lego/images/fig1
+/Chicki/lego/pictures/brick-2x4-rojo.jpg
+4
 2x4 piel
-.
+/Chicki/lego/pictures/brick-2x4-piel.jpg
 32
 2x3 piel
-.
+/Chicki/lego/pictures/brick-2x3-piel.jpg
 25
 2x3 blanco
-.
+/Chicki/lego/pictures/brick-2x3-blanco.jpg
 2
 2x2 piel
-.
+/Chicki/lego/pictures/brick-2x2-piel.jpg
 8
 2x1 blanco
-.
+/Chicki/lego/pictures/brick-2x1-blanco.jpg
 4
 1x1 piel
-.
+/Chicki/lego/pictures/brick-1x1-piel.jpg
 2
 1x4 blanco
-.
+/Chicki/lego/pictures/brick-1x4-blanco.jpg
 2
 1x4 piel
-fig3
+/Chicki/lego/pictures/brick-1x4-piel.jpg
 10
 *
 Dragon
-fig2
+/lego/dragon.jpg
 brick 2x6 plate grey
-.
+/Dragon/lego/pictures/brick-2x6-plate-grey.jpg
 4
 brick 2x4 grey
-.
+/Dragon/lego/pictures/brick-2x4-grey.jpg
 6
 brick 2x2 grey
-.
+/Dragon/lego/pictures/brick-2x2-grey.jpg
 4
 brick 2x2 slope inverted grey
-.
+/Dragon/lego/pictures/brick-2x2-slope-inverted-grey.jpg
 2
 brick 2x8 red
-.
+/Dragon/lego/pictures/brick-2x8-red.jpg
 2
 brick 2x2 slope red
-.
+/Dragon/lego/pictures/brick-2x2-slope-red.jpg
 4
 brick 2x2 slope inverted red
-.
+/Dragon/lego/pictures/brick-2x2-slope-inverted-red.jpg
 2
 brick 2x2 slope grey
-.
+/Dragon/lego/pictures/brick-2x2-slope-gray.jpg
 2
 brick 2x4 plate grey
-.
+/Dragon/lego/pictures/brick-2x4-plate-gray.jpg
 4
 flag yellow
-.
+/Dragon/lego/pictures/flag-yellow.jpg
 2
 brick 1x2 slope inverted red
-.
+/Dragon/lego/pictures/brick-1x2-slope-inverted-red.jpg
 4
 brick 2x4 red
-.
+/Dragon/lego/pictures/brick-2x4-red.jpg
 4
-brick 2x3 
-.
+brick 2x3 red
+/Dragon/lego/pictures/brick-2x3-red.jpg
 4
 brick 1x1 eyes dark 
-fig4
+/Dragon/lego/pictures/brick-1x1-eyes-dark-grey.jpg
 2

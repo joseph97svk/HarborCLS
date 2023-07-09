@@ -2,6 +2,7 @@
 #include "Generics/RoutingMap.hpp"
 
 #include <regex>
+#include <fstream>
 
 static const char* pageHeader = "<style>\n"
     "body {\n"
@@ -67,6 +68,7 @@ class ClientHandler : public Handler <std::shared_ptr<Socket>> {
 
     if (std::regex_search(begin, buffer.cend(), requestMatch, findHttp)) {
       httpRequest = requestMatch[1];
+      std::cout << ">>>>>>>>>>" << httpRequest << std::endl;
     }
 
     // default is asking for figures
@@ -77,7 +79,7 @@ class ClientHandler : public Handler <std::shared_ptr<Socket>> {
       action = serverAction::requestingBrowserIcon;
     // for all else, as long as not empty request
     } 
-    
+
     if (httpRequest != " " && !isMainPage(httpRequest)) {
       // for requesting parts
       if (assembleFigure(httpRequest)) {
@@ -96,6 +98,10 @@ class ClientHandler : public Handler <std::shared_ptr<Socket>> {
     if (getImage(httpRequest)) {
       action = serverAction::requestingImage;
     } 
+
+    if (iconRequest(httpRequest)) {
+      action = serverAction::requestingBrowserIcon;
+    }
 
     std::shared_ptr<Request> request = std::make_shared<Request>(handlingData, httpRequest, action);
 
@@ -141,7 +147,6 @@ class ClientHandler : public Handler <std::shared_ptr<Socket>> {
     std::string::const_iterator begin(buffer.cbegin());
 
     if (std::regex_search(begin, buffer.cend(), requestMatch, findAssemble)) {
-      std::cout << "Assembling!!!" << std::endl;
       return true;
     }
     return false;
@@ -201,28 +206,51 @@ class RequestHandler : public Handler<std::shared_ptr<Request>>  {
       case serverAction::requestingAssembly:
         {
         // for the case where the figure still exists
-        std::cout << figure << std::endl;
         std::string figureName = figure.substr(9, figure.size());
-        std::cout << figureName << std::endl;
-        if (this->tryConnection(figureName) != nullptr) {
-          // write response
 
+        std::cout << figureName << std::endl;
+
+        if (this->routingMap->count(figureName) == 0) {
+          responseString += "404";
+          break;
+        }
+
+        std::unique_ptr<Socket> piecesServerConnection =
+            std::move(tryConnection(figureName));
+
+        if (piecesServerConnection == nullptr) {
+          // write response
+          this->reportNotAssemble(responseString, figureName);
         // for the case where the figure does not exist
         } else {
-          // erase the figure from the map
-          this->routingMap->erase(figure);
+          // communicate to prevent crash
+          // receive info from pieces server
+          std::string request;
+          request.push_back(LEGO_REQUEST);
+          request.push_back(SEPARATOR);
+          request += figure;
+
+          *piecesServerConnection << request;
+
+          std::string buffer;
+          
+          *piecesServerConnection >> buffer;
+
           // write response
-          this->reportNotAssemble(responseString, figure);
+          this->reportAssembled(responseString, figureName);
+          piecesServerConnection->Close();
         }
-
-        responseString += "suuuuuuuuuup\n";
-
         // receive info from pieces server
         }
+
         break;
 
       case serverAction::requestingImage:
         this->requestImage(figure, responseString, responseVector);
+        break;
+
+      case serverAction::requestingBrowserIcon:
+        sendIcon(responseVector);
         break;
 
       default:
@@ -238,6 +266,32 @@ class RequestHandler : public Handler<std::shared_ptr<Request>>  {
         );
 
     this->responseQueue->push(response);
+  }
+
+  void sendIcon(std::vector<char>& responseVector) {
+    std::fstream icon;
+    icon.open("chickiIcon.ico", std::ios::binary | std::ios::in);
+
+    if (!icon.is_open()) {
+      std::cout << "could not open!" << std::endl;
+      return;
+    }
+
+    char buffer[1406];
+
+    int size = 0;
+
+    while(icon.read(buffer, 1406)) {
+      int currentSize = icon.gcount();
+      size += currentSize;
+
+      int initPos = responseVector.size();
+
+      responseVector.resize(responseVector.size() + currentSize);
+      memcpy(&responseVector[initPos], buffer, currentSize);
+    }
+
+    icon.close();
   }
 
   void requestImage(std::string& figure, std::string& response, std::vector<char>& responseVector) {
@@ -259,6 +313,8 @@ class RequestHandler : public Handler<std::shared_ptr<Request>>  {
     }
 
     std::string figureBuffer = figure.substr(pos + 1, end - pos - 1);
+
+    std::cout << "<<<<<<<<<<< " << figureBuffer << std::endl; 
 
     if (this->routingMap->count(figureBuffer) == 0) {
       response += "404";
@@ -300,6 +356,15 @@ class RequestHandler : public Handler<std::shared_ptr<Request>>  {
   }
 
   void reportAssembled (std::string& response, std::string figure) {
+
+    response +=
+        "<DIV class=\"st10\">"
+        "<TABLE WIDTH=100%>\n";
+    response += pageHeader;
+
+    response += 
+        "<HR>\n"
+        "<CENTER><H2>" + figure + " ha sido armada</H2></CENTER>\n";
 
     response +=
       "<TR>\n"
@@ -509,20 +574,33 @@ class ResponseHandler : public Handler<std::shared_ptr<Response>>  { //Se encarg
  private:
   void handleSingle(std::shared_ptr<Response> handlingData) {
 
-    if (handlingData->requestType == serverAction::requestingImage) {
+    if (handlingData->requestType == serverAction::requestingImage ||
+        handlingData->requestType == serverAction::requestingBrowserIcon) {
       if (handlingData->response == "404") {
         *handlingData->socket << handlingData->response;
         handlingData->socket->Close();
         return;
       }
 
+      // send header
       std::string response =
-       // send header
-        "HTTP/1.1 200 OK\r\n"
-        "Content-Type: image/jpg\r\n"
-        "Content-Transfer-Enconding: binary\r\n"
+        "HTTP/1.1 200 OK\r\n";
+
+      if (handlingData->requestType == serverAction::requestingBrowserIcon) {
+        response +=  
+        "Content-Type: image/png\r\n";
+      } else {
+        response +=  
+        "Content-Type: image/x-icon\r\n";
+      }
+
+      response += "Content-Transfer-Enconding: binary\r\n"
         "Content-Length: ";
+
       response += std::to_string(handlingData->responseVec.size());
+
+      std::cout << handlingData->responseVec.size() << std::endl;
+
       response += "\r\n"
         "\r\n";
 

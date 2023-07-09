@@ -32,8 +32,11 @@ class TCPHandler : public Handler<std::shared_ptr<Socket>> {
 
     std::vector<char> buffer;
 
-    while ((*handlingData >> buffer) == 500) {
-    }
+    int bytesReceived = 0;
+
+    do {
+      bytesReceived = (*handlingData >> buffer);
+    } while (bytesReceived == 500 && bytesReceived > 0);
 
     figure.resize(buffer.size() - 2);
     memcpy(figure.data(), &(buffer.data()[2]), buffer.size() - 2);
@@ -79,7 +82,6 @@ class TCPHandler : public Handler<std::shared_ptr<Socket>> {
       int end = buffer.size() - 1;
 
       while (buffer[end] != '.' && end != 0) {
-
         end--;
       }
 
@@ -128,6 +130,8 @@ class TCPHandler : public Handler<std::shared_ptr<Socket>> {
   bool sendImage(std::string& path, std::shared_ptr<Socket> connection) {
     std::fstream imageFile;
 
+    std::cout << "path: " << path << std::endl;
+
     imageFile.open(path, std::ios::binary | std::ios::in);
 
     if (!imageFile.is_open()) {
@@ -142,9 +146,6 @@ class TCPHandler : public Handler<std::shared_ptr<Socket>> {
 
     std::vector<char> message;
 
-    std::fstream newFile;
-    newFile.open("newAwa.jpg", std::ios_base::out);
-
     int size = 0;
 
     while(imageFile.read(buffer, 512)) {
@@ -157,13 +158,10 @@ class TCPHandler : public Handler<std::shared_ptr<Socket>> {
       memcpy(&message[initPos], buffer, currentSize);
     }
 
-    newFile.write(message.data(), size);
-
     connection->setBufferDefault(bufferSize);
-  
+
     *connection << message;
 
-    newFile.close();
     imageFile.close();
     return true;
   }
