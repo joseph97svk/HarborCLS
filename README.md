@@ -415,6 +415,133 @@ Notas:
 
 - Ambos listados son libres de ser implementados según desee cada grupo, siempre y cuando le permita al cliente formar las solicitudes de figuras en el formato apropiado.
 
+### Cuarta y última entrega 📒
+
+
+Es basado en el protocolo grupal.
+
+
+#### Servidor Intermedio
+
+
+1.	Listener: ClientListener: Recibe un socket y lo envía al Handler: ClientHandler.
+
+2.	Handler: ClientHandler: Maneja las solicitudes del cliente y utiliza colas para pasar la información.
+
+3.	RequestHandler: Recibe los pedidos del ClientHandler y se encarga de procesarlos. Tiene un mapa de rutas que utiliza para realizar las conexiones necesarias con el servidor de piezas.
+
+        •	Si se solicitan todas las figuras, consulta la lista de figuras y vuelve a sí mismo.
+
+        •	Si se solicita armar una figura o sus piezas, se conecta con el servidor de piezas a través del mapa de rutas.
+
+4.	ResponseHandler: Recibe la respuesta generada por el RequestHandler y la envía al cliente correspondiente.
+
+
+#### Servidor de Piezas
+
+
+1.	TCPListener: Escucha las conexiones TCP.
+
+2.	UDPListener: Escucha las conexiones UDP.
+
+        •	Ambos listeners colocan un socket para su posterior procesamiento.
+
+3.	Handler: Recibe los sockets de los listeners y realiza las acciones correspondientes dentro del servidor de piezas. Accede al mapa de figuras y piezas para obtener la información requerida por el RequestHandler del servidor intermedio.
+
+4.	ConnectionHandler: Recibe el mensaje del ConnectionListener del servidor intermedio y decide qué acciones tomar.
+
+        •	Agrega elementos al mapa de figuras y piezas.
+
+        •	Envía una respuesta con su IP al ConnectionListener del servidor intermedio.
+
+
+
+Flujo de TCP:
+
+
+
+1.	El ClientListener del servidor intermedio recibe un socket y lo envía al ClientHandler.
+
+2.	El ClientHandler envía una solicitud (request) al RequestHandler.
+
+3.	El RequestHandler utiliza el mapa de rutas para conectarse con el servidor de piezas y obtener la información necesaria.
+
+4.	Una vez que tiene la respuesta, el RequestHandler crea un response y lo envía al ResponseHandler.
+
+5.	El ResponseHandler envía la respuesta al cliente correspondiente.
+
+Flujo de UDP:
+
+1.	El ConnectionListener del servidor intermedio extrae el mensaje UDP.
+
+2.	El ConnectionListener envía el mensaje a un ConnectionHandler.
+
+3.	El ConnectionHandler toma una decisión basada en el mensaje recibido.
+
+4.	En el servidor de piezas, el ConnectionListener recibe la respuesta del ConnectionHandler y la procesa.
+
+5.	El ConnectionHandler agrega elementos al mapa de figuras y piezas y envía una respuesta al ConnectionListener del servidor intermedio, junto con su dirección IP.
+
+
+
+##### Estructura de Datos Importantes
+
+
+
+En el servidor Intermedio para la mapa de rutas thread safe se creó la clase RoutingMap que contiene lo siguiente std::unordered_map<std::string, std::pair<std::string, int>> myRouteMap, en donde el key [std::string] contiene la figura, y lo que se guarda es el ip [std::string] y el puerto [int] en la que se encuentra la figura.
+
+
+En el servidor de piezas para la estructura para contener la información de las figuras se creó la estructura std::map<std::string, std::pair<std::string, std::vector<Lego>>> LegoMap, en donde se guarda en el key [std::string] el nombre de la figura, y lo que se guarda es la imagen de la figura [std::string] y un vector de la estructura Lego que contiene los nombres de las piezas [std::string] y cada uno con su cantidad [size_t] y su respectivo imagen [std::string], también es importante mencionar que esta estructura de datos se llena a través de un archivo .txt en donde debe de estar organizado o en el formato de la siguiente manera:
+
+Lego source File :: group ESJOJO
+
+Figura1
+
+Figura1.jpg
+
+Pieza1_Figura1
+
+Pieza1_Figura1.jpg
+
+Cantidad_Pieza1_Figura1
+
+Pieza2_Figura1
+
+Pieza2_Figura1.jpg
+
+Cantidad_Pieza2_Figura1
+
+\*
+
+Figura2
+
+Figura2.jpg
+
+Pieza1_Figura2
+
+Pieza1_Figura2.jpg
+
+Cantidad_Pieza1_Figura2
+
+Pieza2_Figura2
+
+Pieza2_Figura2.jpg
+
+Cantidad_Pieza2_Figura2
+
+Pieza3_Figura2
+
+Pieza3_Figura2.jpg
+
+Cantidad_Pieza3_Figura2
+
+...
+
+\*
+
+...
+
+#### Manual del Usuario
 
 ### FIGURA LEGO: CHIKI
 
