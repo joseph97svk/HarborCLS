@@ -141,13 +141,14 @@ class ClientHandler : public Handler <std::shared_ptr<Socket>> {
     std::string::const_iterator begin(buffer.cbegin());
 
     if (std::regex_search(begin, buffer.cend(), requestMatch, findAssemble)) {
+      std::cout << "Assembling!!!" << std::endl;
       return true;
     }
     return false;
   }
 
   bool getImage(std::string& buffer) {
-    std::regex findImage("lego/[^((index)||(list))]");
+    std::regex findImage("lego/[^((index)||(list)||(assemble))]");
 
     std::smatch requestMatch;
 
@@ -198,8 +199,12 @@ class RequestHandler : public Handler<std::shared_ptr<Request>>  {
         break;
 
       case serverAction::requestingAssembly:
+        {
         // for the case where the figure still exists
-        if (this->tryConnection(figure) != nullptr) {
+        std::cout << figure << std::endl;
+        std::string figureName = figure.substr(9, figure.size());
+        std::cout << figureName << std::endl;
+        if (this->tryConnection(figureName) != nullptr) {
           // write response
 
         // for the case where the figure does not exist
@@ -210,9 +215,12 @@ class RequestHandler : public Handler<std::shared_ptr<Request>>  {
 
         }
 
+        responseString += "suuuuuuuuuup\n";
+
         // receive info from pieces server
+        }
         break;
-  
+
       case serverAction::requestingImage:
         this->requestImage(figure, responseString, responseVector);
         break;
@@ -334,7 +342,7 @@ class RequestHandler : public Handler<std::shared_ptr<Request>>  {
     response +=
         "<SCRIPT LANGUAGE=javascript>\n"
         "function assemble() {\n"
-          "window.location( \"/lego/assemble\" );\n"
+          "window.location( \"/assemble\" );\n"
         "}\n"
         "</SCRIPT>\n";
 
@@ -354,7 +362,12 @@ class RequestHandler : public Handler<std::shared_ptr<Request>>  {
 
     response +=
       "<TR>\n"
-      "<TD> <A HREF=\"/lego/assemble\"> Armar </A>\n"
+      "<TD> <A HREF=\"/assemble/";
+
+    response += figure;
+
+    response +=
+      "\"> Armar </A>\n"
       "</TR>\n";
     
     response += "</TABLE>\n";
