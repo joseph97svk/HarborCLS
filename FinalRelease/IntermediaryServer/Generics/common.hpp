@@ -24,7 +24,7 @@ struct Request {
 
   Request(std::shared_ptr<Socket> socket, std::string figure, serverAction requestType)
       : socket(socket)
-      , figure(figure)
+      , figure(std::move(figure))
       , requestType(requestType) {
       }
 };

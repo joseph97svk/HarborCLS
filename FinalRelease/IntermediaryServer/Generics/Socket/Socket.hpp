@@ -263,7 +263,7 @@ public:
   void increaseTimeout(size_t time)
   {
     struct timeval timeout;
-    timeout.tv_sec = time;
+    timeout.tv_sec = time/100;
     timeout.tv_usec = 0;
 
     if (setsockopt(this->idSocket, SOL_SOCKET, SO_RCVTIMEO, &timeout,

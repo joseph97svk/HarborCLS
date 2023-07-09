@@ -113,7 +113,7 @@ class ClientHandler : public Handler <std::shared_ptr<Socket>> {
     std::cerr << "Client handler dying" << std::endl;
   }
 
-  bool iconRequest(std::string& buffer) {
+  inline bool iconRequest(std::string& buffer) {
     std::regex findIcon("favicon.ico");
 
     std::smatch requestMatch;
@@ -126,7 +126,7 @@ class ClientHandler : public Handler <std::shared_ptr<Socket>> {
     return false;
   }
 
-  bool isMainPage(std::string& buffer) {
+  inline bool isMainPage(std::string& buffer) {
     std::regex findIndex ("lego/index.php");
 
     std::smatch requestMatch;
@@ -139,7 +139,7 @@ class ClientHandler : public Handler <std::shared_ptr<Socket>> {
     return false;
   }
 
-  bool assembleFigure(std::string& buffer) {
+  inline bool assembleFigure(std::string& buffer) {
     std::regex findAssemble ("assemble");
 
     std::smatch requestMatch;
@@ -152,7 +152,7 @@ class ClientHandler : public Handler <std::shared_ptr<Socket>> {
     return false;
   }
 
-  bool getImage(std::string& buffer) {
+  inline bool getImage(std::string& buffer) {
     std::regex findImage("(.jpg)|(.png)|(.jpeg)");
 
     std::smatch requestMatch;
@@ -521,6 +521,10 @@ class RequestHandler : public Handler<std::shared_ptr<Request>>  {
   }
 
   std::unique_ptr<Socket> tryConnection (std::string& figure) {
+    if (this->routingMap->count(figure) == 0) {
+      return nullptr;
+    }
+
     std::unique_ptr<Socket> piecesServerSocket = std::make_unique<Socket>('s', false);
     piecesServerSocket->InitSSL();
 

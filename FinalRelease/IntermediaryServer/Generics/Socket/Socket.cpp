@@ -5,7 +5,7 @@
  **/
 
 #include <stdio.h>	// for perror
-#include <stdlib.h>	// for exit
+#include <stdlib.h>	// for // exit
 #include <string.h>	// for memset
 #include <arpa/inet.h>	// for inet_pton
 #include <sys/types.h>	// for connect 
@@ -61,7 +61,7 @@ Socket::Socket( char type, bool IPv6 ){
   if (this->idSocket < 0) {
     // Error handling
     perror("Socket::Socket");
-    exit(1);
+    // exit(1);
   }
 
   this->SSLContext = nullptr;
@@ -143,7 +143,7 @@ int ipv4Connect(const char * host, int port, int idSocket) {
   if ( 1 != st ) {	// 0 means invalid address, -1 means address error
     perror( "Socket::Connect, inet_pton IpV4" );
     std::cout << st << std::endl;
-    exit( 2 );
+    // exit( 2 );
   } */
   
   host4.sin_port = htons( port );
@@ -152,7 +152,7 @@ int ipv4Connect(const char * host, int port, int idSocket) {
 
   if ( -1 == st ) {	// check for errors
     perror( "Socket::Connect IpV4" );
-    exit( 2 );
+    // exit( 2 );
   }
 
   return st;
@@ -169,7 +169,7 @@ int ipv6Connect(const char * hostip, int port, int idSocket) {
   if ( 1 != st ) {	// 0 means invalid address, -1 means address error
     perror( "Socket::Connect, inet_pton IpV6" );
     std::cout << st << std::endl;
-    exit( 2 );
+    // exit( 2 );
   } */
 
   host6.sin6_port = htons( port );
@@ -180,7 +180,7 @@ int ipv6Connect(const char * hostip, int port, int idSocket) {
   if ( -1 == st ) {	// 0 means invalid address, -1 means address error
     perror( "Socket::Connect IpV6" );
     std::cout << st << std::endl;
-    exit( 2 );
+    // exit( 2 );
   }
 
   return st; 
@@ -205,7 +205,7 @@ int Socket::Connect( const char *host, const char *service ) {
 
   if ( 1 == st ) {	// 0 means invalid address, -1 means address error
     perror( "Socket::Connect, inet_pton" );
-    exit( 2 );
+    // exit( 2 );
   }
 
   host6.sin6_port = htons( port );
@@ -245,7 +245,7 @@ int Socket::Read( void * buffer, int bufferSize ) {
   // checkear status
   if (-1 == st) {
     perror("Socket::Read");
-    exit(2);
+    // exit(2);
   }
 
   return st;
@@ -266,7 +266,7 @@ int Socket::Write( const void * buffer, int bufferSize ) {
   // checkear status
   if (-1 == st) {
     perror("Socket::Write");
-    exit(2);
+    // exit(2);
   }
 
   return st;
@@ -287,7 +287,7 @@ int Socket::Write( const char *text ) {
   // checkear status
   if (-1 == st) {
     perror("Socket::Write");
-    exit(2);
+    // exit(2);
   }
 
   return st;
@@ -308,7 +308,7 @@ int Socket::Listen( int queue ) {
 
   if (st < 0) {
     perror( "Socket::Bind" );
-    exit( 4 );
+    // exit( 4 );
   }
 
   return st;
@@ -353,7 +353,7 @@ int Socket::Bind( int port ) {
 
   if ( -1 == st ) {	// check for errors
     perror( "Socket::Bind" );
-    exit( 4 );
+    // exit( 4 );
   }
 
   return st;

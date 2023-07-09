@@ -46,8 +46,15 @@ class TCPHandler : public Handler<std::shared_ptr<Socket>> {
       return;
     }
 
+    if (this->legoMap->count(figure) == 0) {
+      response = "suuuuuuuuppppp";
+      *handlingData << response;
+      return;
+    }
+
     std::string figureImage = (*this->legoMap)[figure].first;
     std::vector<Lego>& legos = (*this->legoMap)[figure].second;
+
     size_t totalAmount = 0;
     response =
         "<TABLE BORDER=1 BGCOLOR=\"lightblue\" CELLPADDING=5 ALIGN=CENTER>\n"
