@@ -92,16 +92,12 @@ class TCPHandler : public Handler<std::shared_ptr<Socket>> {
         // send response back
         *connection << response;
 
-        std::cout << "Invalid image request!" << std::endl;
-
         // no further task to do
         return false;
       }
 
       // get the image
       std::string figureBuffer = buffer.substr(pos + 1, end - pos - 1);
-
-      std::cout << buffer << std::endl;
 
       if (!sendImage(buffer, connection)) {
         std::string response  = "404";
@@ -130,11 +126,10 @@ class TCPHandler : public Handler<std::shared_ptr<Socket>> {
   bool sendImage(std::string& path, std::shared_ptr<Socket> connection) {
     std::fstream imageFile;
 
-    std::cout << "path: " << path << std::endl;
-
     imageFile.open(path, std::ios::binary | std::ios::in);
 
     if (!imageFile.is_open()) {
+      std::cout << "not opened" << std::endl;
       return false;
     }
 
@@ -142,13 +137,13 @@ class TCPHandler : public Handler<std::shared_ptr<Socket>> {
     int newBufferSize = 50000;
     connection->setBufferDefault(newBufferSize);
 
-    char buffer[512];
+    char buffer[32];
 
     std::vector<char> message;
 
     int size = 0;
 
-    while(imageFile.read(buffer, 512)) {
+    while(imageFile.read(buffer, 32)) {
       int currentSize = imageFile.gcount();
       size += currentSize;
 

@@ -3,6 +3,7 @@
 
 #include <regex>
 #include <fstream>
+#include <algorithm>
 
 static const char* pageHeader = "<style>\n"
     "body {\n"
@@ -68,7 +69,6 @@ class ClientHandler : public Handler <std::shared_ptr<Socket>> {
 
     if (std::regex_search(begin, buffer.cend(), requestMatch, findHttp)) {
       httpRequest = requestMatch[1];
-      std::cout << ">>>>>>>>>>" << httpRequest << std::endl;
     }
 
     // default is asking for figures
@@ -153,7 +153,7 @@ class ClientHandler : public Handler <std::shared_ptr<Socket>> {
   }
 
   bool getImage(std::string& buffer) {
-    std::regex findImage("lego/[^((index)||(list)||(assemble))]");
+    std::regex findImage("(.jpg)|(.png)|(.jpeg)");
 
     std::smatch requestMatch;
 
@@ -207,8 +207,6 @@ class RequestHandler : public Handler<std::shared_ptr<Request>>  {
         {
         // for the case where the figure still exists
         std::string figureName = figure.substr(9, figure.size());
-
-        std::cout << figureName << std::endl;
 
         if (this->routingMap->count(figureName) == 0) {
           responseString += "404";
@@ -312,9 +310,18 @@ class RequestHandler : public Handler<std::shared_ptr<Request>>  {
       return;
     }
 
-    std::string figureBuffer = figure.substr(pos + 1, end - pos - 1);
+    std::string::difference_type amountN = std::count(figure.begin(), figure.end(), '/');
 
-    std::cout << "<<<<<<<<<<< " << figureBuffer << std::endl; 
+    int amount = int(amountN);
+
+    std::string figureBuffer;
+
+    if (amount > 1) {
+      figureBuffer = figure.substr(0, figure.find('/'));
+      figure = figure.substr(figure.find('/') + 1, figure.size());
+    } else {
+      figureBuffer = figure.substr(pos + 1, end - pos - 1);
+    }
 
     if (this->routingMap->count(figureBuffer) == 0) {
       response += "404";
@@ -598,8 +605,6 @@ class ResponseHandler : public Handler<std::shared_ptr<Response>>  { //Se encarg
         "Content-Length: ";
 
       response += std::to_string(handlingData->responseVec.size());
-
-      std::cout << handlingData->responseVec.size() << std::endl;
 
       response += "\r\n"
         "\r\n";

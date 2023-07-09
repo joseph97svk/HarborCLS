@@ -33,7 +33,7 @@ Chicki
 10
 *
 Dragon
-/lego/dragon.jpg
+/lego/Dragon.jpg
 brick 2x6 plate grey
 /Dragon/lego/pictures/brick-2x6-plate-grey.jpg
 4
