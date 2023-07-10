@@ -59,6 +59,14 @@ class ClientHandler : public Handler <std::shared_ptr<Socket>> {
     while ((*handlingData >> buffer) == 2048) {
     }
 
+    if (buffer.size() == 0) {
+      std::cout << "Empty request :: no HTTP or other format identified" << std::endl;
+      // this->requestQueue->push(std::make_shared<Request>(handlingData, " ", serverAction::requestingFigures));
+      return;
+    }
+
+    std::cout << buffer.size() << "\n\n\n" << buffer << std::endl;
+
     std::regex findHttp("(.* )HTTP/1.1");
 
     std::smatch requestMatch;
