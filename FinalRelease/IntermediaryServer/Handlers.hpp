@@ -217,7 +217,7 @@ class RequestHandler : public Handler<std::shared_ptr<Request>>  {
         std::string figureName = figure.substr(9, figure.size());
 
         if (this->routingMap->count(figureName) == 0) {
-          responseString += "404";
+          this->notFound(responseString);
           break;
         }
 
@@ -314,7 +314,7 @@ class RequestHandler : public Handler<std::shared_ptr<Request>>  {
     }
 
     if (pos == 0 || end == 0) {
-      response += "404";
+      this->notFound(response);
       return;
     }
 
@@ -332,7 +332,7 @@ class RequestHandler : public Handler<std::shared_ptr<Request>>  {
     }
 
     if (this->routingMap->count(figureBuffer) == 0) {
-      response += "404";
+      this->notFound(response);
       return;
     }
 
@@ -340,7 +340,7 @@ class RequestHandler : public Handler<std::shared_ptr<Request>>  {
         std::move(tryConnection(figureBuffer)); // check for nullptr
 
     if (piecesServerConnection == nullptr) {
-      response += "404";
+      this->notFound(response);
       return;
     }
 
@@ -369,6 +369,32 @@ class RequestHandler : public Handler<std::shared_ptr<Request>>  {
     }
     piecesServerConnection->Close();
   }
+
+  void notFound(std::string& response) {
+    response +=
+        "<SCRIPT LANGUAGE=javascript>\n"
+        "function home() {\n"
+          "window.location( \"/lego/index.php\" );\n"
+        "}\n"
+        "</SCRIPT>\n";
+
+    response +=
+        "<DIV class=\"st10\">"
+        "<TABLE WIDTH=100%>\n";
+    response += pageHeader;
+
+    response += 
+        "<HR>\n"
+        "<CENTER><H2>Not Found - Error 404</H2></CENTER>\n";
+
+    response +=
+      "<TR>\n"
+      "<TD> <A HREF=\"/lego/index.php\"> Regresar </A>\n"
+      "</TR>\n";
+
+    response += "</TABLE>\n";
+  }
+
 
   void reportAssembled (std::string& response, std::string figure) {
 
@@ -417,7 +443,7 @@ class RequestHandler : public Handler<std::shared_ptr<Request>>  {
 
   void getParts(std::string& response, std::string figure) {
     if (this->routingMap->count(figure) == 0) {
-      response += "404";
+      this->notFound(response);
       return;
     }
 
@@ -425,7 +451,7 @@ class RequestHandler : public Handler<std::shared_ptr<Request>>  {
         std::move(tryConnection(figure)); // check for nullptr
 
     if (piecesServerConnection == nullptr) {
-      response += "404";
+      this->notFound(response);
       return;
     }
 
