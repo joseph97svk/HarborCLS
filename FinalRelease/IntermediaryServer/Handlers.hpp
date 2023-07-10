@@ -77,6 +77,10 @@ class ClientHandler : public Handler <std::shared_ptr<Socket>> {
 
     if (std::regex_search(begin, buffer.cend(), requestMatch, findHttp)) {
       httpRequest = requestMatch[1];
+    } else {
+      for(int i = 0; i < buffer.size(); i++) {
+        std::cout << (int) buffer[i] << std::endl;
+      }
     }
 
     // default is asking for figures

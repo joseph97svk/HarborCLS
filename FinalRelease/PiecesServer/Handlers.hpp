@@ -62,8 +62,8 @@ class TCPHandler : public Handler<std::shared_ptr<Socket>> {
 
     for (auto& lego : legos) {
       response += 
-          "<TR><TD ALIGN=center>" + std::to_string(lego.amount) + "</TD>\n"
-          "<TD ALIGN=center>" + lego.description + "</TD>\n"
+          "<TR><TD ALIGN=center> " + std::to_string(lego.amount) + "</TD>\n"
+          "<TD ALIGN=center> " + lego.description + "</TD>\n"
           "<TD ALIGN=center><IMG SRC=\"" + lego.imageFigure + "\" width=100 height=100></TD></TR>\n";
       totalAmount += lego.amount;
     }
