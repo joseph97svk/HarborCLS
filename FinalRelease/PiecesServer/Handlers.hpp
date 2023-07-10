@@ -211,25 +211,47 @@ class UDPHandler : public Handler<std::shared_ptr<std::vector<char>>> {
         << "\n\tport:" << port << std::endl << std::endl;
 
     // send data back to int server
-    this->sendUnicastResponse();
+    this->sendUnicastResponse(ip, port);
   }
 
-  void sendUnicastResponse() {
-    std::vector<char> broadcastMessage;
+  void sendUnicastResponse(std::string& ip, int port) {
+    std::vector<char> message;
+
+    message.push_back(std::to_string(LegoMessageCode::LEGO_PRESENT)[0]);
+
+    message.push_back(SEPARATOR);
+
+    std::string buffer = getComputerIp();
+
+    for (char character : buffer) {
+      message.push_back(character);
+    }
+
+    message.push_back(':');
+
+    buffer = std::to_string(PIECES_TCP_PORT).data();
+
+    for (char character : buffer) {
+      message.push_back(character);
+    }
+
+    message.push_back(SEPARATOR);
 
     // for all figures
     for (auto& figure : *(this->piecesServerFigures)) {
       // add the figure name
       for (char character : figure.first) {
         // add it to the message
-        broadcastMessage.push_back(character);
+        message.push_back(character);
       }
 
       // add separator
-      broadcastMessage.push_back(SEPARATOR);
+      message.push_back(SEPARATOR);
     }
 
-    broadcast(broadcastMessage, LEGO_PRESENT);
+    Socket unicastSocket('d', false);
+
+    unicastSocket(ip, port) << message;
   }
 };
 

@@ -680,6 +680,8 @@ class UDPHandler : public Handler<std::shared_ptr<std::vector<char>>> {
 
     buffer.push_back((*handlingData)[0]);
 
+    std::string a;
+
     int code = std::stoi(buffer);
 
     buffer.clear();

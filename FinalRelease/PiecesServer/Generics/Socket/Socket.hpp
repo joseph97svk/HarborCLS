@@ -34,6 +34,8 @@
 #include <arpa/inet.h>
 
 
+#include <iostream>
+
 class Socket
 {
 public:
@@ -57,11 +59,13 @@ public:
         this->sockinfo.sin_addr.s_addr = INADDR_ANY;
       }
     }
+
     template <typename dataType>
     udpStream& operator << (std::vector<dataType>& data){
       if (this->broadcast) {
         this->socket.setBroadcast(true);
       }
+
       this->socket.sendTo(data.data(), data.size(), &this->sockinfo);
       return *this;
     }

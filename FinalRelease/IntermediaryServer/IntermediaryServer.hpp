@@ -192,7 +192,7 @@ class IntermediaryServer {
 
     broadcastMessage.push_back(':');
 
-    buffer = std::to_string(INTERMEDIARY_TCP_PORT).data();
+    buffer = std::to_string(INTERMEDIARY_UDP_PORT).data();
 
     for (char character : buffer) {
       broadcastMessage.push_back(character);
