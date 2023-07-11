@@ -1,7 +1,9 @@
 #include "Generics/ProtocolHeader.hpp"
 
 #include "Listeners.hpp"
-#include "Handlers.hpp"
+#include "Handlers/ClientHandler.hpp"
+#include "Handlers/RequestHandler.hpp"
+#include "Handlers/ResponseHandler.hpp"
 
 #define CLIENTPORT 2020
 
