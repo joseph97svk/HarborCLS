@@ -62,7 +62,8 @@ int Client::run(RequestType initOption)
     else if (option == RequestType::Server)
     {
       // server
-      std::cout << "Enter server" << std::endl;
+      this->assembleRequestBuffer = this->requestedPieces.size();
+      makeRequest(option);
       option = handleServerRequest();
     }
   }
@@ -105,7 +106,7 @@ bool Client::makeRequest(RequestType requestType)
   }
   // Send request to server
   char *requestComplete = temp;
-  int amountBytes = this->Write(requestComplete, strlen(requestComplete));
+  this->Write(requestComplete, strlen(requestComplete));
   // Process server response
   processRequest(requestType);
   memset(requestComplete, 0, 100);
@@ -197,8 +198,8 @@ void Client::regexAnalyzer(RequestType requestType, std::string &line, int &tota
         int cantidad = std::stoi(amount);
         if (requestType != RequestType::Server) {
           std::cout << std::left << std::setw(15) << cantidad << descripcion << std::endl;
-        } 
-        
+        }
+
         this->requestedPieces.emplace_back(descripcion, cantidad);
         totalAmount += cantidad;
       }
@@ -300,10 +301,7 @@ void Client::processRequest(RequestType requestType)
         (some regex may need to analyze two lines at once) */
         line = lastLine +
                response.substr(initLocation, character - initLocation + adjustment);
-        if(requestType == RequestType::Server) {
-          std::cout << line << std::endl;
-          std::cout << "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<" << std::endl;
-        }
+
         // run regex to analyze line
         regexAnalyzer(requestType, line, totalAmount);
 
@@ -587,32 +585,12 @@ void Client::showPiecesServer() {
 }
 
 RequestType Client::handleServerRequest() {
-  std::string response = "";
-
-  Socket* socketBuffer = this->socket;
-  this->socket = new Socket('s', false);
-  this->socket->InitSSL();
-  std::string textInit = "ip address in dot decimal format";
-  this->socket->SSLConnect((char*)textInit.c_str(), CLIENT_PORT); // Same port as server
-
-  // this->Write(code, 1);
-  std::string request = "GET /lego/list.php?figure=" +  this->currentFigure + " HTTP/1.1\r\nhost: redes.ecci\r\n\r\n";
-  std::cout << request << std::endl;
-  this->Write(request.c_str(), request.length());
-  size_t bufferSize = this->figuresArray.size();
-  std::cout << bufferSize << std::endl;
-  this->figuresArray.clear();
-  processRequest(RequestType::Server);
-  std::cout << ">" << this->figuresArray.size() << std::endl;
-  if (bufferSize == this->figuresArray.size()) {
+  std::cout << std::endl << std::endl << std::endl;
+  if (this->requestedPieces.size() == this->assembleRequestBuffer) {
     std::cout << "YEI! YOUR FIGURE HAS BEEEN ASSEMBLED!" << std::endl;
   } else {
     std::cout << "SORRY! YOUR FIGURE COULD NOT BE ARMED!" << std::endl;
   }
-  delete this->socket;
-  this->socket = socketBuffer;
-
-  this->requestedPieces.clear();
 
   return RequestType::MenuRequest;
 }

@@ -24,6 +24,7 @@ class Client {
   std::vector<std::pair<std::string, size_t>> requestedPieces;
   size_t port;
   char* host;
+  size_t assembleRequestBuffer = 0;
 
  public:
   Client(char type, bool IPv6, size_t port, char* host);

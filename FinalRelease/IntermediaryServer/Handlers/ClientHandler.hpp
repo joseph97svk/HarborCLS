@@ -45,7 +45,8 @@ class ClientHandler : public Handler <std::shared_ptr<Socket>> {
       httpRequest = requestMatch[1];
       std::cout << "\tRequest: " << httpRequest << "\n\t:=  "; 
     } else {
-      std::cout << "\tInvalid request :: no HTTP or other format identified" << std::endl;
+      std::cout << "\t" << httpRequest << std::endl;
+      std::cout << "\tInvalid request :: no HTTP or other format identified" << std::endl << std::endl;
       return;
     }
 
