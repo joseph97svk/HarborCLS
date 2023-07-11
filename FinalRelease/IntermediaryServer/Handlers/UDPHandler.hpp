@@ -28,8 +28,6 @@ class UDPHandler : public Handler<std::shared_ptr<std::vector<char>>> {
 
     std::string a;
 
-    std::cout << "requesting code" << std::endl;
-
     int code = std::stoi(buffer);
 
     buffer.clear();
@@ -37,6 +35,10 @@ class UDPHandler : public Handler<std::shared_ptr<std::vector<char>>> {
     buffer.resize(handlingData->size() - 2);
 
     memcpy(buffer.data(), &handlingData->data()[2], buffer.size());
+
+    // for (char c: buffer) {
+    //     std::cout << c << ", " << (int) c << std::endl;
+    // }
 
     // get the host
     std::string ip = buffer.substr(

@@ -36,6 +36,8 @@ class ResponseHandler : public Handler<std::shared_ptr<Response>>  { //Se encarg
       } else {
         response +=  
         "Content-Type: image/x-icon\r\n";
+        handlingData->responseVec.erase(handlingData->responseVec.begin());
+        handlingData->responseVec.erase(handlingData->responseVec.begin());
       }
 
       response += "Content-Transfer-Enconding: binary\r\n"

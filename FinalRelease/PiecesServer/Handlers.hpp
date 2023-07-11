@@ -55,8 +55,11 @@ class TCPHandler : public Handler<std::shared_ptr<Socket>> {
     std::string figureImage = (*this->legoMap)[figure].first;
     std::vector<Lego>& legos = (*this->legoMap)[figure].second;
 
+    response.push_back(std::to_string(LegoMessageCode::LEGO_RESPONSE)[0]);
+    response.push_back(SEPARATOR);
+
     size_t totalAmount = 0;
-    response =
+    response +=
         "<TABLE BORDER=1 BGCOLOR=\"lightblue\" CELLPADDING=5 ALIGN=CENTER>\n"
         "<TR><TH>Cantidad</TH><TH>Descripción</TH><TH>Imagen</TH></TR>\n";
 
@@ -148,11 +151,11 @@ class TCPHandler : public Handler<std::shared_ptr<Socket>> {
 
     std::vector<char> message;
 
-    int size = 0;
+    message.push_back(std::to_string(LegoMessageCode::LEGO_RESPONSE)[0]);
+    message.push_back(SEPARATOR);
 
     while(imageFile.read(buffer, 32)) {
       int currentSize = imageFile.gcount();
-      size += currentSize;
 
       int initPos = message.size();
 
