@@ -671,11 +671,7 @@ Para el navegador, se debe de abrir cualquier browser, y colocar en la barra sup
 
 `localhost:2020`
 
-Le aparecerá lo siguiente:
-
-![Client2](/images/InicioNavegador.png "Example")
-
-Click en el botón Elegir y le aparecerá un drop down de las figuras disponibles en el servidor:
+Después de entrar al navegador, dale Click en el botón Elegir y le aparecerá un drop down de las figuras disponibles en el servidor:
 
 ![Client2](/images/opcionesNavegador.png "Example")
 
