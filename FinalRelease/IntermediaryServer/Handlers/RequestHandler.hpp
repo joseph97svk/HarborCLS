@@ -332,10 +332,6 @@ class RequestHandler : public Handler<std::shared_ptr<Request>>  {
     request.push_back(SEPARATOR);
     request += figure;
 
-    for (char c : request) {
-        std::cout << "<" << c << ", " << (int)c << ">" << std::endl;
-    }
-
     *piecesServerConnection << request;
 
     // 
