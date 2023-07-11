@@ -4,6 +4,7 @@
 #include "Handlers/ClientHandler.hpp"
 #include "Handlers/RequestHandler.hpp"
 #include "Handlers/ResponseHandler.hpp"
+#include "Handlers/UDPHandler.hpp"
 
 #define CLIENTPORT 2020
 

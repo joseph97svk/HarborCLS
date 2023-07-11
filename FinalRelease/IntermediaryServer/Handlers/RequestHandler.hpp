@@ -100,7 +100,7 @@ class RequestHandler : public Handler<std::shared_ptr<Request>>  {
           // communicate to prevent crash
           // receive info from pieces server
           std::string request;
-          request.push_back(LEGO_REQUEST);
+          request.push_back(std::to_string(LEGO_REQUEST)[0]);
           request.push_back(SEPARATOR);
           request += figure;
 
@@ -219,7 +219,7 @@ class RequestHandler : public Handler<std::shared_ptr<Request>>  {
 
     // receive info from pieces server
     std::string request;
-    request.push_back(LEGO_REQUEST);
+    request.push_back(std::to_string(LEGO_REQUEST)[0]);
     request.push_back(SEPARATOR);
     request += figure;
 
@@ -328,9 +328,13 @@ class RequestHandler : public Handler<std::shared_ptr<Request>>  {
 
     // receive info from pieces server
     std::string request;
-    request.push_back(LEGO_REQUEST);
+    request.push_back(std::to_string(LEGO_REQUEST)[0]);
     request.push_back(SEPARATOR);
     request += figure;
+
+    for (char c : request) {
+        std::cout << "<" << c << ", " << (int)c << ">" << std::endl;
+    }
 
     *piecesServerConnection << request;
 
@@ -379,6 +383,8 @@ class RequestHandler : public Handler<std::shared_ptr<Request>>  {
 
     while ((*piecesServerConnection >> responseBuffer) == 8096) {
     }
+
+    responseBuffer = responseBuffer.substr(1, responseBuffer.size() - 2);
 
     response += responseBuffer;
 
