@@ -16,9 +16,9 @@
  * @param IPv6 Whether the client uses IPv6.
  *
  **/
-Client::Client(char type, bool IPv6) : type(type),
+Client::Client(char type, bool IPv6, size_t port, char* host) : type(type),
                                        IPv6(IPv6),
-                                       socket(nullptr)
+                                       socket(nullptr), port(port), host(host)
 {
 }
 
@@ -39,9 +39,9 @@ int Client::connectServer()
   // Create a new socket object with the specified protocol type and IP version.
   this->socket = new Socket(this->type, this->IPv6);
 
-  char *osn = (char *)"127.0.1.1";
+  char *osn = (char*) this->host;
   this->socket->SSLInit();
-  return this->Connect(osn, 2020);
+  return this->Connect(osn, this->port);
 }
 
 int Client::run(RequestType initOption)
@@ -182,7 +182,7 @@ void Client::regexAnalyzer(RequestType requestType, std::string &line, int &tota
     }
   }
   else
-  {
+  { 
     // Regex to match pieces in figure response
     std::regex regexPiece("<TR><TD ALIGN=center?> (\\d+)</TD>\\s*<TD ALIGN=center> ([^<]+)</TD>");
     std::smatch pieza_match;
@@ -195,7 +195,10 @@ void Client::regexAnalyzer(RequestType requestType, std::string &line, int &tota
       if (inRequestedPieces(descripcion) == false) {
         // Convert quantity to integer
         int cantidad = std::stoi(amount);
-        std::cout << std::left << std::setw(15) << cantidad << descripcion << std::endl;
+        if (requestType != RequestType::Server) {
+          std::cout << std::left << std::setw(15) << cantidad << descripcion << std::endl;
+        } 
+        
         this->requestedPieces.emplace_back(descripcion, cantidad);
         totalAmount += cantidad;
       }
@@ -297,8 +300,10 @@ void Client::processRequest(RequestType requestType)
         (some regex may need to analyze two lines at once) */
         line = lastLine +
                response.substr(initLocation, character - initLocation + adjustment);
-        // std::cout << line << std::endl;
-        // std::cout << "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<" << std::endl;
+        if(requestType == RequestType::Server) {
+          std::cout << line << std::endl;
+          std::cout << "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<" << std::endl;
+        }
         // run regex to analyze line
         regexAnalyzer(requestType, line, totalAmount);
 
@@ -585,46 +590,25 @@ RequestType Client::handleServerRequest() {
   std::string response = "";
 
   Socket* socketBuffer = this->socket;
-
-  char code[1];
-  code[0] = 0;
-
   this->socket = new Socket('s', false);
   this->socket->InitSSL();
   std::string textInit = "ip address in dot decimal format";
   this->socket->SSLConnect((char*)textInit.c_str(), CLIENT_PORT); // Same port as server
 
-  this->Write(code, 1);
-
-  for (size_t piece = 0; piece < this->requestedPieces.size(); piece++) {
-    response.append("<TR><TD ALIGN=center> ");
-    response.append(std::to_string((int) this->requestedPieces[piece].second));
-    response.append(
-          "</TD>\n"
-          "<TD ALIGN=center> ");
-    response.append(this->requestedPieces[piece].first);
-    response.append(
-      "</TD>\n"
-      "</TR>\n"); 
-  }
-
-  char endOfTransmission = 4;
-
-  response.push_back(endOfTransmission);
-
-  this->Write(response.c_str(), response.size());
-
-  char buffer[2];
-  memset(buffer, 0, 2);
-
-  this->Read(buffer, 2); 
-  std::cout << ">>>>>>" << buffer << std::endl;
-  if (buffer[0] == '1') {
-    std::cout << "Your figure has been assembled!" << std::endl;
+  // this->Write(code, 1);
+  std::string request = "GET /lego/list.php?figure=" +  this->currentFigure + " HTTP/1.1\r\nhost: redes.ecci\r\n\r\n";
+  std::cout << request << std::endl;
+  this->Write(request.c_str(), request.length());
+  size_t bufferSize = this->figuresArray.size();
+  std::cout << bufferSize << std::endl;
+  this->figuresArray.clear();
+  processRequest(RequestType::Server);
+  std::cout << ">" << this->figuresArray.size() << std::endl;
+  if (bufferSize == this->figuresArray.size()) {
+    std::cout << "YEI! YOUR FIGURE HAS BEEEN ASSEMBLED!" << std::endl;
   } else {
-    std::cout << "There were not enough pieces to assemble your figure :'(" << std::endl;
+    std::cout << "SORRY! YOUR FIGURE COULD NOT BE ARMED!" << std::endl;
   }
-
   delete this->socket;
   this->socket = socketBuffer;
 

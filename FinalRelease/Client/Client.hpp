@@ -22,9 +22,11 @@ class Client {
   Socket* socket;
   std::string currentFigure = "";
   std::vector<std::pair<std::string, size_t>> requestedPieces;
+  size_t port;
+  char* host;
 
  public:
-  Client(char type, bool IPv6);
+  Client(char type, bool IPv6, size_t port, char* host);
   int connectServer();
   int run(RequestType);
   bool makeRequest(RequestType);

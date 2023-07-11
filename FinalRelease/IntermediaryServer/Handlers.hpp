@@ -248,6 +248,7 @@ class RequestHandler : public Handler<std::shared_ptr<Request>>  {
 
           // write response
           this->reportAssembled(responseString, figureName);
+          
           piecesServerConnection->Close();
         }
         // receive info from pieces server
