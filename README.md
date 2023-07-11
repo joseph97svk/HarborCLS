@@ -420,6 +420,19 @@ Notas:
 
 Es basado en el protocolo grupal.
 
+###### Puertos Utilizados
+
+Servidor de Piezas UDP: 4849
+Servidor de Piezas TCP: 4850
+
+Servidor Intermediario UDP: 3141
+Servidor Intermediario TCP: 3142
+
+
+#### Flujo del Programa
+
+![flujo](/images/flujo.png "Example")
+
 
 #### Servidor Intermedio
 
@@ -472,21 +485,35 @@ Flujo de TCP:
 
 Flujo de UDP:
 
-1.	El ConnectionListener del servidor intermedio extrae el mensaje UDP.
+1.	El UDPListener del servidor intermedio extrae el mensaje UDP.
 
-2.	El ConnectionListener envía el mensaje a un ConnectionHandler.
+2.	El UDPListener envía el mensaje a un UDPHandler.
 
-3.	El ConnectionHandler toma una decisión basada en el mensaje recibido.
+3.	El UDPHandler toma una decisión basada en el mensaje recibido.
 
-4.	En el servidor de piezas, el ConnectionListener recibe la respuesta del ConnectionHandler y la procesa.
+4.	En el servidor de piezas, el UDPListener recibe la respuesta del UDPHandler y la procesa.
 
-5.	El ConnectionHandler agrega elementos al mapa de figuras y piezas y envía una respuesta al ConnectionListener del servidor intermedio, junto con su dirección IP.
+5.	El UDPHandler agrega elementos al mapa de figuras y piezas y envía una respuesta al UDPListener del servidor intermedio, junto con su dirección IP.
 
 
 
 ##### Estructura de Datos Importantes
 
+Se tiene un LegoMessageCode para definir los códigos para que sea compatible para todas las islas:
 
+        enum LegoMessageCode {
+
+                LEGO_DISCOVER,  /**< LEGO_DISCOVER type */
+
+                LEGO_PRESENT,   /**< LEGO_PRESENT type */
+
+                LEGO_REQUEST,   /**< LEGO_REQUEST type */
+
+                LEGO_RESPONSE,  /**< LEGO_RESPONSE type */
+
+                LEGO_RELEASE    /**< LEGO_RELEASE type */
+
+        };  /
 
 En el servidor Intermedio para la mapa de rutas thread safe se creó la clase RoutingMap que contiene lo siguiente std::unordered_map<std::string, std::pair<std::string, int>> myRouteMap, en donde el key [std::string] contiene la figura, y lo que se guarda es el ip [std::string] y el puerto [int] en la que se encuentra la figura.
 
@@ -541,7 +568,128 @@ Cantidad_Pieza3_Figura2
 
 ...
 
+#### Pruebas
+
+##### Se Levanta Primero el Servidor Intermediario
+
+![Client2](/images/ServidorInt2Piezas1.png "Example")
+
+##### Se Levanta Primero el Servidor de Piezas
+
+![Client2](/images/ServidorInt1Piezas2.png "Example")
+
+##### Se Une el Cliente
+
+
+Reacción de los servidores cuando el cliente se levanta:
+
+![Client2](/images/intPieCliente.png "Example")
+
+Reacción de los servidores cuando el cliente pide una figura, en este caso un Dragon:
+
+![Client2](/images/intPieCliente2.png "Example")
+
+
+Reacción de los servidores cuando el cliente pide armar la figura, en este caso un Dragon, en la cual tendrá que dar de respuesta que sí fue armada:
+
+![Client2](/images/intPieCliente3.png "Example")
+
+##### Uso de Navegador
+
+Si se pide armar la figura por medio de navegador/Browser de Dragon aparecerá lo siguiente:
+
+
+![Client2](/images/reaccionNavegador.png "Example")
+
+
+Cierre de conexión:
+
+
+![Client2](/images/cierreConexion.png "Example")
+
+
+##### Prueba de timeout
+
+Al cerrar el servidor de piezas de forma abrupta: al entrar a una figura, y cerrar el servidor de piezas con un ctrl + x o + z, y después intentar armarla se deberá mostrar lo siguiente en el navegador:
+
+![Client2](/images/timeout.png "Example")
+
+
+##### Prueba 404
+
+Al cerrar el servidor de piezas con un ctrl + c, se tiene un manejo de señales, en donde espera por los hilos y detiene totalmente y de forma correcta la ejecución de programa, y deberá aparecer lo siguiente en el navegador:
+
+![Client2](/images/404.png "Example")
+
 #### Manual del Usuario
+
+Ejemplo de ejecución:
+
+Dentro de la carpeta FinalRelease, cambiar de directorio a IntermediaryServer.
+Utiliza el siguiente comando para compilar el Servidor Intermediario y crear el ejecutable bin/IntermediaryServer:
+
+`make`
+
+Ejecuta bin/Client para comenzar con el programa:
+
+`bin/IntermediaryServert`
+
+Le aparecerá lo siguiente:
+
+
+![Client2](/images/InicioIntermediario.png "Example")
+
+Ahora abre otro terminal y cambiar de directorio a la carpeta PiecesServer.
+Utiliza el siguiente comando para compilar el Servidor Intermediario y crear el ejecutable bin/PiecesServer:
+
+`make`
+
+Ejecuta bin/Client para comenzar con el programa:
+
+`bin/PiecesServer`
+
+Le aparecerá lo siguiente:
+
+
+![Client2](/images/InicioServidorPiezas.png "Example")
+
+Ahora abre un tercer terminal y cambiar de directorio a la carpeta Client.
+Utiliza el siguiente comando para compilar el Servidor Intermediario y crear el ejecutable bin/Client:
+
+`make`
+
+Ejecuta bin/Client para comenzar con el programa:
+
+`bin/Client`
+
+Le aparecerá lo siguiente:
+
+
+![Client2](/images/InicioCliente.png "Example")
+
+Para el navegador, se debe de abrir cualquier browser, y colocar en la barra superior:
+
+`localhost:2020`
+
+Le aparecerá lo siguiente:
+
+![Client2](/images/InicioNavegador.png "Example")
+
+Click en el botón Elegir y le aparecerá un drop down de las figuras disponibles en el servidor:
+
+![Client2](/images/opcionesNavegador.png "Example")
+
+Click en el botón de Dragón y le aparecerá lo siguiente:
+
+![Client2](/images/respuestaNavegador.png "Example")
+
+Click en Armar para armar la figura de Dragón, le aparecerá lo siguiente:
+
+![Client2](/images/armadaNavegador.png "Example")
+
+Ahora bien, para cerrar las conexiones introduce Ctrl + C en los 3 terminales abiertos, en el intermediario y el servidor de piezas le debería de aparecer lo siguiente:
+
+![Client2](/images/cierreConexion.png "Example")
 
 ### FIGURA LEGO: CHIKI
 
