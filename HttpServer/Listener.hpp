@@ -1,62 +1,51 @@
 #ifndef LISTERNER_HPP
 #define LISTERNER_HPP 
 
-#include "Thread.hpp"
-#include "Queue.hpp"
+#include "Concurrency/Thread.hpp"
+#include "Concurrency/Queue.hpp"
 
 #include "Socket/Socket.hpp"
 
 #include <iostream>
 #include <string>
+#include <utility>
 
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <netdb.h>
 
-template <typename enqueutype>
+import ListenerMessageBundle;
+
+template <typename enqueueType>
 class Listener : public virtual Thread {
  protected:
-  Queue<enqueutype>* queue;
+  Queue<enqueueType>* queue;
+  std::shared_ptr<Socket> listeningSocket;
+  ListenerMessageBundle messageBundle;
 
-  Socket* listeningSocket;
-  enqueutype stopCondition;
-  enqueutype handlerStopCondition;
-
-  bool stopThread;
-
-  std::string listeningMessage;
-  std::string stopMessage;
-  std::string afterReceivedMessage;
-
-  bool udp = false;
+  enqueueType stopCondition;
+  enqueueType handlerStopCondition;
 
   int stopPort;
-  bool ssl;
-  char socketType;
+
+  bool udp = false;
+  bool stopThread = false;
 
  public:
-  Listener(Queue<enqueutype>* queue,
-      Socket* listeningSocket,
-      enqueutype stopCondition,
-      enqueutype handlerStopCondition,
-      int stopPort,
-      bool ssl,
-      char socketType,
-      std::string& listeningMessage,
-      std::string& afterReceivedMessage,
-      std::string& stopMessage)
+  Listener(Queue<enqueueType>* queue,
+           std::shared_ptr<Socket> listeningSocket,
+           ListenerMessageBundle& messageBundle,
+           enqueueType stopCondition,
+           enqueueType handlerStopCondition,
+           int stopPort
+           )
     : queue(queue)
-    , listeningSocket(listeningSocket)
+    , listeningSocket(std::move(listeningSocket))
+    , messageBundle(std::move(messageBundle))
     , stopCondition(stopCondition)
     , handlerStopCondition(handlerStopCondition)
-    , stopThread(false)
-    , listeningMessage(listeningMessage)
-    , stopMessage(stopMessage)
-    , afterReceivedMessage(afterReceivedMessage)
-    , stopPort(stopPort)
-    , ssl(ssl)
-    , socketType(socketType) {
+    , stopPort(stopPort) {
   }
 
   ~Listener() {
@@ -77,19 +66,18 @@ class Listener : public virtual Thread {
  private:
   virtual void listen() {
     while (true) {
-      printf("%s", this->listeningMessage.data());
+      printf("%s", this->messageBundle.listeningMessage.c_str());
 
-      enqueutype data = this->obtain();
+      enqueueType data = this->obtain();
 
       if (data == this->stopCondition || this->stopThread) {
         this->queue->push(data);
-        printf("%s", this->stopMessage.data());
-        //std::cout << this->stopMessage.data() << std::end;
+        printf("%s", this->messageBundle.stopMessage.c_str());
+
         break;
       }
 
-      printf("%s", this->afterReceivedMessage.data());
-      //std::cout << this->afterReceivedMessage << std::endl;
+      printf("%s", this->messageBundle.afterReceivedMessage.c_str());
 
       this->queue->push(data);
     }
@@ -99,11 +87,11 @@ class Listener : public virtual Thread {
     this->listen();
   }
 
-  virtual enqueutype obtain() = 0;
+  virtual enqueueType obtain() = 0;
 
   // TODO: add UDP support
   void unlockListen() {
-    Socket closingSocket(this->socketType, false);
+    Socket closingSocket(this->listeningSocket->getType(), false);
 
     if (this->udp) {
       sockaddr_in sockinfo;
@@ -118,7 +106,7 @@ class Listener : public virtual Thread {
       return;
     }
 
-    if (this->ssl) {
+    if (this->listeningSocket->isSSL()) {
       closingSocket.SSLInit();
       closingSocket.SSLConnect((char*) "any IP", this->stopPort);
 

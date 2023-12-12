@@ -98,7 +98,7 @@ public:
   int Write(const char *buffer); // size is calculated with strlen
   int Listen(int backlog);
   int Bind(int port);
-  // Socket * Accept();
+  // Socket * accept();
   std::shared_ptr<Socket> Accept();
   int Shutdown(int mode); // mode = { SHUT_RD, SHUT_WR, SHUT_RDWR }
   void SetIDSocket(int newId);
@@ -296,6 +296,11 @@ public:
   int getBufferSize() {
     return this-> bufferDefaultSize;
   }
+
+  [[nodiscard]] char getType() const;
+
+  [[nodiscard]] bool isSSL() const;
+
 
 private:
   int idSocket;

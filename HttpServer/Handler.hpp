@@ -1,20 +1,20 @@
 #ifndef HANDLER_HPP
 #define HANDLER_HPP
 
-#include "Thread.hpp"
-#include "Queue.hpp"
+#include "Concurrency/Thread.hpp"
+#include "Concurrency/Queue.hpp"
 #include "common.hpp"
 
-template <typename datatype>
+template <typename consumeDataType>
 class Handler : public virtual Thread {
  protected:
-  Queue<datatype>* consumingQueue;
+  Queue<consumeDataType>* consumingQueue;
 
-  datatype stopCondition;
+  consumeDataType stopCondition;
 
  public:
-  explicit Handler(Queue<datatype>* consumingQueue,
-      datatype stopCondition)
+  explicit Handler(Queue<consumeDataType>* consumingQueue,
+                   consumeDataType stopCondition)
     : Thread()
     , consumingQueue(consumingQueue)
     , stopCondition(stopCondition) {
@@ -26,7 +26,7 @@ class Handler : public virtual Thread {
  protected:
   void handle() {
     while (true) {
-      datatype data = this->consumingQueue->pop();
+      consumeDataType data = this->consumingQueue->pop();
 
       if (data == this->stopCondition) {
         std::cout << "Handler stopping" << std::endl;
@@ -45,7 +45,7 @@ class Handler : public virtual Thread {
   virtual void optionalToEnd () = 0;
 
 
-  virtual void handleSingle(datatype handlingData) = 0;
+  virtual void handleSingle(consumeDataType handlingData) = 0;
 };
 
 #endif

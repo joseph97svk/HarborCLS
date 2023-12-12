@@ -296,7 +296,7 @@ int Socket::Write( const char *text ) {
 
 
 /**
-  * Listen method
+  * listen method
   *   use "listen" Unix system call (server mode)
   *
   * @param	int queue: max pending connections to enqueue 
@@ -308,7 +308,7 @@ int Socket::Listen( int queue ) {
   int st = listen(this->idSocket, queue);
 
   if (st < 0) {
-    perror( "Socket::Bind" );
+    perror( "Socket::bind" );
     // exit( 4 );
   }
 
@@ -317,7 +317,7 @@ int Socket::Listen( int queue ) {
 
 
 /**
-  * Bind method
+  * bind method
   *    use "bind" Unix system call (man 3 bind) (server mode)
   *
   * @param	int port: bind a socket to a port defined in sockaddr structure
@@ -353,7 +353,7 @@ int Socket::Bind( int port ) {
       size);
 
   if ( -1 == st ) {	// check for errors
-    perror( "Socket::Bind" );
+    perror( "Socket::bind" );
     // exit( 4 );
   }
 
@@ -362,7 +362,7 @@ int Socket::Bind( int port ) {
 
 
 /**
-  * Accept method
+  * accept method
   *    use "accept" Unix system call (man 3 accept) (server mode)
   *
   *  @returns	a new class instance
@@ -370,7 +370,7 @@ int Socket::Bind( int port ) {
   *  Waits for a new connection to service (TCP  mode: stream)
   *
  **/
-// Socket * Socket::Accept(){
+// Socket * Socket::accept(){
 //   struct sockaddr_in server;
 //   socklen_t addr_len = sizeof(server);
 
@@ -384,7 +384,7 @@ int Socket::Bind( int port ) {
 //   if (-1 == socketFD) {  // check for errors
 //     // in case the socket is closed abruptly, no need to mention error
 //     if (errno != 9) {
-//       perror("Socket::Accept");
+//       perror("Socket::accept");
 //     }
 //   }
    
@@ -405,7 +405,7 @@ std::shared_ptr<Socket> Socket::Accept() {
   if (-1 == socketFD) {  // check for errors
     // in case the socket is closed abruptly, no need to mention error
     if (errno != 9) {
-      perror("Socket::Accept");
+      perror("Socket::accept");
     }
   }
    
@@ -650,12 +650,18 @@ int Socket::SSLWrite(const void * message) {
   return SSL_write((SSL*) this->SSLStruct, message, strlen((char*) message));
 }
 
-
 bool Socket::isSSL() {
   return this->SSLStruct != nullptr && this->SSLContext != nullptr;
 }
 
-
 void Socket::setBufferDefault(int size) {
   this->bufferDefaultSize = size;
+}
+
+[[nodiscard]] char Socket::getType() const {
+  return this->type;
+}
+
+[[nodiscard]] bool Socket::isSSL() const {
+  return this->SSLStruct != nullptr && this->SSLContext != nullptr;
 }

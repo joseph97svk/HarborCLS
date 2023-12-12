@@ -11,6 +11,8 @@
 
 class path;
 
+import ListenerMessageBundle;
+
 class IntermediaryServer {
   ClientListener* listenClientConnections;
   UDPListener* listenPiecesServerUDP;
@@ -25,8 +27,8 @@ class IntermediaryServer {
   Queue<std::shared_ptr<Request>> RequestQueue;
   Queue<std::shared_ptr<Response>> responseQueue;
 
-  Socket* clientSocket;
-  Socket* connectionSocket;
+  std::shared_ptr<Socket> clientSocket;
+  std::shared_ptr<Socket> connectionSocket;
 
   std::string SSLCert;
   std::string SSLKey;
@@ -49,38 +51,38 @@ class IntermediaryServer {
     : SSLCert(SSLCert)
     , SSLKey(SSLKey) {
 
-    this->clientSocket = new Socket('s', false);
+    this->clientSocket = std::make_shared<Socket>('s', false);
     this->clientSocket->Bind(CLIENTPORT);
 
-    this->connectionSocket = new Socket('d', false);
+    this->connectionSocket = std::make_shared<Socket>('d', false);
     this->connectionSocket->Bind(INTERMEDIARY_UDP_PORT);
 
-    std::string stoppingUDP = "stopping server (UDP)\n";
-    std::string processingUDP = "request received (UDP)\n";
-    std::string stoppingTCP = "stopping server (TCP)\n";
-    std::string processingTCP = "request received (TCP)\n";
-    std::string clientListeningMessage = "Listening for client connections (TCP)\n";
-    std::string udpListeningMessage = "Listening for pieces servers (UDP)\n";
+    ListenerMessageBundle clientMessages {
+      "Listening for client connections (TCP)\n",
+      "request received (TCP)\n",
+      "stopping server (TCP)\n"
+    };
+
+    ListenerMessageBundle udpMessages {
+      "Listening for pieces servers (UDP)\n",
+      "request received (UDP)\n",
+      "stopping server (UDP)\n"
+    };
+
     this->listenClientConnections = new ClientListener(&(this->ClientRequests)
         , clientSocket
+        , clientMessages
         , nullptr
         , nullptr
         , CLIENTPORT
-        , true
-        , 's'
-        , clientListeningMessage
-        , processingTCP
-        , stoppingTCP);
+      );
     this->listenPiecesServerUDP = new UDPListener(&(this->UDPRequests)
         , this->connectionSocket
+        , udpMessages
         , nullptr
         , nullptr
         , INTERMEDIARY_UDP_PORT
-        , false
-        , 'd'
-        , udpListeningMessage
-        , processingUDP
-        , stoppingUDP);
+        );
 
     this->routingMap = new RoutingMap();
 
@@ -169,9 +171,6 @@ class IntermediaryServer {
 
     this->clientSocket->Close();
     this->connectionSocket->Close();
-
-    delete this->clientSocket;
-    delete this->connectionSocket;
   }
 
   void stopServer() {
