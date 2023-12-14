@@ -11,7 +11,7 @@ typedef sem_t Semaphore;
 template <typename dataType>
 class Queue {
   std::mutex canAccess;
-  Semaphore canConsume;
+  Semaphore canConsume{};
   std::queue<dataType> queue;
 
  public:
@@ -45,7 +45,7 @@ class Queue {
    * If the queue is empty, the calling thread will block until an element becomes available.
    * @return The element popped from the queue.
    */
-  dataType pop() {
+  [[nodiscard]] dataType pop() {
     sem_wait(&this->canConsume); // Wait until there is an element available in the queue
     this->canAccess.lock(); // Acquire the lock to access the queue
     dataType resultData = this->queue.front(); // Get the front element of the queue

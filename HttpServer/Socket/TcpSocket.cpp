@@ -52,14 +52,14 @@ TcpSocket::TcpSocket(const int socketFd) :
 }
 
 void TcpSocket::connect(const std::string& host, const int targetPort) {
-  if (this->ssl) {
-    this->sslController->SSLConnect(this->socketId);
-  }
-
   if (this->ipv6) {
     this->ipv6Connect(host, targetPort);
   } else {
     this->ipv4Connect(host, targetPort);
+  }
+
+  if (this->ssl) {
+    this->sslController->SSLConnect(this->socketId);
   }
 }
 
@@ -283,12 +283,10 @@ std::shared_ptr<TcpSocket> TcpSocket::accept() const {
 
   std::shared_ptr<TcpSocket> acceptedConnection = std::make_shared<TcpSocket>(socketFD);
 
-if (this->ssl) {
+  if (this->ssl) {
     acceptedConnection->sslController->SSLCreate(*this->sslController, socketFD);
     acceptedConnection->sslController->SSLAccept();
   }
-
-
 
   return acceptedConnection;
 }

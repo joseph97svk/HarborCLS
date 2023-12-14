@@ -1,0 +1,12 @@
+//
+// Created by josephvalverde on 12/13/23.
+//
+
+#ifndef LEGO_FIGURE_MAKER_LOGGERCONFIGURATION_HPP
+#define LEGO_FIGURE_MAKER_LOGGERCONFIGURATION_HPP
+
+struct LoggerConfiguration {
+
+};
+
+#endif //LEGO_FIGURE_MAKER_LOGGERCONFIGURATION_HPP

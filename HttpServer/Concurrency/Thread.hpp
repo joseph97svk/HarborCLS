@@ -5,25 +5,19 @@
 
 class Thread {
  protected:
-  std::thread* thread = nullptr;
+  std::unique_ptr<std::thread> thread;
 
  public:
-  Thread() {
-  }
+  Thread() = default;
 
-  virtual ~Thread() {
-
-  };
+  virtual ~Thread() = default;
 
   void start() {
-    this->thread = new std::thread(&Thread::run, this);
+    this->thread = std::make_unique<std::thread>(&Thread::run, this);
   }
 
   void waitToFinish() {
     this->thread->join();
-
-    delete this->thread;
-    this->thread = nullptr;
   }
 
  protected:
