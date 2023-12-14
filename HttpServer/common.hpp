@@ -7,6 +7,11 @@
 
 #include "Socket/Socket.hpp"
 
+#define NO_COPY(class) \
+  class(const class&) = delete; \
+  class& operator=(const class&) = delete;\
+  class(const class&&) = delete; \
+  class& operator=(const class&&) = delete;
 
 enum serverAction {
   requestingFigures,
@@ -51,7 +56,7 @@ struct Response {
   }
 };
 
-std::string getComputerIp () {
+inline static std::string getComputerIp () {
   std::string host;
   host.resize(256);
 

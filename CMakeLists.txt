@@ -13,13 +13,13 @@ find_package(Threads REQUIRED)
 set(COMMON_DIR HttpServer)
 file(GLOB_RECURSE COMMON_SOURCES
         "${COMMON_DIR}/*.cpp"
-        "${COMMON_DIR}/*.hpp"
-        "${COMMON_DIR}/*.ixx")
+        "${COMMON_DIR}/*.hpp")
 
 add_library(HttpServer ${COMMON_SOURCES})
 target_include_directories(HttpServer PUBLIC ${COMMON_DIR})
 
 target_link_libraries(HttpServer OpenSSL::SSL OpenSSL::Crypto Threads::Threads)
 
+#add_subdirectory(OldServers/IntermediaryServer)
+#add_subdirectory(OldServers/PiecesServer)
 add_subdirectory(Servers/IntermediaryServer)
-add_subdirectory(Servers/PiecesServer)

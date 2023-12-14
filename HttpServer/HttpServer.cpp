@@ -3,7 +3,9 @@
 //
 
 #include <filesystem>
-#include "HttpServer.ixx"
+#include "HttpServer.hpp"
+#include "JsonReader/json.hpp"
+
 
 HttpServer &HttpServer::getInstance() {
   static HttpServer instance;
@@ -11,21 +13,23 @@ HttpServer &HttpServer::getInstance() {
 }
 
 void HttpServer::addConfiguration(const std::string& configurationJsonPath) {
+  if (configurationJsonPath.empty()) {
+    this->configuration = ServerConfiguration::createDefaultConfiguration();
+    return;
+  }
 
+  try {
+    JsonHandler<ServerConfiguration, ServerConfigurationParsingPolicy> jsonHandler(configurationJsonPath, true);
+    this->configuration = jsonHandler.deserialize();
+  } catch (std::exception& exception) {
+    this->configuration = ServerConfiguration::createDefaultConfiguration();
+  }
 }
 
 [[noreturn]] void HttpServer::startServer() {
   this->setUpServer();
 
-  this->tcpSocket->Listen(16);
-
-  std::filesystem::path currentPath = __FILE__;
-  currentPath = currentPath.parent_path();
-
-  std::string sslCertPath = currentPath / this->configuration.sslCertFileName;
-  std::string sslKey = currentPath / this->configuration.sslKeyFileName;
-
-  this->tcpSocket->SSLInitServer(sslCertPath, sslKey);
+  this->tcpSocket->listen(this->configuration.requestsQueueSize);
   this->tcpListener->start();
 
   for (RequestMiddlewareHandler& handler : this->requestMiddlewareHandlers) {
@@ -46,8 +50,14 @@ void HttpServer::addConfiguration(const std::string& configurationJsonPath) {
 }
 
 void HttpServer::setUpServer() {
-  this->tcpSocket = std::make_shared<Socket>('s', false);
-  this->tcpSocket->Bind(this->configuration.port);
+  std::filesystem::path currentPath = __FILE__;
+  currentPath = currentPath.parent_path();
+
+  std::string sslCertPath = currentPath / this->configuration.sslCertFileName;
+  std::string sslKey = currentPath / this->configuration.sslKeyFileName;
+
+  this->tcpSocket = std::make_shared<TcpSocket>(14, sslCertPath, sslKey, false);
+  this->tcpSocket->bind(this->configuration.port);
 
   ListenerMessageBundle messages {
           "Listening for client connections (TCP)\n",
@@ -87,6 +97,7 @@ void HttpServer::setUpServer() {
   for (int responseHandlerIndex = 0;
        responseHandlerIndex < this->configuration.responseHandlerAmount;
        ++responseHandlerIndex) {
+
     this->responseMiddlewareHandlers.emplace_back(
             &(this->responsesQueue)
             , nullptr

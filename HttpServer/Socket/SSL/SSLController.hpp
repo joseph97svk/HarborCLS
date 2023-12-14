@@ -2,17 +2,18 @@
 // Created by josephvalverde on 12/11/23.
 //
 
+#ifndef HTTPSERVER_SSLCONTROLLER_HPP
+#define HTTPSERVER_SSLCONTROLLER_HPP
+
 #include <openssl/ssl.h>
-#include <functional>
+#include "common.hpp"
+#include <memory>
 #include <span>
+#include <functional>
 
-export module SSLController;
-
-import <memory>;
-
-export class SSLController {
+class SSLController {
     std::unique_ptr<SSL_CTX, decltype(&SSL_CTX_free)> SSLContext;
-    std::unique_ptr<SSL, decltype(&SSL_free)> SSLStruct;
+    std::unique_ptr<SSL, std::function<void(SSL*)>> SSLStruct;
 
     const unsigned int BUFFER_SIZE = 512;
 
@@ -26,13 +27,13 @@ public:
   SSLController& operator=(SSLController&&) = delete;
   SSLController& operator=(const SSLController&) = delete;
 
-  void SSLConnect(int socketId);
+  void SSLConnect(int socketId) const;
 
   void SSLAccept();
 
-  void SSLCreate(const SSLController* sslController, int socketFD);
+  void SSLCreate(const SSLController& sslController, int socketFD);
 
-  [[nodiscard]] std::pair<std::vector<char>, unsigned int> SSLRead();
+  [[nodiscard]] std::pair<std::vector<char>, unsigned int> SSLRead() const;
 
   unsigned int SSLWrite(const std::span<char>& data);
 
@@ -41,3 +42,5 @@ private:
 
     void initClientContext();
 };
+
+#endif //HTTPSERVER_SSLCONTROLLER_HPP

@@ -3,11 +3,14 @@
 //
 
 #include <filesystem>
-#include "SSLController.ixx"
+#include "SSLController.hpp"
 
 SSLController::SSLController(const std::string &certFileName, const std::string &keyFileName) :
   SSLContext({nullptr, &SSL_CTX_free}),
-  SSLStruct({nullptr, &SSL_free}) {
+  SSLStruct({nullptr, [](SSL* ssl) {
+    close(SSL_get_fd(ssl));
+    SSL_free(ssl);
+  }}) {
   bool missingCertFile = !std::filesystem::exists(certFileName);
   bool missingKeyFile = !std::filesystem::exists(keyFileName);
 
@@ -53,7 +56,10 @@ void SSLController::initServerContext(const std::string& certFileName, const std
 
 SSLController::SSLController() :
         SSLContext({nullptr, &SSL_CTX_free}),
-        SSLStruct({nullptr, &SSL_free}){
+        SSLStruct({nullptr, [](SSL* ssl) {
+            close(SSL_get_fd(ssl));
+            SSL_free(ssl);
+        }}) {
   SSL_library_init();
   OpenSSL_add_all_algorithms();
   SSL_load_error_strings();
@@ -79,7 +85,7 @@ void SSLController::initClientContext() {
   }
 }
 
-void SSLController::SSLConnect(const int socketId) {
+void SSLController::SSLConnect(int socketId) const {
   SSL_set_fd(this->SSLStruct.get(), socketId);
 
   if (SSL_connect(this->SSLStruct.get()) != 1) {
@@ -96,8 +102,8 @@ void SSLController::SSLAccept() {
   }
 }
 
-void SSLController::SSLCreate(const SSLController* sslController, int socketFD) {
-  this->SSLStruct.reset(SSL_new(sslController->SSLContext.get()));
+void SSLController::SSLCreate(const SSLController& sslController, int socketFD) {
+  this->SSLStruct.reset(SSL_new(sslController.SSLContext.get()));
 
   if (!this->SSLStruct) {
     throw std::runtime_error("SSLController::SSLCreate: Failed to create SSL");
@@ -106,7 +112,7 @@ void SSLController::SSLCreate(const SSLController* sslController, int socketFD) 
   SSL_set_fd(this->SSLStruct.get(), socketFD);
 }
 
-std::pair<std::vector<char>, unsigned int> SSLController::SSLRead() {
+std::pair<std::vector<char>, unsigned int> SSLController::SSLRead() const {
   std::vector<char> buffer(this->BUFFER_SIZE);
   int bytesRead = SSL_read(this->SSLStruct.get(), buffer.data(), this->BUFFER_SIZE);
 

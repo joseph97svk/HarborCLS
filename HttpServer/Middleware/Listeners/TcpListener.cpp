@@ -4,14 +4,14 @@
 
 #include <utility>
 
-#include "TcpListener.ixx"
+#include "TcpListener.hpp"
 
 TcpListener::TcpListener(
-    Queue<std::shared_ptr<Socket>>* connectionsQueue
-    , std::shared_ptr<Socket> socket
+    Queue<std::shared_ptr<TcpSocket>>* connectionsQueue
+    , std::shared_ptr<TcpSocket> socket
     , ListenerMessageBundle messages
-    , std::shared_ptr<Socket> stopCondition
-    , std::shared_ptr<Socket> handlerStopCondition
+    , std::shared_ptr<TcpSocket> stopCondition
+    , std::shared_ptr<TcpSocket> handlerStopCondition
     , unsigned int port
 ) : Listener(
     connectionsQueue
@@ -22,6 +22,6 @@ TcpListener::TcpListener(
     , port
 ) {}
 
-std::shared_ptr<Socket> TcpListener::obtain() {
-  return {};
+std::shared_ptr<TcpSocket> TcpListener::obtain() {
+    return nullptr;
 }

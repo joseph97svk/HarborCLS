@@ -1,0 +1,9 @@
+{
+  "port": 8080,
+  "requestHandlerAmount": 1,
+  "applicationHandlerAmount": 1,
+  "responseHandlerAmount": 1,
+  "requestsQueueSize": 16,
+  "sslCertFileName": "path/to/certfile.crt",
+  "sslKeyFileName": "path/to/keyfile.key"
+}

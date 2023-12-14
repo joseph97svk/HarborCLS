@@ -3,6 +3,7 @@
 
 #include "Concurrency/Thread.hpp"
 #include "Concurrency/Queue.hpp"
+#include "Middleware/ListenerMessageBundle.hpp"
 
 #include "Socket/Socket.hpp"
 
@@ -14,8 +15,6 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <netdb.h>
-
-import ListenerMessageBundle;
 
 template <typename enqueueType>
 class Listener : public virtual Thread {
@@ -38,7 +37,7 @@ class Listener : public virtual Thread {
            ListenerMessageBundle& messageBundle,
            enqueueType stopCondition,
            enqueueType handlerStopCondition,
-           int stopPort
+           unsigned int stopPort
            )
     : queue(queue)
     , listeningSocket(std::move(listeningSocket))
@@ -48,8 +47,7 @@ class Listener : public virtual Thread {
     , stopPort(stopPort) {
   }
 
-  ~Listener() {
-  }
+  ~Listener() override = default;
 
   void stop() {
     this->stopThread = true;
@@ -83,18 +81,17 @@ class Listener : public virtual Thread {
     }
   }
 
-  void run() {
+  void run() override {
     this->listen();
   }
 
   virtual enqueueType obtain() = 0;
 
-  // TODO: add UDP support
   void unlockListen() {
     Socket closingSocket(this->listeningSocket->getType(), false);
 
     if (this->udp) {
-      sockaddr_in sockinfo;
+      sockaddr_in sockinfo{};
       memset(&sockinfo, 0, sizeof(sockaddr_in));
 
       sockinfo.sin_family = AF_INET;

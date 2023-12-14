@@ -57,6 +57,7 @@ public:
         this->sockinfo.sin_addr.s_addr = INADDR_ANY;
       }
     }
+
     template <typename dataType>
     udpStream& operator << (std::vector<dataType>& data){
       if (this->broadcast) {
@@ -65,6 +66,7 @@ public:
       this->socket.sendTo(data.data(), data.size(), &this->sockinfo);
       return *this;
     }
+
     template <typename dataType>
     udpStream& operator >> (std::vector<dataType>& data){
       if (this->broadcast) {

@@ -1,25 +1,24 @@
-#include "IntermediaryServer.hpp"
+//
+// Created by josephvalverde on 12/12/23.
+//
 
-#include <csignal>
-#include <string>
+#include "../../HttpServer/HttpServer.hpp"
+#include "../../HttpServer/JsonReader/JsonHandler.hpp"
 
-static std::string certificate = "esjojo.pem";
-static std::string key = "key.pem";
-
-void signalHandler (int signal) {
-  if (signal == SIGINT) {
-    std::cout << "Stopping program\n" << std::endl;
-
-    IntermediaryServer::getInstance(certificate, key).stopServer();
-  }
-}
+#include <filesystem>
+#include <iostream>
 
 int main() {
-  // Set signal handlers for SIGINT, SIGTERM and SIGSTOP signals
-  signal(SIGINT, signalHandler);
+  HttpServer::getInstance();
 
-  IntermediaryServer::getInstance(certificate, key);
+  std::filesystem::path currentPath = __FILE__;
+  currentPath = currentPath.parent_path();
+  std::string jsonFile = currentPath / "Configuration.json";
 
-  IntermediaryServer::getInstance(certificate, key).start();
+  std::cout << jsonFile << std::endl;
+
+  JsonHandler<ServerConfiguration, ServerConfigurationParsingPolicy> jsonHandler(jsonFile, true);
+  ServerConfiguration configuration = jsonHandler.deserialize();
+
+  return 0;
 }
-

@@ -2,7 +2,7 @@
 // Created by josephvalverde on 12/11/23.
 //
 
-#include "ApplicationMiddlewareHandler.ixx"
+#include "ApplicationMiddlewareHandler.hpp"
 
 ApplicationMiddlewareHandler::ApplicationMiddlewareHandler(
         Queue<std::shared_ptr<HttpRequest>>* consumingQueue,

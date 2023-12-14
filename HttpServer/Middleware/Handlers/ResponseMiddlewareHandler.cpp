@@ -2,7 +2,7 @@
 // Created by josephvalverde on 12/11/23.
 //
 
-#include "ResponseMiddlewareHandler.ixx"
+#include "ResponseMiddlewareHandler.hpp"
 
 ResponseMiddlewareHandler::ResponseMiddlewareHandler(
         Queue<std::shared_ptr<HttpResponse>>* consumingQueue,

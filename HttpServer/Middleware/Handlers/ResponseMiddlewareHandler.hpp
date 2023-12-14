@@ -6,14 +6,11 @@
 #define LEGO_FIGURE_MAKER_RESPONSEMIDDLEWAREHANDLER_IXX
 
 #include "Handler.hpp"
+#include "Http/HttpMessages/HttpResponse.hpp"
 
-export module ResponseMiddleware;
-
-import HttpResponse;
-
-export class ResponseMiddlewareHandler : public Handler<std::shared_ptr<HttpResponse>> {
+class ResponseMiddlewareHandler : public Handler<std::shared_ptr<HttpResponse>> {
 public:
-    ResponseMiddlewareHandler(Queue<std::shared_ptr<HttpResponse>>* consumingQueue,
+    explicit ResponseMiddlewareHandler(Queue<std::shared_ptr<HttpResponse>>* consumingQueue,
                               std::shared_ptr<HttpResponse> stopCondition);
 
 private:

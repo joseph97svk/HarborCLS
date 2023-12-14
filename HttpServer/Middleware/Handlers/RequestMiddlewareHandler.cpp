@@ -2,12 +2,12 @@
 // Created by josephvalverde on 12/11/23.
 //
 
-#include "RequestMiddlewareHandler.ixx"
+#include "RequestMiddlewareHandler.hpp"
 
 RequestMiddlewareHandler::RequestMiddlewareHandler(
-        Queue<std::shared_ptr<Socket>>* consumingQueue,
+        Queue<std::shared_ptr<TcpSocket>>* consumingQueue,
         Queue<std::shared_ptr<HttpRequest>>& producingQueue,
-        std::shared_ptr<Socket> stopCondition) :
+        std::shared_ptr<TcpSocket> stopCondition) :
         Handler(consumingQueue, std::move(stopCondition)),
         requestsQueue(producingQueue)
         {}
@@ -15,6 +15,6 @@ RequestMiddlewareHandler::RequestMiddlewareHandler(
 void RequestMiddlewareHandler::optionalToEnd() {
 }
 
-void RequestMiddlewareHandler::handleSingle(std::shared_ptr<Socket> handlingData) {
+void RequestMiddlewareHandler::handleSingle(std::shared_ptr<TcpSocket> handlingData) {
 
 };

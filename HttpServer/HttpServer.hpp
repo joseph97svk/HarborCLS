@@ -1,33 +1,31 @@
 //
 // Created by josephvalverde on 12/11/23.
 //
-
-#ifndef LEGO_FIGURE_MAKER_HTTPSERVER_H
-#define LEGO_FIGURE_MAKER_HTTPSERVER_H
-
 #include <vector>
-#include "Handler.hpp"
 
-export module HttpServer;
+#include "Middleware/Handlers/RequestMiddlewareHandler.hpp"
+#include "Middleware/Handlers/ApplicationMiddlewareHandler.hpp"
+#include "Middleware/Handlers/ResponseMiddlewareHandler.hpp"
+#include "Middleware/Listeners/TcpListener.hpp"
+/*#include "Http/HttpMessages/HttpRequest.hpp"
+#include "Http/HttpMessages/HttpResponse.hpp"
+#include "ServerConfiguration.hpp"
+#include "Middleware/ListenerMessageBundle.hpp"*/
+#include "Socket/TcpSocket.hpp"
+#include "JsonReader/JsonHandler.hpp"
+#include "JsonParsingPolicies/ServerConfigurationParsingPolicy.hpp"
 
-import RequestMiddleware;
-import ApplicationMiddleware;
-import ResponseMiddleware;
-import TcpListener;
-import HttpRequest;
-import HttpResponse;
-import ServerConfiguration;
-import ListenerMessageBundle;
+#include "common.hpp"
 
-export class HttpServer {
-  std::shared_ptr<Socket> tcpSocket;
+class HttpServer {
+  std::shared_ptr<TcpSocket> tcpSocket;
   std::shared_ptr<TcpListener> tcpListener;
 
   std::vector<RequestMiddlewareHandler> requestMiddlewareHandlers;
   std::vector<ApplicationMiddlewareHandler> applicationMiddlewareHandlers;
   std::vector<ResponseMiddlewareHandler> responseMiddlewareHandlers;
 
-  Queue<std::shared_ptr<Socket>> connectionsQueue;
+  Queue<std::shared_ptr<TcpSocket>> connectionsQueue;
   Queue<std::shared_ptr<HttpRequest>> requestsQueue;
   Queue<std::shared_ptr<HttpResponse>> responsesQueue;
 
@@ -36,10 +34,7 @@ export class HttpServer {
 public:
     static HttpServer& getInstance();
 
-    HttpServer(HttpServer&&) = delete;
-    HttpServer(const HttpServer&) = delete;
-    HttpServer& operator=(HttpServer&&) = delete;
-    HttpServer& operator=(const HttpServer&) = delete;
+    NO_COPY(HttpServer)
 
     void addConfiguration(const std::string& configurationJsonPath);
 
@@ -53,5 +48,3 @@ protected:
     HttpServer() = default;
 };
 
-
-#endif //LEGO_FIGURE_MAKER_HTTPSERVER_H
