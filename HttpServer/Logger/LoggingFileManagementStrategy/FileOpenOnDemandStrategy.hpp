@@ -19,7 +19,7 @@ public:
       return std::move(logFilePath);
     }
 
-    void log(std::string &completeLoggingMessage, std::variant<std::string, std::ofstream>& loggingLocation, std::mutex& canWrite) override {
+    void log(std::string completeLoggingMessage, std::variant<std::string, std::ofstream>& loggingLocation, std::mutex& canWrite) override {
       auto& logFilePath = std::get<std::string>(loggingLocation);
 
       canWrite.lock();

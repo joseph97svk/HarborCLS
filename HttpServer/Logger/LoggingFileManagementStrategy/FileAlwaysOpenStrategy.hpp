@@ -22,7 +22,7 @@ public:
       return std::move(fileStream);
     }
 
-    void log(std::string &completeLoggingMessage, std::variant<std::string, std::ofstream>& loggingLocation, std::mutex& canWrite) override {
+    void log(std::string completeLoggingMessage, std::variant<std::string, std::ofstream>& loggingLocation, std::mutex& canWrite) override {
       canWrite.lock();
 
       auto& fileStream = std::get<std::ofstream>(loggingLocation);

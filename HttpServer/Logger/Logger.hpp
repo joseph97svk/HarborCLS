@@ -14,27 +14,35 @@
 #include <future>
 #include <optional>
 
+#include "../Common/FileManagement.hpp"
+#include "../../common.hpp"
+
 #include "ILogger.hpp"
 #include "LoggingFileManagementStrategy/ILoggerFileManagementStrategy.hpp"
-#include "LoggingBufferingStrategies/ILoggingStrategy.hpp"
+#include "LoggingBufferingStrategies/ILoggerBufferingStrategy.hpp"
+#include "LogFileRotationStrategy/ILogFileRotation.hpp"
 #include "LoggerConfiguration.hpp"
 
-template <typename LoggingFileManagementStrategy, typename LoggingBufferingStrategy>
 class Logger : public ILogger {
-    std::unique_ptr<ILoggerFileManagementStrategy> fileManagementStrategy {};
-    std::unique_ptr<ILoggingStrategy> bufferingStrategy {};
+    std::shared_ptr<ILoggerFileManagementStrategy> fileManagementStrategy {};
+    std::shared_ptr<ILoggerBufferingStrategy> bufferingStrategy {};
+    std::shared_ptr<ILogFileRotation> fileRotationStrategy {};
 
     std::mutex canWrite {};
 
     std::variant<std::string, std::ofstream> logFile {};
 
+    std::vector<std::future<void>> logFutures {};
+
 public:
-    Logger(std::string& logFilePath)
-            : bufferingStrategy(new LoggingBufferingStrategy())
-            , fileManagementStrategy(new LoggingFileManagementStrategy())
-    {
-      logFile = fileManagementStrategy->getLogFile(logFilePath);
-    }
+    Logger(std::shared_ptr<ILoggerBufferingStrategy> bufferingStrategy,
+           std::shared_ptr<ILoggerFileManagementStrategy> fileManagementStrategy,
+           std::shared_ptr<ILogFileRotation> fileRotationStrategy,
+           std::string& logFilePath)
+            : bufferingStrategy(std::move(bufferingStrategy))
+            , fileManagementStrategy(std::move(fileManagementStrategy))
+            , fileRotationStrategy(std::move(fileRotationStrategy))
+            , logFile(fileManagementStrategy->getLogFile(logFilePath)) {}
 
     ~Logger() override = default;
 
@@ -43,7 +51,10 @@ public:
 
       if (!bufferedMessage.has_value()) return;
 
-      std::async(&Logger::log, this->fileManagementStrategy, bufferedMessage.value(), this->logFile);
+      std::string messageToLog = bufferedMessage.value();
+      this->logFutures.push_back(std::async([this, messageToLog]() {
+          this->fileManagementStrategy->log(messageToLog, this->logFile, this->canWrite);
+      }));
     }
 
     void warning(std::string& message) override {
@@ -51,7 +62,10 @@ public:
 
       if (!bufferedMessage.has_value()) return;
 
-      std::async(&Logger::log, this->fileManagementStrategy, bufferedMessage.value(), this->logFile);
+      std::string messageToLog = bufferedMessage.value();
+      this->logFutures.push_back(std::async([this, messageToLog]() {
+          this->fileManagementStrategy->log(messageToLog, this->logFile, this->canWrite);
+      }));
     }
 
     void error(std::string& message) override {
@@ -59,7 +73,10 @@ public:
 
       if (!bufferedMessage.has_value()) return;
 
-      std::async(&Logger::log, this->fileManagementStrategy, bufferedMessage.value(), this->logFile);
+      std::string messageToLog = bufferedMessage.value();
+      this->logFutures.push_back(std::async([this, messageToLog]() {
+          this->fileManagementStrategy->log(messageToLog, this->logFile, this->canWrite);
+      }));
     }
 
     void info(std::string& message) override {
@@ -67,12 +84,15 @@ public:
 
       if (!bufferedMessage.has_value()) return;
 
-      std::async(&Logger::log, this->fileManagementStrategy, bufferedMessage.value(), this->logFile);
+      std::string messageToLog = bufferedMessage.value();
+      this->logFutures.push_back(std::async([this, messageToLog]() {
+          this->fileManagementStrategy->log(messageToLog, this->logFile, this->canWrite);
+      }));
     }
 
 protected:
-    std::optional<std::string> generateMessage(std::string& messageType, std::string& message) {
-      std::string completedMessage = "[ " + messageType + " ] : " + message + "\n";
+    std::optional<std::string> generateMessage(const std::string& messageType, std::string& message) {
+      std::string completedMessage = getCurrentTime() + ": [ " + messageType + " ] : " + message + "\n";
       std::optional<std::string> bufferedMessage = bufferingStrategy->buffer(completedMessage);
 
       if (!bufferedMessage.has_value()) return std::nullopt;

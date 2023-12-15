@@ -5,9 +5,9 @@
 #ifndef LEGO_FIGURE_MAKER_NOBUFFERINGSTRATEGY_HPP
 #define LEGO_FIGURE_MAKER_NOBUFFERINGSTRATEGY_HPP
 
-#include "ILoggingStrategy.hpp"
+#include "ILoggerBufferingStrategy.hpp"
 
-class NoBufferingStrategy : public ILoggingStrategy {
+class NoBufferingStrategy : public ILoggerBufferingStrategy {
 public:
   NoBufferingStrategy() = default;
 

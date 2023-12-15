@@ -4,14 +4,15 @@
 #include <memory>
 #include <string>
 #include <netdb.h>
+#include <filesystem>
 
 #include "Socket/Socket.hpp"
 
 #define NO_COPY(class) \
   class(const class&) = delete; \
-  class& operator=(const class&) = delete;\
-  class(const class&&) = delete; \
-  class& operator=(const class&&) = delete;
+  class& operator=(const class&) = delete; \
+  class(class&&) = delete; \
+  class& operator=(class&&) = delete;
 
 enum serverAction {
   requestingFigures,
@@ -56,7 +57,7 @@ struct Response {
   }
 };
 
-inline static std::string getComputerIp () {
+[[nodiscard]] inline static std::string getComputerIp () {
   std::string host;
   host.resize(256);
 
@@ -68,6 +69,26 @@ inline static std::string getComputerIp () {
   host = inet_ntoa(*((struct in_addr*) hostentry->h_addr_list[0]));
 
   return host;
+}
+
+[[nodiscard]] inline static std::string getCurrentTimeAndDate() {
+  auto now = std::chrono::system_clock::now();
+  auto now_c = std::chrono::system_clock::to_time_t(now);
+
+  std::stringstream ss;
+  ss << std::put_time(std::localtime(&now_c), "%F.%T");
+
+  return ss.str();
+}
+
+[[nodiscard]] inline static std::string getCurrentTime() {
+  auto now = std::chrono::system_clock::now();
+  auto now_c = std::chrono::system_clock::to_time_t(now);
+
+  std::stringstream ss;
+  ss << std::put_time(std::localtime(&now_c), "%T");
+
+  return ss.str();
 }
 
 #endif
