@@ -1,6 +1,0 @@
-16:19:34 [ Warning ] : /home/storage/Documents/GitHub/lego-figure-maker/Servers/IntermediaryServer/Configuration.json
-18:46:38 [ Warning ] : /home/storage/Documents/GitHub/lego-figure-maker/Servers/IntermediaryServer/Configuration.json
-18:46:46 [ Warning ] : /home/storage/Documents/GitHub/lego-figure-maker/Servers/IntermediaryServer/Configuration.json
-18:57:12 [ Warning ] : /home/storage/Documents/GitHub/lego-figure-maker/Servers/IntermediaryServer/Configuration.json
-18:57:19 [ Warning ] : /home/storage/Documents/GitHub/lego-figure-maker/Servers/IntermediaryServer/Configuration.json
-18:58:06 [ Warning ] : /home/storage/Documents/GitHub/lego-figure-maker/Servers/IntermediaryServer/Configuration.json

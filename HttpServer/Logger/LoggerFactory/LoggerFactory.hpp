@@ -25,7 +25,6 @@ public:
 
   explicit LoggerFactory(LoggerConfiguration loggerConfiguration)
       : _loggerConfiguration(std::move(loggerConfiguration)) {
-
   }
 
   ~LoggerFactory() override = default;

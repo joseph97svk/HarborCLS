@@ -46,25 +46,25 @@ public:
 
     ~Logger() override = default;
 
-    void log(std::string& message) override  {
+    void log(std::string message) override  {
       const std::string messageType = "Log";
 
       this->logMessage(messageType, message);
     }
 
-    void warning(std::string& message) override {
+    void warning(std::string message) override {
       const std::string messageType = "Warning";
 
       this->logMessage(messageType, message);
     }
 
-    void error(std::string& message) override {
+    void error(std::string message) override {
       const std::string messageType = "Error";
 
       this->logMessage(messageType, message);
     }
 
-    void info(std::string& message) override {
+    void info(std::string message) override {
       const std::string messageType = "Info";
 
       this->logMessage(messageType, message);

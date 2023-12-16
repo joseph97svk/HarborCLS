@@ -12,7 +12,7 @@
 
 class BaseFileRotation : public ILogFileRotation {
 protected:
-  constexpr static const char* LOG_FILE_EXTENSION = ".txt";
+  constexpr static const char* LOG_FILE_EXTENSION = ".log";
   constexpr static const char* LOG_FILE_POSTFIX = "_logging_on_";
 public:
   BaseFileRotation() = default;
