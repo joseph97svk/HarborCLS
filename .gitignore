@@ -24,3 +24,5 @@ CMakeScripts/
 *.project
 *.cproject
 
+*.log
+

@@ -14,6 +14,8 @@ public:
     virtual ~ILoggerFactory() = default;
 
     virtual std::shared_ptr<ILogger> createLogger() = 0;
+
+    virtual std::unique_ptr<ILogger> createUniqueLogger() = 0;
 };
 
 #endif //LEGO_FIGURE_MAKER_ILOGGERFACTORY_HPP

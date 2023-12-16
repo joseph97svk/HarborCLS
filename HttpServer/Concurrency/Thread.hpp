@@ -2,10 +2,11 @@
 #define THREAD_HPP
 
 #include <thread>
+#include "../common.hpp"
 
 class Thread {
  protected:
-  std::unique_ptr<std::thread> thread;
+  std::shared_ptr<std::thread> thread;
 
  public:
   Thread() = default;
@@ -13,7 +14,7 @@ class Thread {
   virtual ~Thread() = default;
 
   void start() {
-    this->thread = std::make_unique<std::thread>(&Thread::run, this);
+    this->thread = std::make_shared<std::thread>(&Thread::run, this);
   }
 
   void waitToFinish() {

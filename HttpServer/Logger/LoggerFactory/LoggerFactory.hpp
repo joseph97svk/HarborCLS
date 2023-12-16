@@ -7,33 +7,46 @@
 
 #include <functional>
 #include <unordered_map>
+#include <tuple>
 
-#include <unordered_map>
 #include "ILoggerFactory.hpp"
 #include "../LoggerConfiguration.hpp"
 
-class LoggerFactory : public ILoggerFactory {
-    std::unordered_map<
-            std::string,
-            std::function<std::shared_ptr<ILogger>()>> loggerCreationMap {};
+#include "../LoggerBuilder/BasicLoggerBuilder.hpp"
 
-    LoggerConfiguration loggerConfiguration {};
+
+template <typename Builder = BasicLoggerBuilder>
+class LoggerFactory : public ILoggerFactory {
+  LoggerConfiguration _loggerConfiguration {};
+  Builder _loggerBuilder {};
 
 public:
-    LoggerFactory() = default;
+  LoggerFactory() = default;
 
-    explicit LoggerFactory(LoggerConfiguration loggerConfiguration);
+  explicit LoggerFactory(LoggerConfiguration loggerConfiguration)
+      : _loggerConfiguration(std::move(loggerConfiguration)) {
+  }
 
-    ~LoggerFactory() override = default;
+  ~LoggerFactory() override = default;
 
-    std::shared_ptr<ILogger> createLogger() override;
+  [[nodiscard]] std::shared_ptr<ILogger> createLogger() override {
+    _loggerBuilder.setConfiguration(_loggerConfiguration);
 
-    void registerLoggerCreationFunction(
-            std::pair<LoggerConfiguration::FileAlwaysOpenPolicy,
-                    LoggerConfiguration::BufferingPolicy> loggerCreationKey,
-            std::function<std::shared_ptr<ILogger>()> loggerCreationFunction);
+    std::shared_ptr<ILogger> logger = std::move(_loggerBuilder.build());
 
-    void registerAllLoggerCreationFunctions();
+    _loggerBuilder.reset();
+    return logger;
+  }
+
+  [[nodiscard]] std::unique_ptr<ILogger> createUniqueLogger() override {
+    _loggerBuilder.setConfiguration(_loggerConfiguration);
+
+    std::unique_ptr<ILogger> logger = std::move(_loggerBuilder.build());
+
+    _loggerBuilder.reset();
+    return logger;
+  }
+
 };
 
 

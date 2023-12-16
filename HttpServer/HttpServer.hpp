@@ -7,29 +7,30 @@
 #include "Middleware/Handlers/ApplicationMiddlewareHandler.hpp"
 #include "Middleware/Handlers/ResponseMiddlewareHandler.hpp"
 #include "Middleware/Listeners/TcpListener.hpp"
-/*#include "Http/HttpMessages/HttpRequest.hpp"
-#include "Http/HttpMessages/HttpResponse.hpp"
-#include "ServerConfiguration.hpp"
-#include "Middleware/ListenerMessageBundle.hpp"*/
+
 #include "Socket/TcpSocket.hpp"
 #include "JsonReader/JsonHandler.hpp"
 #include "JsonParsingPolicies/ServerConfigurationParsingPolicy.hpp"
+#include "Logger/Logger.hpp"
+
 
 #include "common.hpp"
 
 class HttpServer {
-  std::shared_ptr<TcpSocket> tcpSocket;
-  std::shared_ptr<TcpListener> tcpListener;
+  std::shared_ptr<TcpSocket> _tcpSocket;
+  std::shared_ptr<TcpListener> _tcpListener;
 
-  std::vector<RequestMiddlewareHandler> requestMiddlewareHandlers;
-  std::vector<ApplicationMiddlewareHandler> applicationMiddlewareHandlers;
-  std::vector<ResponseMiddlewareHandler> responseMiddlewareHandlers;
+  std::vector<RequestMiddlewareHandler> _requestMiddlewareHandlers;
+  std::vector<ApplicationMiddlewareHandler> _applicationMiddlewareHandlers;
+  std::vector<ResponseMiddlewareHandler> _responseMiddlewareHandlers;
 
-  Queue<std::shared_ptr<TcpSocket>> connectionsQueue;
-  Queue<std::shared_ptr<HttpRequest>> requestsQueue;
-  Queue<std::shared_ptr<HttpResponse>> responsesQueue;
+  Queue<std::shared_ptr<TcpSocket>> _connectionsQueue;
+  Queue<std::shared_ptr<HttpRequest>> _requestsQueue;
+  Queue<std::shared_ptr<HttpResponse>> _responsesQueue;
 
-  ServerConfiguration configuration;
+  ServerConfiguration _configuration;
+
+  std::unique_ptr<ILogger> _logger;
 
 public:
     static HttpServer& getInstance();

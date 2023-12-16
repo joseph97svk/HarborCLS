@@ -10,14 +10,24 @@ struct LoggerConfiguration {
     DEFAULT = 0,
     ALWAYS_OPEN,
     OPEN_AND_CLOSE
-  } fileAlwaysOpenPolicy;
+  } fileAlwaysOpenPolicy {FileAlwaysOpenPolicy::ALWAYS_OPEN};
 
   enum class BufferingPolicy {
     DEFAULT = 0,
     NO_BUFFER
-  } bufferingPolicy;
+  } bufferingPolicy {BufferingPolicy::NO_BUFFER};
 
-  std::string logFilePath;
+  enum class FileRotationPolicy {
+    DEFAULT = 0,
+    NO_ROTATION,
+    BOUNDED_ROTATION
+  } fileRotationPolicy {FileRotationPolicy::NO_ROTATION};
+
+  bool sharedLog {true};
+
+  std::string logFilePath {"log.txt"};
+
+  int maxFileSize {100};
 };
 
 #endif //LEGO_FIGURE_MAKER_LOGGERCONFIGURATION_HPP

@@ -20,8 +20,7 @@ class Handler : public virtual Thread {
     , stopCondition(stopCondition) {
   }
 
-  virtual ~Handler() {
-  }
+  ~Handler() override = default;
 
  protected:
   void handle() {
@@ -38,7 +37,7 @@ class Handler : public virtual Thread {
     }
   }
 
-  virtual void run() override {
+  void run() override {
     this->handle();
   }
 

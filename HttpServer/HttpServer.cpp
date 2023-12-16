@@ -5,6 +5,8 @@
 #include <filesystem>
 #include "HttpServer.hpp"
 #include "JsonReader/json.hpp"
+#include "Logger/LoggerFactory/LoggerFactory.hpp"
+#include "common.hpp"
 
 
 HttpServer &HttpServer::getInstance() {
@@ -14,50 +16,57 @@ HttpServer &HttpServer::getInstance() {
 
 void HttpServer::addConfiguration(const std::string& configurationJsonPath) {
   if (configurationJsonPath.empty()) {
-    this->configuration = ServerConfiguration::createDefaultConfiguration();
+    _configuration = ServerConfiguration::createDefaultConfiguration();
     return;
   }
 
   try {
     JsonHandler<ServerConfiguration, ServerConfigurationParsingPolicy> jsonHandler(configurationJsonPath, true);
-    this->configuration = jsonHandler.deserialize();
+    _configuration = jsonHandler.deserialize();
   } catch (std::exception& exception) {
-    this->configuration = ServerConfiguration::createDefaultConfiguration();
+    _configuration = ServerConfiguration::createDefaultConfiguration();
   }
 }
 
 [[noreturn]] void HttpServer::startServer() {
   this->setUpServer();
 
-  this->tcpSocket->listen(this->configuration.requestsQueueSize);
-  this->tcpListener->start();
+  _tcpSocket->listen(_configuration.requestsQueueSize);
+  _tcpListener->start();
 
-  for (RequestMiddlewareHandler& handler : this->requestMiddlewareHandlers) {
+  _logger->info("Listening on:" + getComputerIp() + ":" + std::to_string(_configuration.port) + "\n");
+
+  for (RequestMiddlewareHandler& handler : _requestMiddlewareHandlers) {
     handler.start();
   }
 
-  for (ApplicationMiddlewareHandler& handler : this->applicationMiddlewareHandlers) {
+  for (ApplicationMiddlewareHandler& handler : _applicationMiddlewareHandlers) {
     handler.start();
   }
 
-  for (ResponseMiddlewareHandler& handler : this->responseMiddlewareHandlers) {
+  for (ResponseMiddlewareHandler& handler : _responseMiddlewareHandlers) {
     handler.start();
   }
 }
 
 [[noreturn]] void HttpServer::stopServer() {
-  this->tcpListener->stop();
+  _tcpListener->stop();
 }
 
 void HttpServer::setUpServer() {
+  LoggerFactory loggerFactory(_configuration.loggerConfiguration);
+  _logger = std::move(loggerFactory.createUniqueLogger());
+
+  _logger->info("Starting server");
+
   std::filesystem::path currentPath = __FILE__;
   currentPath = currentPath.parent_path();
 
-  std::string sslCertPath = currentPath / this->configuration.sslCertFileName;
-  std::string sslKey = currentPath / this->configuration.sslKeyFileName;
+  std::string sslCertPath = currentPath / _configuration.sslCertFileName;
+  std::string sslKey = currentPath / _configuration.sslKeyFileName;
 
-  this->tcpSocket = std::make_shared<TcpSocket>(14, sslCertPath, sslKey, false);
-  this->tcpSocket->bind(this->configuration.port);
+  _tcpSocket = std::make_shared<TcpSocket>(14, sslCertPath, sslKey, false);
+  _tcpSocket->bind(_configuration.port);
 
   ListenerMessageBundle messages {
           "Listening for client connections (TCP)\n",
@@ -65,43 +74,44 @@ void HttpServer::setUpServer() {
           "stopping server\n"
   };
 
-  this->tcpListener = std::make_shared<TcpListener>(
-          &(this->connectionsQueue)
-          , this->tcpSocket
+  _tcpListener = std::make_shared<TcpListener>(
+          &(_connectionsQueue)
+          , _tcpSocket
           , messages
           , nullptr
           , nullptr
-          , this->configuration.port
+          , _configuration.port
   );
 
   for (int requestHandlerIndex = 0;
-       requestHandlerIndex < this->configuration.requestHandlerAmount;
+       requestHandlerIndex < _configuration.requestHandlerAmount;
        ++requestHandlerIndex) {
-    this->requestMiddlewareHandlers.emplace_back(
-            &(this->connectionsQueue)
-            , this->requestsQueue
+    _requestMiddlewareHandlers.emplace_back(
+            &(_connectionsQueue)
+            , _requestsQueue
             , nullptr
     );
   }
 
   for (int applicationHandlerIndex = 0;
-       applicationHandlerIndex < this->configuration.applicationHandlerAmount;
+       applicationHandlerIndex < _configuration.applicationHandlerAmount;
        ++applicationHandlerIndex) {
-    this->applicationMiddlewareHandlers.emplace_back(
-            &(this->requestsQueue)
-            , this->responsesQueue
+    _applicationMiddlewareHandlers.emplace_back(
+            &(_requestsQueue)
+            , _responsesQueue
             , nullptr
     );
   }
 
   for (int responseHandlerIndex = 0;
-       responseHandlerIndex < this->configuration.responseHandlerAmount;
+       responseHandlerIndex < _configuration.responseHandlerAmount;
        ++responseHandlerIndex) {
 
-    this->responseMiddlewareHandlers.emplace_back(
-            &(this->responsesQueue)
+    _responseMiddlewareHandlers.emplace_back(
+            &(_responsesQueue)
             , nullptr
     );
+    _logger->info("Resources initialized");
   }
 }
 
