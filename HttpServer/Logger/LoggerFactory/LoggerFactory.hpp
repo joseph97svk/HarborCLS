@@ -12,54 +12,42 @@
 #include "ILoggerFactory.hpp"
 #include "../LoggerConfiguration.hpp"
 
-#include "../LoggingFileManagementStrategy/FileAlwaysOpenStrategy.hpp"
-#include "../LoggingFileManagementStrategy/FileOpenOnDemandStrategy.hpp"
+#include "../LoggerBuilder/BasicLoggerBuilder.hpp"
 
-#include "../LoggingBufferingStrategies/ILoggerBufferingStrategy.hpp"
-#include "../LogFileRotationStrategy/ILogFileRotation.hpp"
 
+template <typename Builder = BasicLoggerBuilder>
 class LoggerFactory : public ILoggerFactory {
-    std::unordered_map<
-            LoggerConfiguration::FileAlwaysOpenPolicy,
-            std::function<ILoggerFileManagementStrategy*()>> fileManagementStrategyCreationFunctions {};
-
-    std::unordered_map<
-            LoggerConfiguration::BufferingPolicy,
-            std::function<ILoggerBufferingStrategy*()>> bufferingStrategyCreationFunctions {};
-
-    std::unordered_map<
-            LoggerConfiguration::FileRotationPolicy,
-            std::function<ILogFileRotation*()>> fileRotationStrategyCreationFunctions {};
-
-    LoggerConfiguration loggerConfiguration {};
+  LoggerConfiguration _loggerConfiguration {};
+  Builder _loggerBuilder {};
 
 public:
-    LoggerFactory() = default;
+  LoggerFactory() = default;
 
-    explicit LoggerFactory(LoggerConfiguration loggerConfiguration);
+  explicit LoggerFactory(LoggerConfiguration loggerConfiguration)
+      : _loggerConfiguration(std::move(loggerConfiguration)) {
 
-    ~LoggerFactory() override = default;
+  }
 
-    [[nodiscard]] std::shared_ptr<ILogger> createLogger() override;
+  ~LoggerFactory() override = default;
 
-    [[nodiscard]] std::unique_ptr<ILogger> createUniqueLogger() override;
+  [[nodiscard]] std::shared_ptr<ILogger> createLogger() override {
+    _loggerBuilder.setConfiguration(_loggerConfiguration);
 
-    void registerFilePolicyStrategy(LoggerConfiguration::FileAlwaysOpenPolicy fileAlwaysOpenPolicy,
-                                    std::function<ILoggerFileManagementStrategy*()> creationFunction);
+    std::shared_ptr<ILogger> logger = std::move(_loggerBuilder.build());
 
-    void registerBufferingStrategy(LoggerConfiguration::BufferingPolicy bufferingPolicy,
-                                   std::function<ILoggerBufferingStrategy*()> creationFunction);
+    _loggerBuilder.reset();
+    return logger;
+  }
 
-    void registerFileRotationStrategy(LoggerConfiguration::FileRotationPolicy fileRotationPolicy,
-                                      std::function<ILogFileRotation*()> creationFunction);
+  [[nodiscard]] std::unique_ptr<ILogger> createUniqueLogger() override {
+    _loggerBuilder.setConfiguration(_loggerConfiguration);
 
-    void registerAllLoggerCreationFunctions();
+    std::unique_ptr<ILogger> logger = std::move(_loggerBuilder.build());
 
-private:
-  std::tuple<
-          std::shared_ptr<ILoggerFileManagementStrategy>,
-          std::shared_ptr<ILoggerBufferingStrategy>,
-          std::shared_ptr<ILogFileRotation>> createInjectionComponents();
+    _loggerBuilder.reset();
+    return logger;
+  }
+
 };
 
 

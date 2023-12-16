@@ -91,4 +91,14 @@ struct Response {
   return ss.str();
 }
 
+[[nodiscard]] inline static std::string getCurrentDate() {
+  auto now = std::chrono::system_clock::now();
+  auto now_c = std::chrono::system_clock::to_time_t(now);
+
+  std::stringstream ss;
+  ss << std::put_time(std::localtime(&now_c), "%F");
+
+  return ss.str();
+}
+
 #endif

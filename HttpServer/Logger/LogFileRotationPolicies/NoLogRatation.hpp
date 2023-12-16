@@ -6,16 +6,20 @@
 #define LEGO_FIGURE_MAKER_NOLOGRATATION_HPP
 
 #include "ILogFileRotation.hpp"
+#include "BaseFileRotation.hpp"
 
-class NoLogFileRotation : public ILogFileRotation {
+class NoLogFileRotation : public BaseFileRotation {
 public:
     NoLogFileRotation() = default;
 
     ~NoLogFileRotation() override = default;
 
     void rotateLogFile(std::ofstream& file, std::string& fileName) override {
-      (void) file;
-      (void) fileName;
+      if (!file.is_open()) {
+        std::string logFileName = NoLogFileRotation::createLogFileName(fileName, true);
+
+        file.open(logFileName, std::ios::app);
+      }
     }
 };
 
