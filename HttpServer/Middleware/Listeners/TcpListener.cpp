@@ -23,5 +23,7 @@ TcpListener::TcpListener(
 ) {}
 
 std::shared_ptr<TcpSocket> TcpListener::obtain() {
-    return nullptr;
+  std::shared_ptr<TcpSocket> receivedConnection = _listeningSocket->accept();
+
+  return receivedConnection;
 }

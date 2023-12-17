@@ -15,32 +15,47 @@
 
 template<typename SourceType, typename AttributeType>
 struct PolicyOperation : public NlohmannJsonPolicy<SourceType, AttributeType> {
-    explicit PolicyOperation(std::function<AttributeType&(SourceType&)> operation, std::string& key)
-        : operation(operation)
-        , key(key){}
+  /**
+   * @brief Serialize data to json
+   * @param data data to serialize
+   * @param json json to serialize to
+   */
+  explicit PolicyOperation(std::function<AttributeType&(SourceType&)> operation, std::string& key)
+      : operation(operation)
+      , key(key){}
 
-    void serialize(SourceType& data, nlohmann::json& json) override {
-      AttributeType& attribute = this->operation(data);
-      std::any anyAttribute = attribute;
-      this->serializeOperation(this->key, json, anyAttribute);
+  /**
+   * @brief Deserialize json to data
+   * @param data data to deserialize to
+   * @param json json to deserialize
+   */
+  void serialize(SourceType& data, nlohmann::json& json) override {
+    AttributeType& attribute = this->operation(data);
+    std::any anyAttribute = attribute;
+    this->serializeOperation(this->key, json, anyAttribute);
+  }
+
+  /**
+   * @brief Deserialize json to data
+   * @param data data to deserialize to
+   * @param json json to deserialize
+   */
+  void deserialize(SourceType& data, nlohmann::json& json) override {
+    AttributeType& attribute = this->operation(data);
+
+    std::any result = this->deserializeOperation(this->key, json);
+
+    if (result.type() == typeid(AttributeType)) {
+      AttributeType attributeBuffer = std::any_cast<AttributeType>(result);
+      attribute = attributeBuffer;
+    } else {
+      throw std::runtime_error("Type mismatch");
     }
-
-    void deserialize(SourceType& data, nlohmann::json& json) override {
-      AttributeType& attribute = this->operation(data);
-
-      std::any result = this->deserializeOperation(this->key, json);
-
-      if (result.type() == typeid(AttributeType)) {
-        AttributeType attributeBuffer = std::any_cast<AttributeType>(result);
-        attribute = attributeBuffer;
-      } else {
-        throw std::runtime_error("Type mismatch");
-      }
-    }
+  }
 
 private:
-    std::function<AttributeType&(SourceType&)> operation;
-    std::string key;
+  std::function<AttributeType&(SourceType&)> operation;
+  std::string key;
 };
 
 #endif //LEGO_FIGURE_MAKER_POLICYOPERATION_HPP

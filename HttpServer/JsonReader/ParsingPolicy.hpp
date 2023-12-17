@@ -15,31 +15,46 @@
 
 template<typename dataType>
 class ParsingPolicy {
-    using Policy = IPolicyOperation<nlohmann::json, dataType>;
-    std::vector<std::unique_ptr<Policy>> policies;
+  using Policy = IPolicyOperation<nlohmann::json, dataType>;
+  std::vector<std::unique_ptr<Policy>> policies;
 
 public:
-    virtual void addAllPolicies() = 0;
+  virtual void addAllPolicies() = 0;
 
-    void applyPoliciesOnDeserialization(dataType& data, nlohmann::json& json) {
-      for (auto& policy : this->policies) {
-        policy->deserialize(data, json);
-      }
+  /**
+   * @brief Deserialize json to data
+   * @param json json to deserialize
+   * @return deserialized data
+   */
+  void applyPoliciesOnDeserialization(dataType& data, nlohmann::json& json) {
+    for (auto& policy : this->policies) {
+      policy->deserialize(data, json);
     }
+  }
 
-    void applyPoliciesOnSerialization(const dataType& data, nlohmann::json& json) {
-      for (auto& policy : this->policies) {
-        policy->serialize(data, json);
-      }
+  /**
+   * @brief Serialize data to json
+   * @param data data to serialize
+   * @param json json to serialize to
+   */
+  void applyPoliciesOnSerialization(dataType& data, nlohmann::json& json) {
+    for (auto& policy : this->policies) {
+      policy->serialize(data, json);
     }
+  }
 
 protected:
-    template<typename AttributeType>
-    void addPolicy(const std::string& key, std::function<AttributeType&(dataType&)> value) {
-      std::string noConstKey = key;
-      auto newPolicy = std::make_unique<PolicyOperation<dataType, AttributeType>>(value, noConstKey);
-      this->policies.push_back(std::move(newPolicy));
-    }
+  /**
+   * @brief Add policy to policies
+   * @param key key to serialize to
+   * @param value value to serialize
+   */
+  template<typename AttributeType>
+  void addPolicy(const std::string& key, std::function<AttributeType&(dataType&)> value) {
+    std::string noConstKey = key;
+    auto newPolicy = std::make_unique<PolicyOperation<dataType, AttributeType>>(value, noConstKey);
+    this->policies.push_back(std::move(newPolicy));
+  }
 };
 
 #endif //HTTPSERVER_PARSINGPOLICY_HPP

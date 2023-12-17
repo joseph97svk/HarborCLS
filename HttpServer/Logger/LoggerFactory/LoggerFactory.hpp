@@ -23,12 +23,20 @@ class LoggerFactory : public ILoggerFactory {
 public:
   LoggerFactory() = default;
 
+  /**
+   * @brief Create a logger factory with a logger configuration.
+   * @param loggerConfiguration The logger configuration.
+   */
   explicit LoggerFactory(LoggerConfiguration loggerConfiguration)
       : _loggerConfiguration(std::move(loggerConfiguration)) {
   }
 
   ~LoggerFactory() override = default;
 
+  /**
+   * @brief Create a shared logger.
+   * @return A shared logger.
+   */
   [[nodiscard]] std::shared_ptr<ILogger> createLogger() override {
     _loggerBuilder.setConfiguration(_loggerConfiguration);
 
@@ -38,6 +46,10 @@ public:
     return logger;
   }
 
+  /**
+   * @brief Create a unique logger.
+   * @return A unique logger.
+   */
   [[nodiscard]] std::unique_ptr<ILogger> createUniqueLogger() override {
     _loggerBuilder.setConfiguration(_loggerConfiguration);
 
@@ -46,7 +58,6 @@ public:
     _loggerBuilder.reset();
     return logger;
   }
-
 };
 
 

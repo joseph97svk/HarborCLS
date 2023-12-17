@@ -19,6 +19,12 @@ public:
 
     ~BoundedFileRotation() override = default;
 
+    /**
+     * @brief Checks if the amount of writes to the file has exceeded the maximum amount of writes. If so, the file is
+     * closed and a new file is opened.
+     * @param file The file to rotate.
+     * @param fileName The name of the file to rotate.
+     */
     void rotateLogFile(std::ofstream& file, std::string& fileName) override {
       if (fileCurrentWrites >= fileMaxWrites) {
         fileCurrentWrites = 0;

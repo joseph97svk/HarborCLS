@@ -9,9 +9,8 @@
 #include <netdb.h>
 #include "TcpSocket.hpp"
 
-TcpSocket::TcpSocket(const int port, const bool ipv6) :
+TcpSocket::TcpSocket(const bool ipv6) :
         socketId(0),
-        port(port),
         ipv6(ipv6),
         ssl(false),
         sslController(std::nullopt)
@@ -19,12 +18,10 @@ TcpSocket::TcpSocket(const int port, const bool ipv6) :
   this->setSocket();
 }
 
-TcpSocket::TcpSocket(const int port,
-                     const std::string& certFileName,
+TcpSocket::TcpSocket(const std::string& certFileName,
                      const std::string& keyFileName,
                      const bool ipv6 = false) :
                      socketId(0),
-                     port(port),
                      ipv6(ipv6),
                      ssl(true),
                      sslController(std::make_optional<SSLController>(certFileName, keyFileName))
@@ -46,7 +43,6 @@ void TcpSocket::setSocket() {
 
 TcpSocket::TcpSocket(const int socketFd) :
         socketId(socketFd),
-        port(0),
         ipv6(false),
         ssl(false){
 }
@@ -116,7 +112,6 @@ void TcpSocket::connect(const std::string& host, const std::string& service) con
     throw std::runtime_error("TcpSocket::connect: Failed to convert host to IPv6 address");
   }
 
-  host6.sin6_port = htons( port );
   struct addrinfo hints{}, *result, *rp;
 
   memset(&hints, 0, sizeof(struct addrinfo));
@@ -166,7 +161,7 @@ TcpSocket& TcpSocket::operator>>(readDatatype& data) {
 
     bytesRead = readData.second;
     buffer.insert(buffer.end(), readData.first.begin(), readData.first.end());
-  } while (bytesRead != data.size());
+  } while (bytesRead == BUFFER_SIZE);
 
   data = readDatatype(buffer.begin(), buffer.end());
 
@@ -189,8 +184,7 @@ TcpSocket& TcpSocket::operator<<(const writeDatatype& data) {
 }
 
 TcpSocket &TcpSocket::operator<<(std::vector<char> &data) {
-
-unsigned int bytesWritten = this->ssl ?
+  unsigned int bytesWritten = this->ssl ?
       this->sslController->SSLWrite(std::span<char>(data.data(), data.size())) :
       this->Write(std::span<char>(data.data(), data.size()));
 
@@ -222,7 +216,7 @@ TcpSocket &TcpSocket::operator>>(std::vector<char> &data) {
 
     bytesRead = readData.second;
     buffer.insert(buffer.end(), readData.first.begin(), readData.first.end());
-  } while (bytesRead != data.size());
+  } while (bytesRead == BUFFER_SIZE);
 
   if (data.empty()) {
     data = std::move(buffer);
@@ -267,7 +261,7 @@ void TcpSocket::listen(const unsigned int queueSize) const {
   }
 }
 
-std::shared_ptr<TcpSocket> TcpSocket::accept() const {
+[[nodiscard]] std::shared_ptr<TcpSocket> TcpSocket::accept() const {
   struct sockaddr_in server{};
   socklen_t addr_len = sizeof(server);
 
@@ -284,14 +278,14 @@ std::shared_ptr<TcpSocket> TcpSocket::accept() const {
   std::shared_ptr<TcpSocket> acceptedConnection = std::make_shared<TcpSocket>(socketFD);
 
   if (this->ssl) {
-    acceptedConnection->sslController->SSLCreate(*this->sslController, socketFD);
+    acceptedConnection->sslController->SSLCreate(*this->sslController, this->socketId);
     acceptedConnection->sslController->SSLAccept();
   }
 
   return acceptedConnection;
 }
 
-bool TcpSocket::isSSL() const {
+[[nodiscard]] bool TcpSocket::isSSL() const {
   return this->ssl;
 }
 

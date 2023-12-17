@@ -13,8 +13,16 @@ class ILoggerFactory {
 public:
     virtual ~ILoggerFactory() = default;
 
+    /**
+     * @brief Create a shared logger.
+     * @return A shared logger.
+     */
     virtual std::shared_ptr<ILogger> createLogger() = 0;
 
+    /**
+     * @brief Create a unique logger.
+     * @return A unique logger.
+     */
     virtual std::unique_ptr<ILogger> createUniqueLogger() = 0;
 };
 

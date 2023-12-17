@@ -13,6 +13,11 @@ public:
 
   ~NoBufferingPolicy() override = default;
 
+  /**
+   * @brief Buffer a message.
+   * @param message The message to buffer.
+   * @return The buffered message if the buffer is full, otherwise an empty optional.
+   */
   std::optional<std::string> buffer(std::string& message) override {
     return message;
   }

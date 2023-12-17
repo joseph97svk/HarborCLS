@@ -7,15 +7,15 @@
 #include "Logger/LoggerConfiguration.hpp"
 
 struct ServerConfiguration {
-    unsigned int port{};
+    unsigned int port{8011};
 
-    unsigned int requestHandlerAmount{};
-    unsigned int applicationHandlerAmount{};
-    unsigned int responseHandlerAmount{};
-    unsigned int requestsQueueSize{};
+    unsigned int requestHandlerAmount{1};
+    unsigned int applicationHandlerAmount{1};
+    unsigned int responseHandlerAmount{1};
+    unsigned int requestsQueueSize{16};
 
-    std::string sslCertFileName{};
-    std::string sslKeyFileName{};
+    std::string sslCertFileName {"defaultSSLCerts/defaultCert.pem"};
+    std::string sslKeyFileName {"defaultSSLCerts/defaultKey.pem"};
 
     LoggerConfiguration loggerConfiguration {
         LoggerConfiguration::FileAlwaysOpenPolicy::OPEN_AND_CLOSE,
@@ -29,6 +29,6 @@ struct ServerConfiguration {
     ~ServerConfiguration() = default;
 
     [[nodiscard]] inline static ServerConfiguration createDefaultConfiguration() {
-        return {8080, 1, 1, 1, 16, "", ""};
+        return {};
     }
 };

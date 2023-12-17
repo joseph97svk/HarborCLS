@@ -299,9 +299,9 @@ int Socket::Write( const char *text ) {
   * listen method
   *   use "listen" Unix system call (server mode)
   *
-  * @param	int queue: max pending connections to enqueue 
+  * @param	int _queue: max pending connections to enqueue
   *
-  *  This method define how many elements can wait in queue
+  *  This method define how many elements can wait in _queue
   *
  **/
 int Socket::Listen( int queue ) {

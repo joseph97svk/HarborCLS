@@ -4,6 +4,7 @@
 
 #include "ApplicationMiddlewareHandler.hpp"
 
+
 ApplicationMiddlewareHandler::ApplicationMiddlewareHandler(
         Queue<std::shared_ptr<HttpRequest>>* consumingQueue,
         Queue<std::shared_ptr<HttpResponse>>& producingQueue,

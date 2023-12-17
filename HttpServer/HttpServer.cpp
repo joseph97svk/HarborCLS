@@ -28,13 +28,13 @@ void HttpServer::addConfiguration(const std::string& configurationJsonPath) {
   }
 }
 
-[[noreturn]] void HttpServer::startServer() {
+void HttpServer::startServer() {
   this->setUpServer();
 
   _tcpSocket->listen(_configuration.requestsQueueSize);
   _tcpListener->start();
 
-  _logger->info("Listening on:" + getComputerIp() + ":" + std::to_string(_configuration.port) + "\n");
+  _logger->info("Listening on: " + getComputerIp() + ":" + std::to_string(_configuration.port) + "\n");
 
   for (RequestMiddlewareHandler& handler : _requestMiddlewareHandlers) {
     handler.start();
@@ -47,10 +47,29 @@ void HttpServer::addConfiguration(const std::string& configurationJsonPath) {
   for (ResponseMiddlewareHandler& handler : _responseMiddlewareHandlers) {
     handler.start();
   }
+
+
+  for (RequestMiddlewareHandler& handler : _requestMiddlewareHandlers) {
+    handler.waitToFinish();
+  }
+
+  for (ApplicationMiddlewareHandler& handler : _applicationMiddlewareHandlers) {
+    handler.waitToFinish();
+  }
+
+  for (ResponseMiddlewareHandler& handler : _responseMiddlewareHandlers) {
+    handler.waitToFinish();
+  }
+
+  _tcpListener->waitToFinish();
 }
 
-[[noreturn]] void HttpServer::stopServer() {
-  _tcpListener->stop();
+void HttpServer::stopServer() {
+  _logger->info("Stopping server");
+  // _tcpListener->stop();
+  _tcpSocket->close();
+  delete _tcpSocket.get();
+  _logger->info("Server terminated");
 }
 
 void HttpServer::setUpServer() {
@@ -65,7 +84,7 @@ void HttpServer::setUpServer() {
   std::string sslCertPath = currentPath / _configuration.sslCertFileName;
   std::string sslKey = currentPath / _configuration.sslKeyFileName;
 
-  _tcpSocket = std::make_shared<TcpSocket>(14, sslCertPath, sslKey, false);
+  _tcpSocket = std::make_shared<TcpSocket>(/*sslCertPath, sslKey, */false);
   _tcpSocket->bind(_configuration.port);
 
   ListenerMessageBundle messages {

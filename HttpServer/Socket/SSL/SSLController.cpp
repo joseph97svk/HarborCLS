@@ -42,7 +42,8 @@ void SSLController::initServerContext(const std::string& certFileName, const std
   }
 
   if (0 >= SSL_CTX_use_certificate_file(this->SSLContext.get(), certFileName.c_str(), SSL_FILETYPE_PEM)) {
-    throw std::runtime_error("SSLController::initServerContext: Failed to set certificate");
+    throw std::runtime_error("SSLController::initServerContext: Failed to set certificate on certificate file name: "
+      + certFileName);
   }
 
   if (0 >= SSL_CTX_use_PrivateKey_file(this->SSLContext.get(), keyFileName.c_str(), SSL_FILETYPE_PEM)) {
@@ -94,7 +95,7 @@ void SSLController::SSLConnect(int socketId) const {
 }
 
 void SSLController::SSLAccept() {
-  if (::SSL_accept(this->SSLStruct.get())) {
+  if (::SSL_accept(this->SSLStruct.get()) != 1) {
     int err = SSL_get_error(this->SSLStruct.get(), err);
     if (!(err == SSL_ERROR_WANT_READ || err == SSL_ERROR_WANT_WRITE)) {
       throw std::runtime_error("SSLController::SSLAccept: Failed to accept SSL; handshake failed");

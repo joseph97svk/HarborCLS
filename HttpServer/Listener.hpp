@@ -19,17 +19,17 @@
 template <typename enqueueType>
 class Listener : public virtual Thread {
  protected:
-  Queue<enqueueType>* queue;
-  std::shared_ptr<Socket> listeningSocket;
-  ListenerMessageBundle messageBundle;
+  Queue<enqueueType>* _queue;
+  std::shared_ptr<Socket> _listeningSocket;
+  ListenerMessageBundle _messageBundle;
 
-  enqueueType stopCondition;
-  enqueueType handlerStopCondition;
+  enqueueType _stopCondition;
+  enqueueType _handlerStopCondition;
 
-  int stopPort;
+  int _stopPort;
 
-  bool udp = false;
-  bool stopThread = false;
+  bool _udp = false;
+  bool _stopThread = false;
 
  public:
   Listener(Queue<enqueueType>* queue,
@@ -39,45 +39,45 @@ class Listener : public virtual Thread {
            enqueueType handlerStopCondition,
            unsigned int stopPort
            )
-    : queue(queue)
-    , listeningSocket(std::move(listeningSocket))
-    , messageBundle(std::move(messageBundle))
-    , stopCondition(stopCondition)
-    , handlerStopCondition(handlerStopCondition)
-    , stopPort(stopPort) {
+    : _queue(queue)
+    , _listeningSocket(std::move(listeningSocket))
+    , _messageBundle(std::move(messageBundle))
+    , _stopCondition(stopCondition)
+    , _handlerStopCondition(handlerStopCondition)
+    , _stopPort(stopPort) {
   }
 
   ~Listener() override = default;
 
   void stop() {
-    this->stopThread = true;
+    this->_stopThread = true;
 
     this->unlockListen();
 
-    this->queue->push(handlerStopCondition);
+    this->_queue->push(_handlerStopCondition);
   }
 
   void setAsUDP() {
-    this->udp = true;
+    this->_udp = true;
   }
 
  private:
   virtual void listen() {
     while (true) {
-      printf("%s", this->messageBundle.listeningMessage.c_str());
+      printf("%s", this->_messageBundle.listeningMessage.c_str());
 
       enqueueType data = this->obtain();
 
-      if (data == this->stopCondition || this->stopThread) {
-        this->queue->push(data);
-        printf("%s", this->messageBundle.stopMessage.c_str());
+      if (data == this->_stopCondition || this->_stopThread) {
+        this->_queue->push(data);
+        printf("%s", this->_messageBundle.stopMessage.c_str());
 
         break;
       }
 
-      printf("%s", this->messageBundle.afterReceivedMessage.c_str());
+      printf("%s", this->_messageBundle.afterReceivedMessage.c_str());
 
-      this->queue->push(data);
+      this->_queue->push(data);
     }
   }
 
@@ -88,14 +88,14 @@ class Listener : public virtual Thread {
   virtual enqueueType obtain() = 0;
 
   void unlockListen() {
-    Socket closingSocket(this->listeningSocket->getType(), false);
+    Socket closingSocket(this->_listeningSocket->getType(), false);
 
-    if (this->udp) {
+    if (this->_udp) {
       sockaddr_in sockinfo{};
       memset(&sockinfo, 0, sizeof(sockaddr_in));
 
       sockinfo.sin_family = AF_INET;
-      sockinfo.sin_port = htons(this->stopPort);
+      sockinfo.sin_port = htons(this->_stopPort);
       sockinfo.sin_addr.s_addr = INADDR_ANY;
 
       closingSocket.sendTo((void*) "sup", 3, &sockinfo);
@@ -103,14 +103,14 @@ class Listener : public virtual Thread {
       return;
     }
 
-    if (this->listeningSocket->isSSL()) {
+    if (this->_listeningSocket->isSSL()) {
       closingSocket.SSLInit();
-      closingSocket.SSLConnect((char*) "any IP", this->stopPort);
+      closingSocket.SSLConnect((char*) "any IP", this->_stopPort);
 
       return;
     }
 
-    closingSocket.Connect("any IP", this->stopPort);
+    closingSocket.Connect("any IP", this->_stopPort);
   }
 };
 

@@ -5,81 +5,105 @@
 #ifndef HTTPSERVER_JSONHANDLER_HPP
 #define HTTPSERVER_JSONHANDLER_HPP
 
-#include "json.hpp"
-#include "ParsingPolicy.hpp"
 #include <variant>
 #include <fstream>
 #include <filesystem>
 #include <optional>
 
-template<typename dataType, typename ParsingPolicy>
-class JsonHandler {
-    std::optional<nlohmann::json> jsonToParse;
-    std::optional<dataType> dataToSerialize;
+#include "IJsonHandler.hpp"
 
-    ParsingPolicy parsingPolicy;
+#include "json.hpp"
+#include "ParsingPolicy.hpp"
+
+template<typename dataType, typename ParsingPolicy>
+class JsonHandler : public IJsonHandler<dataType> {
+  std::optional<nlohmann::json> _jsonToParse;
+  std::optional<dataType> _dataToSerialize;
+
+  ParsingPolicy _parsingPolicy;
 
 public:
-    explicit JsonHandler(const std::string& json, bool isPath)
-        : parsingPolicy(),
-          jsonToParse(),
-          dataToSerialize() {
-      this->parsingPolicy.addAllPolicies();
+  /**
+   * @brief constructor for jsonTo handler
+   * @param json string or path to jsonTo file
+   * @param isPath whether provided string is a path or not
+   */
+  explicit JsonHandler(const std::string& json, bool isPath)
+      : _parsingPolicy(),
+        _jsonToParse(),
+        _dataToSerialize() {
+    _parsingPolicy.addAllPolicies();
 
-      if (!isPath) {
-        this->jsonToParse = nlohmann::json::parse(json);
-        return;
-      }
-
-      std::filesystem::path path(json);
-
-      if (!(std::filesystem::exists(path) && path.has_filename())) {
-        throw std::runtime_error("Invalid jsonTo path");
-      }
-
-      std::ifstream jsonFile(path);
-
-      if (!jsonFile.is_open()) {
-        throw std::runtime_error("Could not open jsonTo file");
-      }
-
-      nlohmann::json jsonBuffer;
-      jsonFile >> jsonBuffer;
-
-      this->jsonToParse = jsonBuffer;
+    if (!isPath) {
+      _jsonToParse = nlohmann::json::parse(json);
+      return;
     }
 
-    explicit JsonHandler(dataType& data)
-        : parsingPolicy(),
-          jsonToParse(),
-          dataToSerialize() {
-      this->parsingPolicy.addAllPolicies();
-      this->dataToSerialize = data;
+    std::cout << "jsonTo path: " << json << std::endl;
+
+    std::filesystem::path path(json);
+
+    if (!std::filesystem::exists(path)) {
+      throw std::runtime_error("Invalid jsonTo path");
     }
 
-    dataType deserialize() {
-      if (this->dataToSerialize.has_value()) {
-        return this->dataToSerialize.value();
-      }
+    std::ifstream jsonFile(path);
 
-      if (!this->jsonToParse.has_value()) {
-        throw std::runtime_error("No jsonTo to deserialize");
-      }
-
-      dataType data;
-      this->parsingPolicy.applyPoliciesOnDeserialization(data, this->jsonToParse.value());
-      return data;
+    if (!jsonFile.is_open()) {
+      throw std::runtime_error("Could not open jsonTo file");
     }
 
-    std::string serialize() {
-      if (this->jsonToParse.has_value()) {
-        return this->jsonToParse->dump();
-      }
+    nlohmann::json jsonBuffer;
+    jsonFile >> jsonBuffer;
 
-      nlohmann::json json;
-      this->parsingPolicy.applyPoliciesOnSerialization(this->dataToSerialize, json);
-      return json.dump();
+    _jsonToParse = jsonBuffer;
+  }
+
+  /**
+   * @brief constructor for jsonTo handler
+   * @param data to serialize
+   */
+  explicit JsonHandler(dataType& data)
+      : _parsingPolicy(),
+        _jsonToParse(),
+        _dataToSerialize() {
+    _parsingPolicy.addAllPolicies();
+    _dataToSerialize = data;
+  }
+
+  /**
+   * @brief constructor for jsonTo handler
+   * @param data to serialize
+   * @param parsingPolicy to apply
+   */
+  [[nodiscard]] dataType deserialize() override {
+    if (_dataToSerialize.has_value()) {
+      return _dataToSerialize.value();
     }
+
+    if (!_jsonToParse.has_value()) {
+      throw std::runtime_error("No jsonTo to deserialize");
+    }
+
+    dataType data;
+    _parsingPolicy.applyPoliciesOnDeserialization(data, this->_jsonToParse.value());
+    return data;
+  }
+
+  /**
+   * @brief constructor for jsonTo handler
+   * @param data to serialize
+   * @param parsingPolicy to apply
+   */
+  [[nodiscard]] std::string serialize() override {
+    if (_jsonToParse.has_value()) {
+      return _jsonToParse->dump();
+    }
+
+    nlohmann::json json;
+    _parsingPolicy.applyPoliciesOnSerialization(*_dataToSerialize, json);
+    return json.dump();
+  }
 };
 
 #endif //HTTPSERVER_JSONHANDLER_HPP

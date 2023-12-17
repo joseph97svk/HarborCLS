@@ -12,6 +12,11 @@ class ILoggerBufferingPolicy {
 public:
   virtual ~ILoggerBufferingPolicy() = default;
 
+  /**
+   * @brief Buffer a message.
+   * @param message The message to buffer.
+   * @return The buffered message if the buffer is full, otherwise an empty optional.
+   */
   virtual std::optional<std::string> buffer(std::string& message) = 0;
 };
 

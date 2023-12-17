@@ -6,45 +6,44 @@
 #define LEGO_FIGURE_MAKER_FILEALWAYSOPENPOLICY_HPP
 
 #include <iostream>
+#include <memory>
+#include <optional>
 
 #include "ILoggerFileManagementPolicy.hpp"
+#include "Logger/LogFileRotationPolicies/ILogFileRotation.hpp"
 
 class FileAlwaysOpenPolicy : public ILoggerFileManagementPolicy {
   std::unique_ptr<ILogFileRotation> _logFileRotationPolicy;
   std::string _logFilePath {};
 
 public:
-  explicit FileAlwaysOpenPolicy(std::unique_ptr<ILogFileRotation> logFileRotation)
-      : _logFileRotationPolicy(std::move(logFileRotation)) {}
+  /**
+   * @brief Constructor
+   * @param logFileRotation defines the lifetime of a log file
+   */
+  explicit FileAlwaysOpenPolicy(std::unique_ptr<ILogFileRotation> logFileRotation);
 
+  /**
+   * @brief Destructor
+   */
   ~FileAlwaysOpenPolicy() override = default;
 
-  std::variant<std::string, std::ofstream> getLogFile(std::string& logFilePath) override {
-    std::ofstream fileStream;
+  /**
+   * @brief Based on the log file rotation policy, returns a log file or the path to a log file
+   * @param logFilePath path to the log file
+   * @return a log file or the path to a log file
+   */
+  std::variant<std::string, std::ofstream> getLogFile(std::string& logFilePath) override;
 
-    this->_logFileRotationPolicy->rotateLogFile(fileStream, logFilePath);
-
-    if (!fileStream.is_open()) {
-      throw std::runtime_error("Could not open file: " + logFilePath);
-    }
-
-    _logFilePath = logFilePath;
-
-    return std::move(fileStream);
-  }
-
+  /**
+   * @brief Logs a message to a log file
+   * @param completeLoggingMessage message to log
+   * @param loggingFile log file
+   * @param canWrite mutex to control access to the log file
+   */
   void log(std::string completeLoggingMessage,
            std::optional<std::ofstream>& loggingFile,
-           std::mutex& canWrite) override {
-    canWrite.lock();
-
-    auto& fileStream = loggingFile.value();
-
-    std::cout << completeLoggingMessage << std::endl;
-    fileStream << completeLoggingMessage;
-
-    canWrite.unlock();
-  }
+           std::mutex& canWrite) override;
 };
 
 #endif //LEGO_FIGURE_MAKER_FILEALWAYSOPENPOLICY_HPP

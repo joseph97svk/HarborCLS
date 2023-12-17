@@ -33,19 +33,40 @@ class HttpServer {
   std::unique_ptr<ILogger> _logger;
 
 public:
-    static HttpServer& getInstance();
+  /*
+   * @brief returns the instance of the server
+   * @return reference to the server instance
+   */
+  [[nodiscard]] static HttpServer& getInstance();
 
-    NO_COPY(HttpServer)
 
-    void addConfiguration(const std::string& configurationJsonPath);
+  NO_COPY(HttpServer)
 
-    [[noreturn]] void startServer();
+  /**
+   * Adds a configuration on how the server should behave.
+   * @param configurationJsonPath the path of the file that has the configuration.
+   */
+  void addConfiguration(const std::string& configurationJsonPath);
 
-    [[noreturn]] void stopServer();
+  /**
+   * Initializes the server and starts its operation
+   */
+  void startServer();
+
+  /***
+   * Stops the operation of the server
+   */
+  void stopServer();
 
 protected:
-    void setUpServer();
+  /**
+   * Sets up the server with the configuration that was added.
+   */
+  void setUpServer();
 
-    HttpServer() = default;
+  /**
+   * Default constructor
+   */
+  HttpServer() = default;
 };
 

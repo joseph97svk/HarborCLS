@@ -8,6 +8,7 @@
 #include "Handler.hpp"
 #include "Http/HttpMessages/HttpRequest.hpp"
 #include "Http/HttpMessages/HttpResponse.hpp"
+#include "Socket/TcpSocket.hpp"
 
 class ApplicationMiddlewareHandler : public Handler<std::shared_ptr<HttpRequest>> {
     Queue<std::shared_ptr<HttpResponse>>& responsesQueue;
