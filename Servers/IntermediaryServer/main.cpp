@@ -24,6 +24,7 @@ int main() {
   intermediaryServer.addConfiguration(path);
 
   server.addWebApplication(intermediaryServer);
+
   server.startServer();
 
   return 0;

@@ -4,12 +4,16 @@
 
 #include "ResponseMiddlewareHandler.hpp"
 
+#include <utility>
+
 #include "../../Http/HttpMessages/HttpMappings.hpp"
 
 ResponseMiddlewareHandler::ResponseMiddlewareHandler(
         Queue<std::shared_ptr<HttpResponse>>* consumingQueue,
-        std::shared_ptr<HttpResponse> stopCondition) :
-        Handler(consumingQueue, std::move(stopCondition)) {}
+        std::shared_ptr<HttpResponse> stopCondition,
+        std::shared_ptr<IResponseHeaderComposer> headerComposer)
+        : Handler(consumingQueue, std::move(stopCondition))
+        , _headerComposer(std::move(headerComposer)){}
 
 void ResponseMiddlewareHandler::optionalToEnd() {
 
@@ -18,25 +22,11 @@ void ResponseMiddlewareHandler::optionalToEnd() {
 template<class... Ts> struct overloaded : Ts... { using Ts::operator()...; };
 
 void ResponseMiddlewareHandler::handleSingle(std::shared_ptr<HttpResponse> handlingData) {
-  std::vector<char> responseVector;
-
-  std::string header;
-
-  header += handlingData->htmlVersion + " ";
-  header += HttpResponseStatusCode::getStatusCodeString(handlingData->statusCode) + "\r\n";
-
-  if (contentTypeMap.contains(handlingData->contentType)) {
-    header += "Content-Type: " + contentTypeMap.at(handlingData->contentType) + "\r\n";
-  }
-
-  header += "Content-Length: " + std::to_string(handlingData->contentLength) + "\r\n";
-
-  for (auto& field : handlingData->otherHeaderFields) {
-    header += field.fieldName + ": " + field.value + "\r\n";
-  }
+  std::string header = std::move(_headerComposer->composeHeader(handlingData));
 
   header += HttpMappings::separator;
-  responseVector.insert(responseVector.end(), header.begin(), header.end());
+
+  std::vector<char> responseVector(header.begin(), header.end());
 
   std::visit(overloaded {
     [&responseVector](std::string& str) {
@@ -47,7 +37,5 @@ void ResponseMiddlewareHandler::handleSingle(std::shared_ptr<HttpResponse> handl
     }
   }, handlingData->body);
 
-  auto socket = handlingData->socket;
-
-  *socket << responseVector;
+  *handlingData->socket << responseVector;
 };

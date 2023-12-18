@@ -15,7 +15,7 @@
 #include <optional>
 
 #include "../Common/FileManagement.hpp"
-#include "../common.hpp"
+#include "Common/common.hpp"
 
 #include "ILogger.hpp"
 #include "LoggingFileManagementPolicies/ILoggerFileManagementPolicy.hpp"

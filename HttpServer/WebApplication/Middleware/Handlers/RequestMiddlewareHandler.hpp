@@ -7,12 +7,15 @@
 
 #include <utility>
 
-#include "Handler.hpp"
-#include "Http/HttpMessages/HttpRequest.hpp"
+#include "BaseElements/Handler.hpp"
+#include "Http/HttpMessages/Request/HttpRequest.hpp"
 #include "Socket/TcpSocket.hpp"
+#include "Http/HttpRequestParser/IHttpRequestParser.hpp"
 
 class RequestMiddlewareHandler : public Handler<std::shared_ptr<TcpSocket>> {
-    Queue<std::shared_ptr<HttpRequest>>& _requestsQueue;
+  Queue<std::shared_ptr<HttpRequest>>& _requestsQueue;
+
+  std::shared_ptr<IHttpRequestParser<TcpSocket>> _requestParser;
 
 public:
   /**
@@ -23,12 +26,9 @@ public:
    */
   RequestMiddlewareHandler(Queue<std::shared_ptr<TcpSocket>>* consumingQueue,
                            Queue<std::shared_ptr<HttpRequest>>& producingQueue,
-                           std::shared_ptr<TcpSocket> stopCondition);
+                           std::shared_ptr<TcpSocket> stopCondition,
+                           std::shared_ptr<IHttpRequestParser<TcpSocket>> requestParser);
 
-  RequestMiddlewareHandler()
-  : Handler(nullptr, nullptr),
-    _requestsQueue(*new Queue<std::shared_ptr<HttpRequest>>()) {
-  }
 private:
   /**
    * This method is called when the handler is about to end its operation.

@@ -4,6 +4,8 @@
 
 #include "HttpServer.hpp"
 #include "Logger/LoggerFactory/LoggerFactory.hpp"
+#include "Http/ResponseHeaderComposer/ResponseHeaderComposer.hpp"
+#include "Http/HttpRequestParser/HttpRequestParser.hpp"
 
 HttpServer &HttpServer::getInstance() {
   static HttpServer instance;
@@ -28,9 +30,17 @@ void HttpServer::startServer() {
 
   _logger->info("Starting server");
 
+  if (_requestParser == nullptr) {
+    _requestParser = std::make_shared<HttpRequestParser>();
+  }
+
   for (WebApplication& webApplication : _webApplications) {
     webApplication.addResponsesQueue(_responsesQueue);
-    webApplication.startApplication();
+    webApplication.startApplication(_requestParser);
+  }
+
+  if (_responseHeaderComposer == nullptr) {
+    _responseHeaderComposer = std::make_shared<ResponseHeaderComposer>();
   }
 
   for (int responseHandlerIndex = 0;
@@ -38,7 +48,9 @@ void HttpServer::startServer() {
        ++responseHandlerIndex) {
 
     _responseMiddlewareHandlers.emplace_back(
-        &(_responsesQueue), nullptr
+        &(_responsesQueue),
+        nullptr,
+        _responseHeaderComposer
     );
   }
 
@@ -65,6 +77,11 @@ void HttpServer::stopServer() {
   }
 
   _logger->info("Server terminated");
+}
+
+void HttpServer::setHttpBehaviour(HttpBehavior &httpBehavior) {
+  _requestParser = httpBehavior.requestParser;
+  _responseHeaderComposer = httpBehavior.responseHeaderComposer;
 }
 
 

@@ -24,12 +24,10 @@ std::variant<std::string, std::ofstream> FileAlwaysOpenPolicy::getLogFile(std::s
 void FileAlwaysOpenPolicy::log(std::string completeLoggingMessage,
                                std::optional<std::ofstream>& loggingFile,
                                std::mutex& canWrite) {
-  canWrite.lock();
+  std::lock_guard<std::mutex> lock(canWrite);
 
   auto& fileStream = loggingFile.value();
 
   std::cout << completeLoggingMessage << std::endl;
   fileStream << completeLoggingMessage;
-
-  canWrite.unlock();
 }

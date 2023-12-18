@@ -39,8 +39,6 @@ public:
       return;
     }
 
-    std::cout << "jsonTo path: " << json << std::endl;
-
     std::filesystem::path path(json);
 
     if (!std::filesystem::exists(path)) {

@@ -7,7 +7,7 @@
 
 #include "ILogFileRotation.hpp"
 #include "BaseFileRotation.hpp"
-#include "../../common.hpp"
+#include "Common/common.hpp"
 
 class BoundedFileRotation : public BaseFileRotation {
     unsigned int fileMaxWrites {};

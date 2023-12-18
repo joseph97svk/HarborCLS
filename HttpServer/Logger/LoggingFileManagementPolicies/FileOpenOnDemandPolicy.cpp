@@ -4,6 +4,8 @@
 
 #include "FileOpenOnDemandPolicy.hpp"
 
+
+
 FileOpenOnDemandPolicy::FileOpenOnDemandPolicy(std::unique_ptr<ILogFileRotation> logFileRotation)
     : _logFileRotationPolicy(std::move(logFileRotation)) {}
 
@@ -15,7 +17,7 @@ std::variant<std::string, std::ofstream> FileOpenOnDemandPolicy::getLogFile(std:
 void FileOpenOnDemandPolicy::log(std::string completeLoggingMessage,
                                  std::optional<std::ofstream>& loggingFile,
                                  std::mutex& canWrite) {
-  canWrite.lock();
+  std::lock_guard<std::mutex> lock(canWrite);
 
   std::cout << completeLoggingMessage << std::endl;
 
@@ -23,6 +25,4 @@ void FileOpenOnDemandPolicy::log(std::string completeLoggingMessage,
 
   _logFileRotationPolicy->rotateLogFile(fileStream, _logFilePath);
   fileStream << completeLoggingMessage;
-
-  canWrite.unlock();
 }

@@ -7,12 +7,12 @@
 
 #include <memory>
 
-#include "HttpMessages/HttpRequest.hpp"
+#include "Http/HttpMessages/Request/HttpRequest.hpp"
 
 template <typename SocketType>
 class IHttpRequestParser {
 public:
-    virtual ~IHttpRequestParser() = default;
+  virtual ~IHttpRequestParser() = default;
 
   [[nodiscard]] virtual std::shared_ptr<HttpRequest> createHttpRequest(
           std::vector<char>& request,

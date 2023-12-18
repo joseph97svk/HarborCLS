@@ -9,11 +9,11 @@
 
 #include "JsonParsingPolicies/ServerConfigurationParsingPolicy.hpp"
 #include "Socket/TcpSocket.hpp"
-#include "Middleware/Handlers/RequestMiddlewareHandler.hpp"
+#include "WebApplication/Middleware/Handlers/RequestMiddlewareHandler.hpp"
 #include "Logger/ILogger.hpp"
-#include "Http/HttpMessages/HttpResponse.hpp"
+#include "Http/HttpMessages/Reponse/HttpResponse.hpp"
 #include "Middleware/Listeners/TcpListener.hpp"
-#include "Middleware/Handlers/ApplicationMiddlewareHandler.hpp"
+#include "WebApplication/Middleware/Handlers/ApplicationMiddlewareHandler.hpp"
 
 class WebApplication {
   std::shared_ptr<TcpSocket> _tcpSocket;
@@ -56,7 +56,7 @@ public:
   /**
    * Initializes the application and starts its operation
    */
-  void startApplication();
+  void startApplication(std::shared_ptr<IHttpRequestParser<TcpSocket>> requestParser);
 
   /**
    * Waits for the application to finish its operation
@@ -71,7 +71,7 @@ public:
   void stopApplication();
 
 protected:
-  inline void startResources();
+  inline void startResources(std::shared_ptr<IHttpRequestParser<TcpSocket>> requestParser);
 
 };
 

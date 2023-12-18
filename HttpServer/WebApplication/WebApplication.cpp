@@ -4,6 +4,8 @@
 
 #include "WebApplication.hpp"
 
+#include <utility>
+
 #include "JsonReader/JsonHandler.hpp"
 #include "Logger/LoggerFactory/LoggerFactory.hpp"
 
@@ -39,12 +41,12 @@ void WebApplication::addResponsesQueue(BlockingQueue<std::shared_ptr<HttpRespons
   _responsesQueue = responsesQueue;
 }
 
-void WebApplication::startApplication() {
+void WebApplication::startApplication(std::shared_ptr<IHttpRequestParser<TcpSocket>> requestParser) {
   _configuration.loggerConfiguration.sharedLog = false;
   LoggerFactory loggerFactory(_configuration.loggerConfiguration);
   _logger = loggerFactory.createUniqueLogger();
 
-  this->startResources();
+  this->startResources(std::move(requestParser));
   _logger->info("Resources initialized");
   _logger->info("Listening on: " + getComputerIp() + ":" + std::to_string(_configuration.port));
 
@@ -81,13 +83,7 @@ void WebApplication::stopApplication() {
   _logger->info("Server terminated");
 }
 
-void WebApplication::startResources() {
-  ListenerMessageBundle messages {
-      "Listening for client connections (TCP)\n",
-      "request received\n",
-      "stopping server\n"
-  };
-
+void WebApplication::startResources(std::shared_ptr<IHttpRequestParser<TcpSocket>> requestParser) {
   std::filesystem::path currentPath = __FILE__;
   currentPath = currentPath.parent_path();
 
@@ -98,7 +94,6 @@ void WebApplication::startResources() {
   _tcpListener = std::make_optional<TcpListener>(
       &(_connectionsQueue)
       , _tcpSocket
-      , messages
       , nullptr
       , nullptr
       , _configuration.port);
@@ -110,6 +105,7 @@ void WebApplication::startResources() {
         &_connectionsQueue
         , _requestsQueue
         , nullptr
+        , std::move(requestParser)
     );
   }
 

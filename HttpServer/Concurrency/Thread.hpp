@@ -2,7 +2,7 @@
 #define THREAD_HPP
 
 #include <thread>
-#include "../common.hpp"
+#include <memory>
 
 class Thread {
  protected:

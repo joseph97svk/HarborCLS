@@ -7,7 +7,8 @@
 #include "Logger/Logger.hpp"
 #include "WebApplication/WebApplication.hpp"
 
-#include "common.hpp"
+#include "Common/common.hpp"
+#include "Http/HttpBehavior/HttpBehavior.hpp"
 
 class HttpServer {
   std::vector<ResponseMiddlewareHandler> _responseMiddlewareHandlers;
@@ -19,6 +20,8 @@ class HttpServer {
 
   std::unique_ptr<ILogger> _logger;
 
+  std::shared_ptr<IHttpRequestParser<TcpSocket>> _requestParser;
+  std::shared_ptr<IResponseHeaderComposer> _responseHeaderComposer;
 public:
   /*
    * @brief returns the instance of the server
@@ -33,6 +36,12 @@ public:
    * @param webApplication
    */
   void addWebApplication(WebApplication& webApplication);
+
+  /**
+   * @brief sets the behaviour on how http requests and responses are handled
+   * @param configuration instance of HttpBehavior with the desired behaviour
+   */
+  void setHttpBehaviour(HttpBehavior& httpBehavior);
 
   /**
    * Initializes the server and starts the execution of added web applications

@@ -1,9 +1,9 @@
 #ifndef RESPONSEHANDLER_HPP
 #define RESPONSEHANDLER_HPP
 
-#include "../../../HttpServer/Handler.hpp"
+#include "BaseElements/Handler.hpp"
 #include "../RoutingMap.hpp"
-#include "common.hpp"
+#include "Common/common.hpp"
 
 #include <regex>
 #include <fstream>

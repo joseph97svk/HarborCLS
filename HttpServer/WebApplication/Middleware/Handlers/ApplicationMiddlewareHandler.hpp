@@ -5,9 +5,9 @@
 #ifndef LEGO_FIGURE_MAKER_APPLICATIONMIDDLEWAREHANDLER_IXX
 #define LEGO_FIGURE_MAKER_APPLICATIONMIDDLEWAREHANDLER_IXX
 
-#include "Handler.hpp"
-#include "Http/HttpMessages/HttpRequest.hpp"
-#include "Http/HttpMessages/HttpResponse.hpp"
+#include "BaseElements/Handler.hpp"
+#include "Http/HttpMessages/Request/HttpRequest.hpp"
+#include "Http/HttpMessages/Reponse/HttpResponse.hpp"
 #include "Socket/TcpSocket.hpp"
 
 class ApplicationMiddlewareHandler : public Handler<std::shared_ptr<HttpRequest>> {

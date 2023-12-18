@@ -6,8 +6,8 @@
 
 #include <variant>
 
-#include "HttpContentTypes.hpp"
-#include "HttpResponseStatusCodes.hpp"
+#include "Http/HttpMessages/HttpContentTypes.hpp"
+#include "Http/HttpMessages/HttpResponseStatusCodes.hpp"
 #include "Socket/TcpSocket.hpp"
 
 struct AdditionalField {

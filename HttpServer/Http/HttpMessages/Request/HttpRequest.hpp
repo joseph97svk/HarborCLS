@@ -6,7 +6,7 @@
 
 #include "Basic_HttpRequest.hpp"
 
-#include "../../Socket/TcpSocket.hpp"
+#include "Socket/TcpSocket.hpp"
 
 using HttpRequest = Basic_HttpRequest<TcpSocket>;
 

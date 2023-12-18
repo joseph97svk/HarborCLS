@@ -3,7 +3,7 @@
 //
 
 #include "IHttpRequestParser.hpp"
-#include "../Socket/TcpSocket.hpp"
+#include "Socket/TcpSocket.hpp"
 
 class HttpRequestParser : public IHttpRequestParser<TcpSocket> {
 public:

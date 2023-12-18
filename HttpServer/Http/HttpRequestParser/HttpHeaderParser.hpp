@@ -6,8 +6,8 @@
 #define LEGO_FIGURE_MAKER_HTTPHEADERPARSER_HPP
 
 #include <unordered_map>
-#include "HttpMessages/HttpHeader.hpp"
-#include "HttpMessages/HttpMappings.hpp"
+#include "Http/HttpMessages/HttpHeader.hpp"
+#include "Http/HttpMessages/HttpMappings.hpp"
 
 class HttpHeaderParser {
   static std::tuple<HttpMappings::Method, std::string, std::string> parseRequestLine(std::string& requestLine);

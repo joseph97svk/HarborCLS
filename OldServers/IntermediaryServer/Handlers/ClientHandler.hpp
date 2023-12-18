@@ -1,10 +1,10 @@
 #ifndef CLIENTHANDLER_HPP
 #define CLIENTHANDLER_HPP
 
-#include "../../../HttpServer/Handler.hpp"
+#include "BaseElements/Handler.hpp"
 #include "../RoutingMap.hpp"
 #include "Socket/Socket.hpp"
-#include "common.hpp"
+#include "Common/common.hpp"
 
 #include <regex>
 #include <fstream>

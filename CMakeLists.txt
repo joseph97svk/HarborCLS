@@ -15,12 +15,7 @@ file(GLOB_RECURSE COMMON_SOURCES
         "${COMMON_DIR}/*.cpp"
         "${COMMON_DIR}/*.hpp")
 
-add_library(HttpServer ${COMMON_SOURCES}
-        HttpServer/WebApplication/WebApplication.hpp
-        HttpServer/WebApplication/WebApplication.cpp
-        HttpServer/Http/HttpMessages/HttpResponseStatusCodes.hpp
-        HttpServer/Http/HttpMessages/HttpContentTypes.hpp
-)
+add_library(HttpServer ${COMMON_SOURCES})
 target_include_directories(HttpServer PUBLIC ${COMMON_DIR})
 
 target_link_libraries(HttpServer OpenSSL::SSL OpenSSL::Crypto Threads::Threads)

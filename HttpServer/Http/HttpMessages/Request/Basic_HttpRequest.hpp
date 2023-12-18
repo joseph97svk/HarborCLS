@@ -10,7 +10,7 @@
 #include <variant>
 #include <vector>
 
-#include "HttpHeader.hpp"
+#include "Http/HttpMessages/HttpHeader.hpp"
 
 template<typename SocketType>
 struct Basic_HttpRequest {

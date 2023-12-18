@@ -4,7 +4,6 @@
 
 #include "Concurrency/Thread.hpp"
 #include "Concurrency/Queue.hpp"
-#include "../Middleware/ListenerMessageBundle.hpp"
 #include <memory>
 
 template <typename enqueueType, typename SocketType>
@@ -12,7 +11,6 @@ class Listener : public virtual Thread {
 protected:
   Queue<enqueueType>* _queue {};
   std::shared_ptr<SocketType> _listeningSocket {};
-  ListenerMessageBundle _messageBundle {};
 
   enqueueType _stopCondition {};
   enqueueType _handlerStopCondition {};
@@ -34,13 +32,11 @@ public:
    */
   Listener(Queue<enqueueType>* queue,
            std::shared_ptr<SocketType> listeningSocket,
-           ListenerMessageBundle& messageBundle,
            enqueueType stopCondition,
            enqueueType handlerStopCondition,
            unsigned int stopPort)
       : _queue(queue)
       , _listeningSocket(std::move(listeningSocket))
-      , _messageBundle(std::move(messageBundle))
       , _stopCondition(stopCondition)
       , _handlerStopCondition(handlerStopCondition)
       , _stopPort(stopPort) {
@@ -65,18 +61,12 @@ private:
    */
   virtual void listen() {
     while (true) {
-      printf("Listener: %s", this->_messageBundle.listeningMessage.c_str());
-
       enqueueType data = this->obtain();
 
       if (data == this->_stopCondition || this->_stopThread) {
         this->_queue->push(data);
-        printf("Listener OE: %s", this->_messageBundle.stopMessage.c_str());
-
         break;
       }
-
-      printf("Listener AR: %s", this->_messageBundle.afterReceivedMessage.c_str());
 
       this->_queue->push(data);
     }

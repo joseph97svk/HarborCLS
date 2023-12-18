@@ -8,7 +8,7 @@
 #include <fstream>
 #include <string>
 #include "ILogFileRotation.hpp"
-#include "../../common.hpp"
+#include "Common/common.hpp"
 
 class BaseFileRotation : public ILogFileRotation {
 protected:
