@@ -26,6 +26,5 @@ void ApplicationMiddlewareHandler::handleSingle(std::shared_ptr<HttpRequest> han
   response->body = body;
   response->contentLength = body.length();
 
-
   responsesQueue.push(response);
 };
