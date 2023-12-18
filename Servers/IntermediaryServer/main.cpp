@@ -19,8 +19,11 @@ int main() {
 
   std::string path = std::filesystem::absolute("Configuration.json");
 
-  server.addConfiguration(path);
+  WebApplication intermediaryServer;
 
+  intermediaryServer.addConfiguration(path);
+
+  server.addWebApplication(intermediaryServer);
   server.startServer();
 
   return 0;

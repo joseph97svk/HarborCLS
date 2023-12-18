@@ -3,29 +3,16 @@
 //
 #include <vector>
 
-#include "Middleware/Handlers/RequestMiddlewareHandler.hpp"
-#include "Middleware/Handlers/ApplicationMiddlewareHandler.hpp"
 #include "Middleware/Handlers/ResponseMiddlewareHandler.hpp"
-#include "Middleware/Listeners/TcpListener.hpp"
-
-#include "Socket/TcpSocket.hpp"
-#include "JsonReader/JsonHandler.hpp"
-#include "JsonParsingPolicies/ServerConfigurationParsingPolicy.hpp"
 #include "Logger/Logger.hpp"
-
+#include "WebApplication/WebApplication.hpp"
 
 #include "common.hpp"
 
 class HttpServer {
-  std::shared_ptr<TcpSocket> _tcpSocket;
-  std::shared_ptr<TcpListener> _tcpListener;
-
-  std::vector<RequestMiddlewareHandler> _requestMiddlewareHandlers;
-  std::vector<ApplicationMiddlewareHandler> _applicationMiddlewareHandlers;
   std::vector<ResponseMiddlewareHandler> _responseMiddlewareHandlers;
+  std::vector<std::reference_wrapper<WebApplication>> _webApplications;
 
-  Queue<std::shared_ptr<TcpSocket>> _connectionsQueue;
-  Queue<std::shared_ptr<HttpRequest>> _requestsQueue;
   Queue<std::shared_ptr<HttpResponse>> _responsesQueue;
 
   ServerConfiguration _configuration;
@@ -39,17 +26,16 @@ public:
    */
   [[nodiscard]] static HttpServer& getInstance();
 
-
   NO_COPY(HttpServer)
 
   /**
-   * Adds a configuration on how the server should behave.
-   * @param configurationJsonPath the path of the file that has the configuration.
+   * @brief adds a web application to the server
+   * @param webApplication
    */
-  void addConfiguration(const std::string& configurationJsonPath);
+  void addWebApplication(WebApplication& webApplication);
 
   /**
-   * Initializes the server and starts its operation
+   * Initializes the server and starts the execution of added web applications
    */
   void startServer();
 
@@ -58,12 +44,8 @@ public:
    */
   void stopServer();
 
-protected:
-  /**
-   * Sets up the server with the configuration that was added.
-   */
-  void setUpServer();
 
+protected:
   /**
    * Default constructor
    */

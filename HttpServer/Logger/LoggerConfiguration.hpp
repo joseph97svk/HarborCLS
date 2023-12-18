@@ -28,6 +28,15 @@ struct LoggerConfiguration {
   std::string logFilePath {"log.txt"};
 
   int maxFileSize {100};
+
+  bool operator== (const LoggerConfiguration& otherConf) const {
+    return fileAlwaysOpenPolicy == otherConf.fileAlwaysOpenPolicy &&
+           bufferingPolicy == otherConf.bufferingPolicy &&
+           fileRotationPolicy == otherConf.fileRotationPolicy &&
+           sharedLog == otherConf.sharedLog &&
+           logFilePath == otherConf.logFilePath &&
+           maxFileSize == otherConf.maxFileSize;
+  }
 };
 
 #endif //LEGO_FIGURE_MAKER_LOGGERCONFIGURATION_HPP

@@ -25,5 +25,7 @@ TcpListener::TcpListener(
 std::shared_ptr<TcpSocket> TcpListener::obtain() {
   std::shared_ptr<TcpSocket> receivedConnection = _listeningSocket->accept();
 
+  std::cout << "Connection accepted on listener and queueing" << std::endl;
+
   return receivedConnection;
 }

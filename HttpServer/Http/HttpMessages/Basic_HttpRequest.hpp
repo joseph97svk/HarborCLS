@@ -14,11 +14,13 @@
 
 template<typename SocketType>
 struct Basic_HttpRequest {
-  std::shared_ptr<SocketType> socket;
+  std::shared_ptr<SocketType> socket {};
 
-  HttpHeader header;
+  HttpHeader header {};
 
-  std::shared_ptr<std::variant<std::string, std::vector<char>>> body;
+  std::shared_ptr<std::variant<std::string, std::vector<char>>> body {};
+
+  Basic_HttpRequest() = default;
 
   Basic_HttpRequest(std::shared_ptr<SocketType> socket,
                     HttpHeader header,

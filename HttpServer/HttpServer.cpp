@@ -2,124 +2,35 @@
 // Created by josephvalverde on 12/11/23.
 //
 
-#include <filesystem>
 #include "HttpServer.hpp"
-#include "JsonReader/json.hpp"
 #include "Logger/LoggerFactory/LoggerFactory.hpp"
-#include "common.hpp"
-
 
 HttpServer &HttpServer::getInstance() {
   static HttpServer instance;
   return instance;
 }
 
-void HttpServer::addConfiguration(const std::string& configurationJsonPath) {
-  if (configurationJsonPath.empty()) {
-    _configuration = ServerConfiguration::createDefaultConfiguration();
-    return;
-  }
-
-  try {
-    JsonHandler<ServerConfiguration, ServerConfigurationParsingPolicy> jsonHandler(configurationJsonPath, true);
-    _configuration = jsonHandler.deserialize();
-  } catch (std::exception& exception) {
-    _configuration = ServerConfiguration::createDefaultConfiguration();
-  }
+void HttpServer::addWebApplication(WebApplication &webApplication) {
+  _webApplications.emplace_back(webApplication);
 }
 
 void HttpServer::startServer() {
-  this->setUpServer();
+  LoggerConfiguration loggerConfiguration {
+      .fileAlwaysOpenPolicy = LoggerConfiguration::FileAlwaysOpenPolicy::OPEN_AND_CLOSE,
+      .bufferingPolicy = LoggerConfiguration::BufferingPolicy::NO_BUFFER,
+      .fileRotationPolicy = LoggerConfiguration::FileRotationPolicy::BOUNDED_ROTATION,
+      .sharedLog = false,
+      .logFilePath = "Logs/ServerLog.txt",
+  };
 
-  _tcpSocket->listen(_configuration.requestsQueueSize);
-  _tcpListener->start();
-
-  _logger->info("Listening on: " + getComputerIp() + ":" + std::to_string(_configuration.port) + "\n");
-
-  for (RequestMiddlewareHandler& handler : _requestMiddlewareHandlers) {
-    handler.start();
-  }
-
-  for (ApplicationMiddlewareHandler& handler : _applicationMiddlewareHandlers) {
-    handler.start();
-  }
-
-  for (ResponseMiddlewareHandler& handler : _responseMiddlewareHandlers) {
-    handler.start();
-  }
-
-
-  for (RequestMiddlewareHandler& handler : _requestMiddlewareHandlers) {
-    handler.waitToFinish();
-  }
-
-  for (ApplicationMiddlewareHandler& handler : _applicationMiddlewareHandlers) {
-    handler.waitToFinish();
-  }
-
-  for (ResponseMiddlewareHandler& handler : _responseMiddlewareHandlers) {
-    handler.waitToFinish();
-  }
-
-  _tcpListener->waitToFinish();
-}
-
-void HttpServer::stopServer() {
-  _logger->info("Stopping server");
-  // _tcpListener->stop();
-  _tcpSocket->close();
-  delete _tcpSocket.get();
-  _logger->info("Server terminated");
-}
-
-void HttpServer::setUpServer() {
-  LoggerFactory loggerFactory(_configuration.loggerConfiguration);
+  LoggerFactory loggerFactory(loggerConfiguration);
   _logger = std::move(loggerFactory.createUniqueLogger());
 
   _logger->info("Starting server");
 
-  std::filesystem::path currentPath = __FILE__;
-  currentPath = currentPath.parent_path();
-
-  std::string sslCertPath = currentPath / _configuration.sslCertFileName;
-  std::string sslKey = currentPath / _configuration.sslKeyFileName;
-
-  _tcpSocket = std::make_shared<TcpSocket>(/*sslCertPath, sslKey, */false);
-  _tcpSocket->bind(_configuration.port);
-
-  ListenerMessageBundle messages {
-          "Listening for client connections (TCP)\n",
-          "request received\n",
-          "stopping server\n"
-  };
-
-  _tcpListener = std::make_shared<TcpListener>(
-          &(_connectionsQueue)
-          , _tcpSocket
-          , messages
-          , nullptr
-          , nullptr
-          , _configuration.port
-  );
-
-  for (int requestHandlerIndex = 0;
-       requestHandlerIndex < _configuration.requestHandlerAmount;
-       ++requestHandlerIndex) {
-    _requestMiddlewareHandlers.emplace_back(
-            &(_connectionsQueue)
-            , _requestsQueue
-            , nullptr
-    );
-  }
-
-  for (int applicationHandlerIndex = 0;
-       applicationHandlerIndex < _configuration.applicationHandlerAmount;
-       ++applicationHandlerIndex) {
-    _applicationMiddlewareHandlers.emplace_back(
-            &(_requestsQueue)
-            , _responsesQueue
-            , nullptr
-    );
+  for (WebApplication& webApplication : _webApplications) {
+    webApplication.addResponsesQueue(_responsesQueue);
+    webApplication.startApplication();
   }
 
   for (int responseHandlerIndex = 0;
@@ -127,11 +38,34 @@ void HttpServer::setUpServer() {
        ++responseHandlerIndex) {
 
     _responseMiddlewareHandlers.emplace_back(
-            &(_responsesQueue)
-            , nullptr
+        &(_responsesQueue), nullptr
     );
-    _logger->info("Resources initialized");
+  }
+
+  _logger->info("Resources initialized");
+
+  for (ResponseMiddlewareHandler& responseMiddlewareHandler : _responseMiddlewareHandlers) {
+    responseMiddlewareHandler.start();
+  }
+
+  for (WebApplication& webApplication : _webApplications) {
+    webApplication.waitToFinish();
+  }
+
+  for (ResponseMiddlewareHandler& responseMiddlewareHandler : _responseMiddlewareHandlers) {
+    responseMiddlewareHandler.waitToFinish();
   }
 }
+
+void HttpServer::stopServer() {
+  _logger->info("Stopping server");
+
+  for (WebApplication& webApplication : _webApplications) {
+    webApplication.stopApplication();
+  }
+
+  _logger->info("Server terminated");
+}
+
 
 
