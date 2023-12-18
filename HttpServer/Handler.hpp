@@ -43,7 +43,6 @@ class Handler : public virtual Thread {
 
   virtual void optionalToEnd () = 0;
 
-
   virtual void handleSingle(consumeDataType handlingData) = 0;
 };
 

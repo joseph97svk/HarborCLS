@@ -55,4 +55,7 @@ class Queue {
   }
 };
 
+template<typename dataType>
+using BlockingQueue = Queue<dataType>;
+
 #endif

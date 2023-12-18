@@ -65,18 +65,18 @@ private:
    */
   virtual void listen() {
     while (true) {
-      printf("%s", this->_messageBundle.listeningMessage.c_str());
+      printf("Listener: %s", this->_messageBundle.listeningMessage.c_str());
 
       enqueueType data = this->obtain();
 
       if (data == this->_stopCondition || this->_stopThread) {
         this->_queue->push(data);
-        printf("%s", this->_messageBundle.stopMessage.c_str());
+        printf("Listener OE: %s", this->_messageBundle.stopMessage.c_str());
 
         break;
       }
 
-      printf("%s", this->_messageBundle.afterReceivedMessage.c_str());
+      printf("Listener AR: %s", this->_messageBundle.afterReceivedMessage.c_str());
 
       this->_queue->push(data);
     }

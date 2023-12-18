@@ -14,12 +14,13 @@ HttpHeader HttpHeaderParser::parseHeader(std::string &header) {
   httpHeader.rawContent = header;
 
   std::string line;
-  headerStream >> line;
+  std::getline(headerStream, line);
+
   std::tie(httpHeader.method, httpHeader.url, httpHeader.httpVersion) = parseRequestLine(line);
 
   while (headerStream.good()) {
     line.clear();
-    headerStream >> line;
+    std::getline(headerStream, line);
     std::istringstream lineStream(line);
 
     std::string key;

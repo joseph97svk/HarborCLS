@@ -29,5 +29,7 @@ void RequestMiddlewareHandler::handleSingle(std::shared_ptr<TcpSocket> handlingD
 
   std::shared_ptr<HttpRequest> httpRequest = parser->createHttpRequest(request, handlingData);
 
+  std::cout << "Request middleware handler: handing over!!!\n" << std::endl;
+
   _requestsQueue.push(httpRequest);
 };
