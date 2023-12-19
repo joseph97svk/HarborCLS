@@ -17,11 +17,11 @@ struct ServerConfiguration {
     unsigned int responseHandlerAmount{1};
     unsigned int requestsQueueSize{16};
 
-    std::string sslCertFileName {"defaultSSLCerts/defaultCert.pem"};
-    std::string sslKeyFileName {"defaultSSLCerts/defaultKey.pem"};
+    std::string sslCertFileName {"Servers/IntermediaryServer/cert.pem"};
+    std::string sslKeyFileName {"Servers/IntermediaryServer/key.pem"};
 
     LoggerConfiguration loggerConfiguration {
-        LoggerConfiguration::FileAlwaysOpenPolicy::OPEN_AND_CLOSE,
+        LoggerConfiguration::FileAlwaysOpenPolicy::ALWAYS_OPEN,
         LoggerConfiguration::BufferingPolicy::NO_BUFFER,
         LoggerConfiguration::FileRotationPolicy::BOUNDED_ROTATION,
         true,

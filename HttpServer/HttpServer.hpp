@@ -58,6 +58,7 @@ protected:
   /**
    * Default constructor
    */
-  HttpServer() = default;
+  HttpServer();
+
 };
 

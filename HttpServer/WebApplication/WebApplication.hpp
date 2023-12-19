@@ -15,6 +15,8 @@
 #include "Middleware/Listeners/TcpListener.hpp"
 #include "WebApplication/Middleware/Handlers/ApplicationMiddlewareHandler.hpp"
 
+#include "FileManagement/PathManager.hpp"
+
 class WebApplication {
   std::shared_ptr<TcpSocket> _tcpSocket;
   std::optional<TcpListener> _tcpListener;
@@ -31,7 +33,7 @@ class WebApplication {
   std::unique_ptr<ILogger> _logger;
 
 public:
-  WebApplication() = default;
+  WebApplication();
 
   NO_COPY(WebApplication)
 

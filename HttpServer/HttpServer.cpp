@@ -7,6 +7,8 @@
 #include "Http/ResponseHeaderComposer/ResponseHeaderComposer.hpp"
 #include "Http/HttpRequestParser/HttpRequestParser.hpp"
 
+#include "FileManagement/PathManager.hpp"
+
 HttpServer &HttpServer::getInstance() {
   static HttpServer instance;
   return instance;
@@ -54,7 +56,7 @@ void HttpServer::startServer() {
     );
   }
 
-  _logger->info("Resources initialized");
+  _logger->info("Server resources initialized");
 
   for (ResponseMiddlewareHandler& responseMiddlewareHandler : _responseMiddlewareHandlers) {
     responseMiddlewareHandler.start();
@@ -82,6 +84,10 @@ void HttpServer::stopServer() {
 void HttpServer::setHttpBehaviour(HttpBehavior &httpBehavior) {
   _requestParser = httpBehavior.requestParser;
   _responseHeaderComposer = httpBehavior.responseHeaderComposer;
+}
+
+HttpServer::HttpServer() {
+  defineDirectory();
 }
 
 

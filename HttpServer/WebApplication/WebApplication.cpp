@@ -8,14 +8,23 @@
 
 #include "JsonReader/JsonHandler.hpp"
 #include "Logger/LoggerFactory/LoggerFactory.hpp"
+#include "FileManagement/PathManager.hpp"
 
 void WebApplication::setDefaultFallBackConfiguration(const ServerConfiguration& fallBackConfiguration) {
   _configuration = fallBackConfiguration;
 }
 
 void WebApplication::addConfiguration(const std::string &configurationJsonPath) {
-  LoggerFactory loggerFactory;
-  auto tempLogger = std::move(loggerFactory.createUniqueLogger());
+  LoggerConfiguration loggerConfiguration {
+      .fileAlwaysOpenPolicy = LoggerConfiguration::FileAlwaysOpenPolicy::OPEN_AND_CLOSE,
+      .bufferingPolicy = LoggerConfiguration::BufferingPolicy::NO_BUFFER,
+      .fileRotationPolicy = LoggerConfiguration::FileRotationPolicy::BOUNDED_ROTATION,
+      .sharedLog = false,
+      .logFilePath = "Logs/ServerLog.txt",
+  };
+
+  LoggerFactory loggerFactory(loggerConfiguration);
+  auto tempLogger = std::move(loggerFactory.createLogger());
 
   if (configurationJsonPath.empty()) {
     tempLogger->info("No configuration provided, using default configuration");
@@ -42,12 +51,11 @@ void WebApplication::addResponsesQueue(BlockingQueue<std::shared_ptr<HttpRespons
 }
 
 void WebApplication::startApplication(std::shared_ptr<IHttpRequestParser<TcpSocket>> requestParser) {
-  _configuration.loggerConfiguration.sharedLog = false;
   LoggerFactory loggerFactory(_configuration.loggerConfiguration);
   _logger = loggerFactory.createUniqueLogger();
 
   this->startResources(std::move(requestParser));
-  _logger->info("Resources initialized");
+  _logger->info("Web application initialized");
   _logger->info("Listening on: " + getComputerIp() + ":" + std::to_string(_configuration.port));
 
   _tcpSocket->bind(_configuration.port);
@@ -118,4 +126,8 @@ void WebApplication::startResources(std::shared_ptr<IHttpRequestParser<TcpSocket
         , nullptr
     );
   }
+}
+
+WebApplication::WebApplication() {
+  defineDirectory();
 }

@@ -15,7 +15,7 @@ std::variant<std::string, std::ofstream> FileOpenOnDemandPolicy::getLogFile(std:
 }
 
 void FileOpenOnDemandPolicy::log(std::string completeLoggingMessage,
-                                 std::optional<std::ofstream>& loggingFile,
+                                 std::optional<std::reference_wrapper<std::ofstream>>& loggingFile,
                                  std::mutex& canWrite) {
   std::lock_guard<std::mutex> lock(canWrite);
 
@@ -24,5 +24,12 @@ void FileOpenOnDemandPolicy::log(std::string completeLoggingMessage,
   std::ofstream fileStream;
 
   _logFileRotationPolicy->rotateLogFile(fileStream, _logFilePath);
-  fileStream << completeLoggingMessage;
+
+  if (!fileStream.is_open()) {
+    std::cout << "Log with file open on demand: could not log on file" << std::endl;
+  }
+
+  fileStream << completeLoggingMessage << std::endl;
+
+  fileStream.close();
 }
