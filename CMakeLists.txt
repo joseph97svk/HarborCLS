@@ -10,15 +10,15 @@ add_compile_options(-fmodules-ts)
 find_package(OpenSSL REQUIRED)
 find_package(Threads REQUIRED)
 
-set(COMMON_DIR HttpServer)
+set(COMMON_DIR HarborCLS)
 file(GLOB_RECURSE COMMON_SOURCES
         "${COMMON_DIR}/*.cpp"
         "${COMMON_DIR}/*.hpp")
 
-add_library(HttpServer ${COMMON_SOURCES})
-target_include_directories(HttpServer PUBLIC ${COMMON_DIR})
+add_library(HarborCLS ${COMMON_SOURCES})
+target_include_directories(HarborCLS PUBLIC ${COMMON_DIR})
 
-target_link_libraries(HttpServer OpenSSL::SSL OpenSSL::Crypto Threads::Threads)
+target_link_libraries(HarborCLS OpenSSL::SSL OpenSSL::Crypto Threads::Threads)
 
 #add_subdirectory(OldServers/IntermediaryServer)
 #add_subdirectory(OldServers/PiecesServer)
