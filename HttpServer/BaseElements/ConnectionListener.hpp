@@ -4,78 +4,92 @@
 
 #include "Concurrency/Thread.hpp"
 #include "Concurrency/Queue.hpp"
-#include "../Middleware/ListenerMessageBundle.hpp"
 #include <memory>
 
 template <typename enqueueType, typename SocketType>
 class Listener : public virtual Thread {
 protected:
-    Queue<enqueueType>* queue;
-    std::shared_ptr<SocketType> listeningSocket;
-    ListenerMessageBundle messageBundle;
+  Queue<enqueueType>* _queue {};
+  std::shared_ptr<SocketType> _listeningSocket {};
 
-    enqueueType stopCondition;
-    enqueueType handlerStopCondition;
+  enqueueType _stopCondition {};
+  enqueueType _handlerStopCondition {};
 
-    unsigned int stopPort;
+  unsigned int _stopPort {};
 
-    bool udp = false;
-    bool stopThread = false;
+  bool _udp {false};
+  bool _stopThread {false};
 
 public:
-    Listener(Queue<enqueueType>* queue,
-             std::shared_ptr<SocketType> listeningSocket,
-             ListenerMessageBundle& messageBundle,
-             enqueueType stopCondition,
-             enqueueType handlerStopCondition,
-             unsigned int stopPort
-    )
-            : queue(queue)
-            , listeningSocket(std::move(listeningSocket))
-            , messageBundle(std::move(messageBundle))
-            , stopCondition(stopCondition)
-            , handlerStopCondition(handlerStopCondition)
-            , stopPort(stopPort) {
-    }
+  /**
+   * @brief Constructor for the Listener class.
+   * @param queue The _queue to push the data to.
+   * @param listeningSocket The socket to listen to.
+   * @param messageBundle The message bundle to use.
+   * @param stopCondition The condition to stop the listener.
+   * @param handlerStopCondition The condition to stop the handler.
+   * @param stopPort The port to stop the listener.
+   */
+  Listener(Queue<enqueueType>* queue,
+           std::shared_ptr<SocketType> listeningSocket,
+           enqueueType stopCondition,
+           enqueueType handlerStopCondition,
+           unsigned int stopPort)
+      : _queue(queue)
+      , _listeningSocket(std::move(listeningSocket))
+      , _stopCondition(stopCondition)
+      , _handlerStopCondition(handlerStopCondition)
+      , _stopPort(stopPort) {
+  }
 
-    ~Listener() override = default;
+  /**
+   * @brief Destructor for the Listener class.
+   */
+  ~Listener() override = default;
 
-    void stop() {
-      this->stopThread = true;
+  void stop() {
+    this->_stopThread = true;
 
-      this->unlockListen();
+    this->unlockListen();
 
-      this->queue->push(handlerStopCondition);
-    }
+    this->_queue->push(_handlerStopCondition);
+  }
 
 private:
-    virtual void listen() {
-      while (true) {
-        printf("%s", this->messageBundle.listeningMessage.c_str());
+  /**
+   * @brief Sets the socket as UDP.
+   */
+  virtual void listen() {
+    while (true) {
+      enqueueType data = this->obtain();
 
-        enqueueType data = this->obtain();
-
-        if (data == this->stopCondition || this->stopThread) {
-          this->queue->push(data);
-          printf("%s", this->messageBundle.stopMessage.c_str());
-
-          break;
-        }
-
-        printf("%s", this->messageBundle.afterReceivedMessage.c_str());
-
-        this->queue->push(data);
+      if (data == this->_stopCondition || this->_stopThread) {
+        this->_queue->push(data);
+        break;
       }
-    }
 
-    void run() override {
-      this->listen();
+      this->_queue->push(data);
     }
+  }
 
-    virtual enqueueType obtain() = 0;
+  /**
+   * @brief Runs the listener.
+   */
+  void run() override {
+    this->listen();
+  }
 
-    void unlockListen() {
-      SocketType closingSocket(this->listeningSocket->getType(), false);
-      closingSocket.connect("any IP", this->stopPort);
-    }
+  /**
+   * @brief Obtains the data from the socket.
+   * @return The data obtained.
+   */
+  virtual enqueueType obtain() = 0;
+
+  /**
+   * @brief Unlocks the listening socket.
+   */
+  void unlockListen() {
+    SocketType closingSocket(_listeningSocket->getType());
+    closingSocket.connect("any IP", _stopPort);
+  }
 };

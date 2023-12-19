@@ -9,19 +9,19 @@
 TcpListener::TcpListener(
     Queue<std::shared_ptr<TcpSocket>>* connectionsQueue
     , std::shared_ptr<TcpSocket> socket
-    , ListenerMessageBundle messages
     , std::shared_ptr<TcpSocket> stopCondition
     , std::shared_ptr<TcpSocket> handlerStopCondition
     , unsigned int port
 ) : Listener(
     connectionsQueue
     , std::move(socket)
-    , messages
     , std::move(stopCondition)
     , std::move(handlerStopCondition)
     , port
 ) {}
 
 std::shared_ptr<TcpSocket> TcpListener::obtain() {
-    return nullptr;
+  std::shared_ptr<TcpSocket> receivedConnection = _listeningSocket->accept();
+
+  return receivedConnection;
 }

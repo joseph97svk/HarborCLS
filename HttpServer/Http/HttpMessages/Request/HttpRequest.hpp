@@ -4,8 +4,10 @@
 #ifndef HTTPSERVER_HTTPREQUEST_HPP
 #define HTTPSERVER_HTTPREQUEST_HPP
 
-struct HttpRequest {
+#include "Basic_HttpRequest.hpp"
 
-};
+#include "Socket/TcpSocket.hpp"
+
+using HttpRequest = Basic_HttpRequest<TcpSocket>;
 
 #endif //HTTPSERVER_HTTPREQUEST_HPP

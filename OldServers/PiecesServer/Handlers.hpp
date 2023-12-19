@@ -1,7 +1,7 @@
 #ifndef HANDLERS_HPP
 #define HANDLERS_HPP
 
-#include "../../HttpServer/Handler.hpp"
+#include "BaseElements/Handler.hpp"
 #include "../../HttpServer/ProtocolHeader.hpp"
 
 #include <utility>
@@ -9,7 +9,7 @@
 #include "PiecesServerStructure.hpp"
 
 #include "common.hpp"
-#include "Handler.hpp"
+#include "BaseElements/Handler.hpp"
 
 #include <fstream>
 #include <regex>

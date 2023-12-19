@@ -1,8 +1,8 @@
 #ifndef REQUESTHANDLER_HPP
 #define REQUESTHANDLER_HPP
 
-#include "common.hpp"
-#include "Handler.hpp"
+#include "Common/common.hpp"
+#include "BaseElements/Handler.hpp"
 #include "../RoutingMap.hpp"
 #include "../../../HttpServer/ProtocolHeader.hpp"
 

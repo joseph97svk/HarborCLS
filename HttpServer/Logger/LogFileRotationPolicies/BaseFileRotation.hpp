@@ -8,7 +8,7 @@
 #include <fstream>
 #include <string>
 #include "ILogFileRotation.hpp"
-#include "../../common.hpp"
+#include "Common/common.hpp"
 
 class BaseFileRotation : public ILogFileRotation {
 protected:
@@ -19,8 +19,19 @@ public:
 
   ~BaseFileRotation() override = default;
 
+  /**
+   * @brief Performs the implementation lifetime behavior of the log file rotation policy.
+   * @param file The file to rotate.
+   * @param fileName The name of the file to rotate.
+   */
   void rotateLogFile(std::ofstream& file, std::string& fileName) override = 0;
 
+  /**
+   * @brief Creates a new log file name based on the given file name.
+   * @param fileName original file name
+   * @param completeTimeAndDate whether to include the time and date in the new file name
+   * @return the new file name
+   */
   static std::string createLogFileName(std::string& fileName, bool completeTimeAndDate) {
     size_t extensionBegin = fileName.find_last_of('.');
 

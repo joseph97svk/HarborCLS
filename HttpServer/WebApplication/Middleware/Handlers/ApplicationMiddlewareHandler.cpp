@@ -4,6 +4,7 @@
 
 #include "ApplicationMiddlewareHandler.hpp"
 
+
 ApplicationMiddlewareHandler::ApplicationMiddlewareHandler(
         Queue<std::shared_ptr<HttpRequest>>* consumingQueue,
         Queue<std::shared_ptr<HttpResponse>>& producingQueue,
@@ -17,5 +18,13 @@ void ApplicationMiddlewareHandler::optionalToEnd() {
 }
 
 void ApplicationMiddlewareHandler::handleSingle(std::shared_ptr<HttpRequest> handlingData) {
+  std::shared_ptr<HttpResponse> response = std::make_shared<HttpResponse>();
+  response->socket = handlingData->socket;
 
+  std::string body = "<html><body><h1>It works!</h1></body></html>";
+
+  response->body = body;
+  response->contentLength = body.length();
+
+  responsesQueue.push(response);
 };

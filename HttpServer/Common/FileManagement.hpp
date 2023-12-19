@@ -8,6 +8,11 @@
 #include <string>
 #include <filesystem>
 
+/**
+ * @brief Returns the absolute path of the file.
+ * @param relativePath The relative path of the file.
+ * @return The absolute path of the file.
+ */
 inline static std::string getAbsolutePath (std::string& relativePath) {
   std::filesystem::path currentPath = __FILE__;
   currentPath = currentPath.parent_path();
@@ -17,6 +22,11 @@ inline static std::string getAbsolutePath (std::string& relativePath) {
   return absolutePath;
 }
 
+/**
+ * @brief Returns the path of the file.
+ * @param relativePath The relative path of the file.
+ * @return The path of the file.
+ */
 inline static std::string getPath(std::string& relativePath) {
   std::filesystem::path pathObj(relativePath);
 
@@ -25,6 +35,11 @@ inline static std::string getPath(std::string& relativePath) {
   return dirPath.string();
 }
 
+/**
+ * @brief Returns the name of the file.
+ * @param relativePath The relative path of the file.
+ * @return The name of the file.
+ */
 inline static bool pathExists(std::string& path) {
   std::filesystem::path pathObj(path);
 

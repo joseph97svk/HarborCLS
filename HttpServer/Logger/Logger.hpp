@@ -15,7 +15,7 @@
 #include <optional>
 
 #include "../Common/FileManagement.hpp"
-#include "../common.hpp"
+#include "Common/common.hpp"
 
 #include "ILogger.hpp"
 #include "LoggingFileManagementPolicies/ILoggerFileManagementPolicy.hpp"
@@ -35,65 +35,49 @@ class Logger : public ILogger {
     std::vector<std::future<void>> _logFutures {};
 
 public:
-    Logger(std::shared_ptr<ILoggerBufferingPolicy> bufferingStrategy,
-           std::shared_ptr<ILoggerFileManagementPolicy> fileManagementStrategy,
-           std::shared_ptr<ILogFileRotation> fileRotationStrategy,
-           std::string& logFilePath)
-            : _bufferingStrategy(std::move(bufferingStrategy))
-            , _fileManagementStrategy(std::move(fileManagementStrategy))
-            , _fileRotationStrategy(std::move(fileRotationStrategy))
-            , _logFile(_fileManagementStrategy->getLogFile(logFilePath)) {}
+  /**
+   * @brief Construct a new Logger object
+   * @param bufferingStrategy how a buffer is managed
+   * @param fileManagementStrategy whether a file is always open or opened on demand
+   * @param fileRotationStrategy defines the lifetime of a log file
+   * @param logFilePath path to the log file
+   */
+  Logger(std::shared_ptr<ILoggerBufferingPolicy> bufferingStrategy,
+         std::shared_ptr<ILoggerFileManagementPolicy> fileManagementStrategy,
+         std::shared_ptr<ILogFileRotation> fileRotationStrategy,
+         std::string& logFilePath);
 
-    ~Logger() override = default;
+  /**
+   * @brief Destroy the Logger object
+   */
+  ~Logger() override = default;
 
-    void log(std::string message) override  {
-      const std::string messageType = "Log";
+  /**
+   * @brief logs a generic log message
+   * @param message message to log
+   */
+  void log(std::string message) override;
 
-      this->logMessage(messageType, message);
-    }
+  /**
+   * @brief logs a warning
+   * @param message message to log
+   */
+  void warning(std::string message) override;
 
-    void warning(std::string message) override {
-      const std::string messageType = "Warning";
+  /**
+   * @brief logs an error
+   * @param message message to log
+   */
+  void error(std::string message) override;
 
-      this->logMessage(messageType, message);
-    }
-
-    void error(std::string message) override {
-      const std::string messageType = "Error";
-
-      this->logMessage(messageType, message);
-    }
-
-    void info(std::string message) override {
-      const std::string messageType = "Info";
-
-      this->logMessage(messageType, message);
-    }
+  /**
+   * @brief logs an info message
+   * @param message message to log
+   */
+  void info(std::string message) override;
 
 protected:
-  template<class... Ts> struct overloaded : Ts... { using Ts::operator()...; };
-
-  void logMessage(const std::string& messageType, std::string& message) {
-    _logFutures.push_back(std::async([this, message, messageType]() {
-      std::string completedMessage = getCurrentTime() + " [ " + messageType + " ] : " + message + "\n";
-      std::optional<std::string> bufferedMessage = _bufferingStrategy->buffer(completedMessage);
-
-      if (!bufferedMessage.has_value()) return;
-
-      std::optional<std::ofstream> fileStream;
-
-      std::visit(overloaded {
-        [&fileStream](std::ofstream& ofs) {
-          fileStream = std::move(ofs);
-        },
-        [&fileStream](const std::string& str) {
-          fileStream = std::nullopt;
-        }
-      }, _logFile);
-
-      _fileManagementStrategy->log(bufferedMessage.value(), fileStream, _canWrite);
-    }));
-  }
+  void logMessage(const std::string& messageType, std::string& message);
 };
 
 #endif //LEGO_FIGURE_MAKER_LOGGER_HPP

@@ -7,12 +7,31 @@
 
 class ILogger {
 public:
-    virtual ~ILogger() = default;
+  virtual ~ILogger() = default;
 
-    virtual void log(std::string message) = 0;
-    virtual void warning(std::string message) = 0;
-    virtual void error(std::string message) = 0;
-    virtual void info(std::string message) = 0;
+  /**
+  * @brief logs a generic log message
+  * @param message message to log
+  */
+  virtual void log(std::string message) = 0;
+
+  /**
+  * @brief logs a warning
+  * @param message message to log
+  */
+  virtual void warning(std::string message) = 0;
+
+  /**
+   * @brief logs an error
+   * @param message message to log
+   */
+  virtual void error(std::string message) = 0;
+
+  /**
+   * @brief logs an info message
+   * @param message message to log
+   */
+  virtual void info(std::string message) = 0;
 };
 
 #endif //LEGO_FIGURE_MAKER_ILOGGER_HPP

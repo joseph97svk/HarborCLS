@@ -3,49 +3,61 @@
 //
 #include <vector>
 
-#include "Middleware/Handlers/RequestMiddlewareHandler.hpp"
-#include "Middleware/Handlers/ApplicationMiddlewareHandler.hpp"
 #include "Middleware/Handlers/ResponseMiddlewareHandler.hpp"
-#include "Middleware/Listeners/TcpListener.hpp"
-
-#include "Socket/TcpSocket.hpp"
-#include "JsonReader/JsonHandler.hpp"
-#include "JsonParsingPolicies/ServerConfigurationParsingPolicy.hpp"
 #include "Logger/Logger.hpp"
+#include "WebApplication/WebApplication.hpp"
 
-
-#include "common.hpp"
+#include "Common/common.hpp"
+#include "Http/HttpBehavior/HttpBehavior.hpp"
 
 class HttpServer {
-  std::shared_ptr<TcpSocket> _tcpSocket;
-  std::shared_ptr<TcpListener> _tcpListener;
-
-  std::vector<RequestMiddlewareHandler> _requestMiddlewareHandlers;
-  std::vector<ApplicationMiddlewareHandler> _applicationMiddlewareHandlers;
   std::vector<ResponseMiddlewareHandler> _responseMiddlewareHandlers;
+  std::vector<std::reference_wrapper<WebApplication>> _webApplications;
 
-  Queue<std::shared_ptr<TcpSocket>> _connectionsQueue;
-  Queue<std::shared_ptr<HttpRequest>> _requestsQueue;
   Queue<std::shared_ptr<HttpResponse>> _responsesQueue;
 
   ServerConfiguration _configuration;
 
   std::unique_ptr<ILogger> _logger;
 
+  std::shared_ptr<IHttpRequestParser<TcpSocket>> _requestParser;
+  std::shared_ptr<IResponseHeaderComposer> _responseHeaderComposer;
 public:
-    static HttpServer& getInstance();
+  /*
+   * @brief returns the instance of the server
+   * @return reference to the server instance
+   */
+  [[nodiscard]] static HttpServer& getInstance();
 
-    NO_COPY(HttpServer)
+  NO_COPY(HttpServer)
 
-    void addConfiguration(const std::string& configurationJsonPath);
+  /**
+   * @brief adds a web application to the server
+   * @param webApplication
+   */
+  void addWebApplication(WebApplication& webApplication);
 
-    [[noreturn]] void startServer();
+  /**
+   * @brief sets the behaviour on how http requests and responses are handled
+   * @param configuration instance of HttpBehavior with the desired behaviour
+   */
+  void setHttpBehaviour(HttpBehavior& httpBehavior);
 
-    [[noreturn]] void stopServer();
+  /**
+   * Initializes the server and starts the execution of added web applications
+   */
+  void startServer();
+
+  /***
+   * Stops the operation of the server
+   */
+  void stopServer();
+
 
 protected:
-    void setUpServer();
-
-    HttpServer() = default;
+  /**
+   * Default constructor
+   */
+  HttpServer() = default;
 };
 

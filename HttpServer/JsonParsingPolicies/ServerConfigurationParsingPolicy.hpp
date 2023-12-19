@@ -10,6 +10,9 @@
 
 class ServerConfigurationParsingPolicy : public ParsingPolicy<ServerConfiguration> {
 public:
+  /**
+   * @brief Adds all the policies to the parsing policy.
+   */
   void addAllPolicies() override {
     this->addPolicy<unsigned int>("port",
                     [](ServerConfiguration& config) -> unsigned int& { return config.port; });

@@ -14,6 +14,11 @@ public:
 
     ~NoLogFileRotation() override = default;
 
+    /**
+     * @brief Performs no operations regarding the lifetime of the log file.
+     * @param file The file to rotate.
+     * @param fileName The name of the file to rotate.
+     */
     void rotateLogFile(std::ofstream& file, std::string& fileName) override {
       if (!file.is_open()) {
         std::string logFileName = NoLogFileRotation::createLogFileName(fileName, true);

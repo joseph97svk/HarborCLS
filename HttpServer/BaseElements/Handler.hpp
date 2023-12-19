@@ -3,7 +3,7 @@
 
 #include "Concurrency/Thread.hpp"
 #include "Concurrency/Queue.hpp"
-#include "common.hpp"
+#include "Common/common.hpp"
 
 template <typename consumeDataType>
 class Handler : public virtual Thread {
@@ -42,7 +42,6 @@ class Handler : public virtual Thread {
   }
 
   virtual void optionalToEnd () = 0;
-
 
   virtual void handleSingle(consumeDataType handlingData) = 0;
 };
