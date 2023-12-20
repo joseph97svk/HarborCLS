@@ -15,10 +15,14 @@ namespace HarborCLS {
   class RequestMiddlewareHandler : public Handler<std::shared_ptr<TcpSocket>> {
     using RequestType = typename Protocol::RequestType;
     using SocketType = typename Protocol::SocketType;
+    using RequestParserInterface = typename Protocol::RequestParserInterface;
 
-    Queue<std::shared_ptr<RequestType>> &_requestsQueue;
+    using ConsumingType = std::shared_ptr<SocketType>;
+    using ProducingType = std::shared_ptr<RequestType>;
 
-    std::shared_ptr<IRequestParser<SocketType, RequestType>> _requestParser;
+    MiddlewareBlockingQueue<ProducingType> &_requestsQueue;
+
+    std::shared_ptr<RequestParserInterface> _requestParser;
 
   public:
     /**
@@ -27,33 +31,33 @@ namespace HarborCLS {
      * @param producingQueue the queue that the handler is going to produce to.
      * @param stopCondition the condition that the handler is going to stop on.
      */
-    RequestMiddlewareHandler(Queue<std::shared_ptr<SocketType>> *consumingQueue,
-                             Queue<std::shared_ptr<HttpRequest>> &producingQueue,
-                             std::shared_ptr<SocketType> stopCondition,
-                             std::shared_ptr<IRequestParser<SocketType, RequestType>> requestParser)
-        : Handler(consumingQueue, std::move(stopCondition)), _requestsQueue(producingQueue),
-          _requestParser(std::move(requestParser)) {}
+    RequestMiddlewareHandler(MiddlewareBlockingQueue<ConsumingType>& consumingQueue,
+                             MiddlewareBlockingQueue<ProducingType>& producingQueue,
+                             std::shared_ptr<RequestParserInterface> requestParser)
+        : Handler(consumingQueue)
+        , _requestsQueue(producingQueue)
+        , _requestParser(std::move(requestParser)) {}
 
   private:
     /**
      * This method is called when the handler is about to end its operation.
      */
     void optionalToEnd() override {
-      _requestsQueue.push(nullptr);
+      _requestsQueue.push(MiddlewareMessage<ProducingType>(StopCondition()));
     }
 
     /**
      * @brief gets socket from received connection and adds processed http request to queue
      * @param handlingData the data that is going to be handled.
      */
-    void handleSingle(std::shared_ptr<SocketType> handlingData) override {
+    void handleSingle(ConsumingType handlingData) override {
       std::vector<char> request;
 
       *handlingData >> request;
 
-      std::shared_ptr<RequestType> httpRequest = _requestParser->createHttpRequest(request, handlingData);
+      ProducingType httpRequest = _requestParser->createHttpRequest(request, handlingData);
 
-      _requestsQueue.push(httpRequest);
+      _requestsQueue.push(MiddlewareMessage<ProducingType>(httpRequest));
     };
   };
 }

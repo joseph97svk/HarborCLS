@@ -14,7 +14,7 @@ void signalHandler(int signal) {
 
 int main() {
   signal(SIGINT, signalHandler);
-  signal(SIGKILL, signalHandler);
+/*  signal(SIGKILL, signalHandler);*/
 
   HarborCLS::HttpServer& server = HarborCLS::HttpServer::getInstance();
 

@@ -5,28 +5,30 @@
 #ifndef HARBOR_CLS_APPLICATIONMIDDLEWAREHANDLER_IXX
 #define HARBOR_CLS_APPLICATIONMIDDLEWAREHANDLER_IXX
 
+#include "../../../Protocols/ProtocolConcept.hpp"
+
 namespace HarborCLS {
 
-  template<typename Protocol>
+  template<ServerProtocol Protocol>
   class ApplicationMiddlewareHandler
       : public Handler<std::shared_ptr<typename Protocol::RequestType>> {
-    using RequestType = typename Protocol::RequestType;
-    using ResponseType = typename Protocol::ResponseType;
+    using ConsumingType = std::shared_ptr<typename Protocol::RequestType>;
+    using ProducingType = std::shared_ptr<typename Protocol::ResponseType>;
 
-    Queue<std::shared_ptr<ResponseType>> &_responsesQueue;
+    MiddlewareBlockingQueue<ProducingType> &_responsesQueue;
 
   public:
-    ApplicationMiddlewareHandler(Queue<std::shared_ptr<RequestType>> *consumingQueue,
-                                 Queue<std::shared_ptr<ResponseType>> &producingQueue,
-                                 std::shared_ptr<RequestType> stopCondition)
-        : Handler<std::shared_ptr<RequestType>>(consumingQueue, stopCondition), _responsesQueue(producingQueue) {}
+    ApplicationMiddlewareHandler(MiddlewareBlockingQueue<ConsumingType>& consumingQueue,
+                                 MiddlewareBlockingQueue<ProducingType>& producingQueue)
+        : Handler<ConsumingType>(consumingQueue)
+            , _responsesQueue(producingQueue) {}
 
   private:
     void optionalToEnd() override {
-      _responsesQueue.push(nullptr);
+      _responsesQueue.push(MiddlewareMessage<ProducingType>(StopCondition()));
     }
 
-    void handleSingle(std::shared_ptr<RequestType> handlingData) override {
+    void handleSingle(ConsumingType handlingData) override {
       std::shared_ptr<HttpResponse> response = std::make_shared<HttpResponse>();
       response->socket = handlingData->socket;
 
@@ -35,7 +37,7 @@ namespace HarborCLS {
       response->body = body;
       response->contentLength = body.length();
 
-      _responsesQueue.push(response);
+      _responsesQueue.push(MiddlewareMessage<ProducingType>(response));
     };
   };
 }

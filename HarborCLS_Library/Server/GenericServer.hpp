@@ -28,9 +28,9 @@ namespace HarborCLS {
     using ResponseHeaderComposerInterface = typename Protocol::ResponseHeaderComposerInterface;
     using ResponseHeaderComposerType = typename Protocol::ResponseHeaderComposerType;
 
-    std::vector<ResponseMiddlewareHandler> _responseMiddlewareHandlers;
+    std::vector<ResponseMiddlewareHandler<Protocol>> _responseMiddlewareHandlers;
     std::vector<std::reference_wrapper<WebApplication<Protocol>>> _webApplications;
-    Queue<std::shared_ptr<ResponseType>> _responsesQueue;
+    MiddlewareBlockingQueue<std::shared_ptr<ResponseType>> _responsesQueue;
 
     ServerConfiguration _configuration;
 
@@ -127,8 +127,7 @@ namespace HarborCLS {
            ++responseHandlerIndex) {
 
         _responseMiddlewareHandlers.emplace_back(
-            &(_responsesQueue),
-            nullptr,
+            _responsesQueue,
             _responseHeaderComposer
         );
       }
@@ -139,7 +138,7 @@ namespace HarborCLS {
         webApplication.startApplication(_requestParser);
       }
 
-      for (ResponseMiddlewareHandler &responseMiddlewareHandler: _responseMiddlewareHandlers) {
+      for (ResponseMiddlewareHandler<Protocol> &responseMiddlewareHandler: _responseMiddlewareHandlers) {
         responseMiddlewareHandler.start();
       }
 
@@ -147,7 +146,7 @@ namespace HarborCLS {
         webApplication.waitToFinish();
       }
 
-      for (ResponseMiddlewareHandler &responseMiddlewareHandler: _responseMiddlewareHandlers) {
+      for (ResponseMiddlewareHandler<Protocol> &responseMiddlewareHandler: _responseMiddlewareHandlers) {
         responseMiddlewareHandler.waitToFinish();
       }
 

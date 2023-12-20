@@ -134,7 +134,7 @@ namespace HarborCLS {
      */
     void setTimeout(size_t seconds, size_t microseconds) const;
 
-    [[nodiscard]] bool isIpV6();
+    [[nodiscard]] bool isIpV6() const;
 
   private:
     void setSocket();
