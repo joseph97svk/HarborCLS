@@ -11,4 +11,4 @@ link_libraries(OpenSSL::SSL OpenSSL::Crypto Threads::Threads)
 set(DEFAULT_TARGET ${PROJECT_NAME})
 add_executable(${DEFAULT_TARGET} ${PROJECT_SOURCES})
 
-target_link_libraries(${DEFAULT_TARGET} HttpServer)
+target_link_libraries(${DEFAULT_TARGET} HarborCLS)
