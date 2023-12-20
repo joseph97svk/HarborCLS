@@ -30,7 +30,7 @@ namespace HarborCLS {
       std::shared_ptr<HttpResponse> response = std::make_shared<HttpResponse>();
       response->socket = handlingData->socket;
 
-      std::string body = "<html><body><h1>Hello Cheche!!!</h1></body></html>";
+      std::string body = "<html><body><h1>Hello there</h1></body></html>";
 
       response->body = body;
       response->contentLength = body.length();
