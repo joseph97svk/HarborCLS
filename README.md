@@ -34,3 +34,6 @@ sudo apt-get install libssl-dev
 ## Third party libraries used ##
 ### Json reader ###
 https://github.com/nlohmann/jsonTo
+
+### googletest ###
+https://github.com/google/googletest
