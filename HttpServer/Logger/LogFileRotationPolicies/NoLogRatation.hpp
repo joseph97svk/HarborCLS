@@ -21,9 +21,9 @@ public:
      */
     void rotateLogFile(std::ofstream& file, std::string& fileName) override {
       if (!file.is_open()) {
-        std::string logFileName = NoLogFileRotation::createLogFileName(fileName, true);
+        fileName = NoLogFileRotation::createLogFileName(fileName, true);
 
-        file.open(logFileName, std::ios::app);
+        file.open(fileName, std::ios::app);
       }
     }
 };

@@ -22,12 +22,18 @@ std::variant<std::string, std::ofstream> FileAlwaysOpenPolicy::getLogFile(std::s
 }
 
 void FileAlwaysOpenPolicy::log(std::string completeLoggingMessage,
-                               std::optional<std::ofstream>& loggingFile,
+                               std::optional<std::reference_wrapper<std::ofstream>>& loggingFile,
                                std::mutex& canWrite) {
   std::lock_guard<std::mutex> lock(canWrite);
 
   auto& fileStream = loggingFile.value();
 
   std::cout << completeLoggingMessage << std::endl;
-  fileStream << completeLoggingMessage;
+
+  if (!fileStream.get().is_open()) {
+    std::cout << "Log on file always open: could not log on file" << std::endl;
+  }
+
+  fileStream.get() << completeLoggingMessage << std::endl;
+  fileStream.get().flush();
 }

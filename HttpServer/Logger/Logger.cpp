@@ -41,17 +41,21 @@ void Logger::info(std::string message) {
 template<class... Ts> struct overloaded : Ts... { using Ts::operator()...; };
 
 void Logger::logMessage(const std::string& messageType, std::string& message) {
+  while (!_logFutures.empty()) {
+    _logFutures.pop_back();
+  }
+
   _logFutures.push_back(std::async([this, message, messageType]() {
-    std::string completedMessage = getCurrentTime() + " [ " + messageType + " ] : " + message + "\n";
+    std::string completedMessage = getCurrentTime() + " [ " + messageType + " ] : " + message;
     std::optional<std::string> bufferedMessage = _bufferingStrategy->buffer(completedMessage);
 
     if (!bufferedMessage.has_value()) return;
 
-    std::optional<std::ofstream> fileStream;
+    std::optional<std::reference_wrapper<std::ofstream>> fileStream;
 
     std::visit(overloaded {
       [&fileStream](std::ofstream& ofs) {
-        fileStream = std::move(ofs);
+        fileStream = ofs;
       },
       [&fileStream](const std::string& str) {
         fileStream = std::nullopt;

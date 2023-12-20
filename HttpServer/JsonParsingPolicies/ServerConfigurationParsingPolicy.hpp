@@ -28,6 +28,8 @@ public:
                     [](ServerConfiguration& config) -> std::string& { return config.sslKeyFileName; });
     this->addPolicy<unsigned int>("requestsQueueSize",
                     [](ServerConfiguration& config) -> unsigned int& { return config.requestsQueueSize; });
+    this->addPolicy<std::string>("LoggerConfiguration:LoggerFilePath",
+                    [](ServerConfiguration& config) -> std::string& { return config.loggerConfiguration.logFilePath; });
   }
 };
 

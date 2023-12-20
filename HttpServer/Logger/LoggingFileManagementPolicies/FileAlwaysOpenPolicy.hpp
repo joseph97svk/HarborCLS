@@ -42,7 +42,7 @@ public:
    * @param canWrite mutex to control access to the log file
    */
   void log(std::string completeLoggingMessage,
-           std::optional<std::ofstream>& loggingFile,
+           std::optional<std::reference_wrapper<std::ofstream>>& loggingFile,
            std::mutex& canWrite) override;
 };
 

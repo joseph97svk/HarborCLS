@@ -10,36 +10,40 @@
 #include "Common/common.hpp"
 
 class BoundedFileRotation : public BaseFileRotation {
-    unsigned int fileMaxWrites {};
-    unsigned int fileCurrentWrites {};
+    unsigned int _fileMaxWrites {};
+    unsigned int _fileCurrentWrites {};
 
 public:
-    explicit BoundedFileRotation(unsigned int fileMaxWrites)
-        : fileMaxWrites(fileMaxWrites) { }
+  explicit BoundedFileRotation(unsigned int fileMaxWrites)
+      : _fileMaxWrites(fileMaxWrites) { }
 
-    ~BoundedFileRotation() override = default;
+  ~BoundedFileRotation() override = default;
 
-    /**
-     * @brief Checks if the amount of writes to the file has exceeded the maximum amount of writes. If so, the file is
-     * closed and a new file is opened.
-     * @param file The file to rotate.
-     * @param fileName The name of the file to rotate.
-     */
-    void rotateLogFile(std::ofstream& file, std::string& fileName) override {
-      if (fileCurrentWrites >= fileMaxWrites) {
-        fileCurrentWrites = 0;
+  /**
+   * @brief Checks if the amount of writes to the file has exceeded the maximum amount of writes. If so, the file is
+   * closed and a new file is opened.
+   * @param file The file to rotate.
+   * @param fileName The name of the file to rotate.
+   */
+  void rotateLogFile(std::ofstream& file, std::string& fileName) override {
+    if (_fileCurrentWrites >= _fileMaxWrites || _fileCurrentWrites == 0) {
+      _fileCurrentWrites = 0;
 
-        if (file.is_open()) {
-          file.close();
-        }
-
-        std::string newFileName = BaseFileRotation::createLogFileName(fileName, true);
-
-        file.open(newFileName, std::ios::app);
+      if (file.is_open()) {
+        file.close();
       }
 
-      fileCurrentWrites++;
+      fileName = BaseFileRotation::createLogFileName(fileName, true);
+
+      file.open(fileName, std::ios::app);
     }
+
+    _fileCurrentWrites++;
+
+    if (!file.is_open()) {
+      file.open(fileName, std::ios::app);
+    }
+  }
 };
 
 #endif //LEGO_FIGURE_MAKER_BOUNDEDFILEROTATION_HPP

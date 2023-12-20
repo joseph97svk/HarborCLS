@@ -17,7 +17,7 @@ int main() {
 
   HttpServer& server = HttpServer::getInstance();
 
-  std::string path = std::filesystem::absolute("Configuration.json");
+  std::string path = "Servers/IntermediaryServer/Configuration.json";
 
   WebApplication intermediaryServer;
 
