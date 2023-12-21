@@ -25,3 +25,4 @@ target_link_libraries(HarborCLS_Library OpenSSL::SSL OpenSSL::Crypto Threads::Th
 add_subdirectory(Servers/IntermediaryServer)
 add_subdirectory(HarborCLS_Tests)
 add_subdirectory(googletest)
+add_subdirectory(HarborCLS_Library/Common/DependenciesManagement/Hypodermic)

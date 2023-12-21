@@ -18,6 +18,8 @@
 
 #include "../Protocols/ProtocolConcept.hpp"
 
+#include "../../Common/DependenciesManagement/DependencyManager.hpp"
+
 namespace HarborCLS {
 
   template<ServerProtocol Protocol = HttpProtocol>
@@ -40,6 +42,8 @@ namespace HarborCLS {
     ServerConfiguration _configuration {};
 
     std::shared_ptr<ILogger> _logger {};
+
+    DependencyManager _dependencyManager;
 
   public:
     WebApplication() {
@@ -114,6 +118,10 @@ namespace HarborCLS {
 
       _socket->bind(_configuration.port);
       _socket->listen(_configuration.requestsQueueSize);
+
+      auto a = _dependencyManager.getApplicationStartupTaskSet();
+      a->runInitTasks();
+
       _tcpListener->start();
 
       for (auto &requestHandler: _requestMiddlewareHandlers) {
@@ -151,6 +159,14 @@ namespace HarborCLS {
       _logger->info("Stopping Web Application");
       _tcpListener->stop();
       _logger->info("Web Application terminated");
+    }
+
+    /**
+     * @brief Gives access to the dependency manager to add dependencies and services.
+     * @return
+     */
+    DependencyManager& manageDependencies() {
+      return _dependencyManager;
     }
 
   protected:

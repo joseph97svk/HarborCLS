@@ -31,11 +31,6 @@ namespace HarborCLS {
 
     }
 
-    template<class... Ts>
-    struct overloaded : Ts ... {
-      using Ts::operator()...;
-    };
-
     void handleSingle(ConsumingType handlingData) override{
       std::string header = std::move(_headerComposer->composeHeader(handlingData));
 
