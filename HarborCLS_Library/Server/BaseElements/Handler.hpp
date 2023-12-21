@@ -1,0 +1,49 @@
+#ifndef HANDLER_HPP
+#define HANDLER_HPP
+
+#include <iostream>
+
+#include "../Concurrency/Thread.hpp"
+#include "../Concurrency/Queue.hpp"
+
+namespace HarborCLS {
+
+  template<typename consumeDataType>
+  class Handler : public virtual Thread {
+  protected:
+    Queue<consumeDataType> *consumingQueue;
+
+    consumeDataType stopCondition;
+
+  public:
+    explicit Handler(Queue<consumeDataType> *consumingQueue,
+                     consumeDataType stopCondition)
+        : Thread(), consumingQueue(consumingQueue), stopCondition(stopCondition) {
+    }
+
+    ~Handler() override = default;
+
+  protected:
+    void handle() {
+      while (true) {
+        consumeDataType data = this->consumingQueue->pop();
+
+        if (data == this->stopCondition) {
+          optionalToEnd();
+          break;
+        }
+
+        handleSingle(data);
+      }
+    }
+
+    void run() override {
+      this->handle();
+    }
+
+    virtual void optionalToEnd() = 0;
+
+    virtual void handleSingle(consumeDataType handlingData) = 0;
+  };
+}
+#endif

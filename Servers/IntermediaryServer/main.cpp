@@ -2,7 +2,7 @@
 // Created by josephvalverde on 12/12/23.
 //
 
-#include "../../HarborCLS/Server/Http/HttpServer.hpp"
+#include "../../HarborCLS_Library/Server/Http/HttpServer.hpp"
 
 #include <filesystem>
 #include <iostream>
@@ -14,6 +14,7 @@ void signalHandler(int signal) {
 
 int main() {
   signal(SIGINT, signalHandler);
+  signal(SIGKILL, signalHandler);
 
   HarborCLS::HttpServer& server = HarborCLS::HttpServer::getInstance();
 
