@@ -34,7 +34,7 @@ namespace HarborCLS {
 
     ServerConfiguration _configuration;
 
-    std::unique_ptr<ILogger> _logger;
+    std::shared_ptr<ILogger> _logger;
 
     std::shared_ptr<RequestParserInterface> _requestParser;
     std::shared_ptr<ResponseHeaderComposerInterface> _responseHeaderComposer;
@@ -127,8 +127,9 @@ namespace HarborCLS {
            ++responseHandlerIndex) {
 
         _responseMiddlewareHandlers.emplace_back(
-            _responsesQueue,
-            _responseHeaderComposer
+            _responsesQueue
+            , _responseHeaderComposer
+            , _logger
         );
       }
     }

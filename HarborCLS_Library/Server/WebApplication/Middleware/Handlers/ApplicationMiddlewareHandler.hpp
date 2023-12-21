@@ -18,9 +18,10 @@ namespace HarborCLS {
     MiddlewareBlockingQueue<ProducingType> &_responsesQueue;
 
   public:
-    ApplicationMiddlewareHandler(MiddlewareBlockingQueue<ConsumingType>& consumingQueue,
-                                 MiddlewareBlockingQueue<ProducingType>& producingQueue)
-        : Handler<ConsumingType>(consumingQueue)
+    ApplicationMiddlewareHandler(MiddlewareBlockingQueue<ConsumingType>& consumingQueue
+                                 , MiddlewareBlockingQueue<ProducingType>& producingQueue
+                                 , std::shared_ptr<ILogger> logger)
+        : Handler<ConsumingType>(consumingQueue, std::move(logger))
             , _responsesQueue(producingQueue) {}
 
   private:

@@ -23,17 +23,29 @@ namespace HarborCLS {
      */
     ConnectionListener(MiddlewareBlockingQueue<ListeningType>& connectionsQueue
                        , std::shared_ptr<SocketType> socket
-                       , unsigned int port)
+                       , unsigned int port
+                       , std::shared_ptr<ILogger> logger)
             : Listener<ListeningType, SocketType>(connectionsQueue
                                                                 , std::move(socket)
-                                                                , port) {}
+                                                                , port
+                                                                , std::move(logger)) {}
 
     /**
     * Obtains a connection from the listening socket.
     * @return a connection from the listening socket.
     */
     MiddlewareMessage<ListeningType> obtain() override {
-      ListeningType receivedConnection = this->_listeningSocket->accept();
+      std::expected<ListeningType, SocketError> listeningSocket = this->_listeningSocket->accept();
+
+      if (!listeningSocket) {
+        return MiddlewareMessage<ListeningType>(
+            Error<MessageErrors>("Error while obtaining connection from listening socket."
+                                 , MessageErrors::GENERIC_ERROR));
+      }
+
+      this->_logger->info("Connection accepted");
+
+      ListeningType receivedConnection = std::move(listeningSocket.value());
 
       return MiddlewareMessage<ListeningType>(receivedConnection);
     }

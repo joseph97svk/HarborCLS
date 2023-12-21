@@ -27,7 +27,7 @@ namespace HarborCLS {
     using ResponseType = typename Protocol::ResponseType;
     using RequestParserInterface = typename Protocol::RequestParserInterface;
 
-    std::shared_ptr<SocketType> _tcpSocket {};
+    std::shared_ptr<SocketType> _socket {};
     std::optional<ConnectionListener<SocketType>> _tcpListener {};
 
     std::vector<RequestMiddlewareHandler<Protocol>> _requestMiddlewareHandlers {};
@@ -112,8 +112,8 @@ namespace HarborCLS {
       _logger->info("Web application initialized");
       _logger->info("Listening on: " + getComputerIp() + ":" + std::to_string(_configuration.port));
 
-      _tcpSocket->bind(_configuration.port);
-      _tcpSocket->listen(_configuration.requestsQueueSize);
+      _socket->bind(_configuration.port);
+      _socket->listen(_configuration.requestsQueueSize);
       _tcpListener->start();
 
       for (auto &requestHandler: _requestMiddlewareHandlers) {
@@ -158,11 +158,12 @@ namespace HarborCLS {
       std::string sslCertPath = _configuration.sslCertFileName;
       std::string sslKey = _configuration.sslKeyFileName;
 
-      _tcpSocket = std::make_shared<SocketType>(false);
+      _socket = std::make_shared<SocketType>(false);
       _tcpListener = std::make_optional<ConnectionListener<SocketType>>(
           _connectionsQueue
-          , _tcpSocket
+          , _socket
           , _configuration.port
+          , _logger
       );
 
       for (int requestHandlerIndex = 0;
@@ -172,6 +173,7 @@ namespace HarborCLS {
             _connectionsQueue
             , _requestsQueue
             , std::move(requestParser)
+            , _logger
         );
       }
 
@@ -181,6 +183,7 @@ namespace HarborCLS {
         _applicationMiddlewareHandlers.emplace_back(
             _requestsQueue
             , *_responsesQueue
+            , _logger
         );
       }
     }

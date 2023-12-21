@@ -2,7 +2,6 @@
 // Created by josephvalverde on 12/12/23.
 //
 
-
 #ifndef HARBOR_CLS_LISTENER_HPP
 #define HARBOR_CLS_LISTENER_HPP
 
@@ -11,6 +10,7 @@
 #include "Server/Concurrency/Thread.hpp"
 #include "Server/Concurrency/Queue.hpp"
 #include "MiddlewareMessage.hpp"
+#include "../../Logger/ILogger.hpp"
 
 namespace HarborCLS {
 
@@ -22,9 +22,9 @@ namespace HarborCLS {
     std::shared_ptr<SocketType> _listeningSocket{};
 
     unsigned int _stopPort{};
-
     bool _stopThread{ false };
 
+    std::shared_ptr<ILogger> _logger;
   public:
     /**
      * @brief Constructor for the Listener class.
@@ -37,10 +37,12 @@ namespace HarborCLS {
      */
     Listener(MiddlewareBlockingQueue<enqueueType>& queue,
              std::shared_ptr<SocketType> listeningSocket,
-             unsigned int stopPort)
+             unsigned int stopPort,
+             std::shared_ptr<ILogger> logger)
         : _queue(queue)
         , _listeningSocket(std::move(listeningSocket))
-        , _stopPort(stopPort) {
+        , _stopPort(stopPort)
+        , _logger(std::move(logger)){
     }
 
     /**
@@ -77,7 +79,7 @@ namespace HarborCLS {
               },
               [this](Error<MessageErrors>& error) {
                 std::string errorMessage = error;
-                std::cout << errorMessage << std::endl;
+                _logger->error("Error while obtaining data: " + errorMessage);
                 _queue.get().push(MiddlewareMessage<enqueueType>(error));
               }
           }, dataContents.error());
@@ -110,7 +112,14 @@ namespace HarborCLS {
      */
     void unlockListen() {
       SocketType closingSocket(_listeningSocket->isIpV6());
-      closingSocket.connect("any IP", _stopPort);
+      std::expected<Success, SocketError> socketConnection = closingSocket.connect("any IP", _stopPort);
+
+      if (!socketConnection) {
+        std::string errorMessage = socketConnection.error();
+        _logger->error("Error connecting to stop port: " + errorMessage);
+        _logger->error("Could not exit gracefully, will force exit. May need to kill ports manually.");
+        exit(0);
+      }
     }
   };
 }

@@ -8,11 +8,30 @@
 #include <memory>
 #include <span>
 #include <optional>
-#include "SSL/SSLController.hpp"
+#include <expected>
 
+#include "SSL/SSLController.hpp"
 #include "../../Common/common.hpp"
 
+#include "../../Common/Error.hpp"
+
+
 namespace HarborCLS {
+  enum class SocketErrors {
+    OK = 0,
+    GENERIC_ERROR,
+    SOCKET_CREATION_ERROR,
+    SOCKET_CONNECTION_ERROR,
+    SOCKET_BIND_ERROR,
+    SOCKET_LISTEN_ERROR,
+    SOCKET_ACCEPT_ERROR,
+    SOCKET_READ_ERROR,
+    SOCKET_WRITE_ERROR,
+    SOCKET_TIMEOUT_ERROR,
+    SOCKET_FAILED_TO_GET_ADDRESS
+  };
+
+  using SocketError = Error<SocketErrors>;
 
   class TcpSocket {
     int _socketId;
@@ -56,7 +75,7 @@ namespace HarborCLS {
      * @param host The host to connect to.
      * @param targetPort The port to connect to.
      */
-    void connect(const std::string &host, int targetPort);
+    [[nodiscard]] std::expected<Success, SocketError> connect(const std::string &host, int targetPort) const;
 
     /**
      * @brief Connects to the given host and service.
@@ -64,7 +83,7 @@ namespace HarborCLS {
      * @param host The host to connect to.
      * @param service The service to connect to.
      */
-    void connect(const std::string &host, const std::string &service) const;
+    [[nodiscard]] std::expected<Success, SocketError> connect(const std::string &host, const std::string &service) const;
 
     /**
      * @brief Closes the socket.
@@ -119,13 +138,13 @@ namespace HarborCLS {
      * @brief Accepts a connection.
      * @return a shared pointer to the socket of the accepted connection.
      */
-    [[nodiscard]] std::shared_ptr<TcpSocket> accept() const;
+    [[nodiscard]] std::expected<std::shared_ptr<TcpSocket>, SocketError> accept() const;
 
     /**
      * Returns whether or not the socket is SSL.
      * @return bool of whether or not the socket is SSL.
      */
-    [[nodiscard]] bool isSSL() const;
+    [[nodiscard]] bool isSSL() const noexcept;
 
     /**
      * @brief Sets the timeout for the socket.
@@ -134,14 +153,14 @@ namespace HarborCLS {
      */
     void setTimeout(size_t seconds, size_t microseconds) const;
 
-    [[nodiscard]] bool isIpV6() const;
+    [[nodiscard]] bool isIpV6() const noexcept;
 
   private:
     void setSocket();
 
-    void ipv4Connect(const std::string &host, int port) const;
+    [[nodiscard]] std::expected<Success, SocketError> ipv4Connect(const std::string &host, int port) const;
 
-    void ipv6Connect(const std::string &host, int port) const;
+    [[nodiscard]] std::expected<Success, SocketError> ipv6Connect(const std::string &host, int port) const;
 
     [[nodiscard]] unsigned int Write(const std::span<char> &message) const;
 
