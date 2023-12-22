@@ -6,24 +6,24 @@
 #ifndef HARBOR_CLS_LISTENER_HPP
 #define HARBOR_CLS_LISTENER_HPP
 
-#include "../Concurrency/Thread.hpp"
-#include "../Concurrency/Queue.hpp"
 #include <memory>
+
+#include "Server/Concurrency/Thread.hpp"
+#include "Server/Concurrency/Queue.hpp"
+#include "MiddlewareMessage.hpp"
 
 namespace HarborCLS {
 
   template<typename enqueueType, typename SocketType>
   class Listener : public virtual Thread {
   protected:
-    Queue<enqueueType> *_queue{};
+    // still have no idea why its required here to work but not anywhere else
+    std::reference_wrapper<MiddlewareBlockingQueue<enqueueType>> _queue;
     std::shared_ptr<SocketType> _listeningSocket{};
-
-    enqueueType _stopCondition{};
-    enqueueType _handlerStopCondition{};
 
     unsigned int _stopPort{};
 
-    bool _stopThread{false};
+    bool _stopThread{ false };
 
   public:
     /**
@@ -35,13 +35,12 @@ namespace HarborCLS {
      * @param handlerStopCondition The condition to stop the handler.
      * @param stopPort The port to stop the listener.
      */
-    Listener(Queue<enqueueType> *queue,
+    Listener(MiddlewareBlockingQueue<enqueueType>& queue,
              std::shared_ptr<SocketType> listeningSocket,
-             enqueueType stopCondition,
-             enqueueType handlerStopCondition,
              unsigned int stopPort)
-        : _queue(queue), _listeningSocket(std::move(listeningSocket)), _stopCondition(stopCondition),
-          _handlerStopCondition(handlerStopCondition), _stopPort(stopPort) {
+        : _queue(queue)
+        , _listeningSocket(std::move(listeningSocket))
+        , _stopPort(stopPort) {
     }
 
     /**
@@ -50,11 +49,11 @@ namespace HarborCLS {
     ~Listener() override = default;
 
     void stop() {
-      this->_stopThread = true;
+      _stopThread = true;
 
       this->unlockListen();
 
-      this->_queue->push(_handlerStopCondition);
+      _queue.get().push(MiddlewareMessage<enqueueType>(StopCondition()));
     }
 
   private:
@@ -63,14 +62,33 @@ namespace HarborCLS {
      */
     virtual void listen() {
       while (true) {
-        enqueueType data = this->obtain();
+        MiddlewareMessage<enqueueType> data = this->obtain();
 
-        if (data == this->_stopCondition || this->_stopThread) {
-          this->_queue->push(data);
+        if (_stopThread) {
+          _queue.get().push(MiddlewareMessage<enqueueType>(StopCondition()));
           break;
         }
 
-        this->_queue->push(data);
+        std::expected<enqueueType, std::variant<StopCondition, Error<MessageErrors>>> dataContents = data.getContent();
+        if (!dataContents) {
+          std::visit(overloaded{
+              [this](StopCondition& stopCondition) {
+                _stopThread = true;
+              },
+              [this](Error<MessageErrors>& error) {
+                std::string errorMessage = error;
+                std::cout << errorMessage << std::endl;
+                _queue.get().push(MiddlewareMessage<enqueueType>(error));
+              }
+          }, dataContents.error());
+
+          if (_stopThread) {
+            _queue.get().push(MiddlewareMessage<enqueueType>(StopCondition()));
+            break;
+          }
+        }
+
+        _queue.get().push(data);
       }
     }
 
@@ -85,7 +103,7 @@ namespace HarborCLS {
      * @brief Obtains the data from the socket.
      * @return The data obtained.
      */
-    virtual enqueueType obtain() = 0;
+    virtual MiddlewareMessage<enqueueType> obtain() = 0;
 
     /**
      * @brief Unlocks the listening socket.

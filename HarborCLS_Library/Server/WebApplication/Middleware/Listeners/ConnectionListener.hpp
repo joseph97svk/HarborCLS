@@ -6,11 +6,12 @@
 #define HTTPSERVER_TCPLISTENER_HPP
 
 #include "../../../Socket/TcpSocket.hpp"
-#include "../../../BaseElements/Listener.hpp"
+#include "Server/Middleware/Listener.hpp"
 
 namespace HarborCLS {
   template<typename SocketType>
   class ConnectionListener : public Listener<std::shared_ptr<SocketType>, SocketType> {
+    using ListeningType = std::shared_ptr<SocketType>;
   public:
     /**
      * Constructor for the TcpListener class.
@@ -20,25 +21,21 @@ namespace HarborCLS {
      * @param handlerStopCondition the condition that will stop the handler.
      * @param port the port where the listener will listen for connections.
      */
-    ConnectionListener(Queue<std::shared_ptr<SocketType>> *connectionsQueue
+    ConnectionListener(MiddlewareBlockingQueue<ListeningType>& connectionsQueue
                        , std::shared_ptr<SocketType> socket
-                       , std::shared_ptr<SocketType> stopCondition
-                       , std::shared_ptr<SocketType> handlerStopCondition
                        , unsigned int port)
-            : Listener<std::shared_ptr<SocketType>, SocketType>(connectionsQueue
+            : Listener<ListeningType, SocketType>(connectionsQueue
                                                                 , std::move(socket)
-                                                                , std::move(stopCondition)
-                                                                , std::move(handlerStopCondition)
                                                                 , port) {}
 
     /**
     * Obtains a connection from the listening socket.
     * @return a connection from the listening socket.
     */
-    std::shared_ptr<SocketType> obtain() override {
-        std::shared_ptr<TcpSocket> receivedConnection = this->_listeningSocket->accept();
+    MiddlewareMessage<ListeningType> obtain() override {
+      ListeningType receivedConnection = this->_listeningSocket->accept();
 
-        return receivedConnection;
+      return MiddlewareMessage<ListeningType>(receivedConnection);
     }
   };
 }

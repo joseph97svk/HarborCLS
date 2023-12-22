@@ -33,9 +33,9 @@ namespace HarborCLS {
     std::vector<RequestMiddlewareHandler<Protocol>> _requestMiddlewareHandlers {};
     std::vector<ApplicationMiddlewareHandler<Protocol>> _applicationMiddlewareHandlers {};
 
-    BlockingQueue<std::shared_ptr<SocketType>> _connectionsQueue {};
-    BlockingQueue<std::shared_ptr<RequestType>> _requestsQueue {};
-    std::optional<std::reference_wrapper<BlockingQueue<std::shared_ptr<ResponseType>>>> _responsesQueue {};
+    MiddlewareBlockingQueue<std::shared_ptr<SocketType>> _connectionsQueue {};
+    MiddlewareBlockingQueue<std::shared_ptr<RequestType>> _requestsQueue {};
+    std::optional<std::reference_wrapper<MiddlewareBlockingQueue<std::shared_ptr<ResponseType>>>> _responsesQueue {};
 
     ServerConfiguration _configuration {};
 
@@ -97,7 +97,7 @@ namespace HarborCLS {
      * Adds a queue that will be used to send responses to the client.
      * @param responsesQueue the queue that will be used to send responses to the client.
      */
-    void addResponsesQueue(BlockingQueue<std::shared_ptr<ResponseType>> &responsesQueue) {
+    void addResponsesQueue(MiddlewareBlockingQueue<std::shared_ptr<ResponseType>> &responsesQueue) {
       _responsesQueue = responsesQueue;
     }
 
@@ -155,21 +155,23 @@ namespace HarborCLS {
 
   protected:
     inline void startResources(std::shared_ptr<RequestParserInterface> requestParser) {
-      std::filesystem::path currentPath = __FILE__;
-      currentPath = currentPath.parent_path();
-
-      std::string sslCertPath = currentPath / _configuration.sslCertFileName;
-      std::string sslKey = currentPath / _configuration.sslKeyFileName;
+      std::string sslCertPath = _configuration.sslCertFileName;
+      std::string sslKey = _configuration.sslKeyFileName;
 
       _tcpSocket = std::make_shared<SocketType>(false);
       _tcpListener = std::make_optional<ConnectionListener<SocketType>>(
-          &(_connectionsQueue), _tcpSocket, nullptr, nullptr, _configuration.port);
+          _connectionsQueue
+          , _tcpSocket
+          , _configuration.port
+      );
 
       for (int requestHandlerIndex = 0;
            requestHandlerIndex < _configuration.requestHandlerAmount;
            ++requestHandlerIndex) {
         _requestMiddlewareHandlers.emplace_back(
-            &_connectionsQueue, _requestsQueue, nullptr, std::move(requestParser)
+            _connectionsQueue
+            , _requestsQueue
+            , std::move(requestParser)
         );
       }
 
@@ -177,11 +179,11 @@ namespace HarborCLS {
            applicationHandlerIndex < _configuration.applicationHandlerAmount;
            ++applicationHandlerIndex) {
         _applicationMiddlewareHandlers.emplace_back(
-            &_requestsQueue, *_responsesQueue, nullptr
+            _requestsQueue
+            , *_responsesQueue
         );
       }
     }
   };
-
 }
 #endif //HARBOR_CLS_WEBAPPLICATION_HPP

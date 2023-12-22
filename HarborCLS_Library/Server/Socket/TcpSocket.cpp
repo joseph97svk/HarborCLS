@@ -139,7 +139,7 @@ namespace HarborCLS {
 
   template<typename readDatatype>
   TcpSocket &TcpSocket::operator>>(readDatatype &data) {
-    size_t bytesRead = 0;
+    size_t bytesRead;
 
     std::vector<char> buffer;
     std::pair<std::vector<char>, unsigned int> readData;
@@ -196,7 +196,7 @@ namespace HarborCLS {
   }
 
   TcpSocket &TcpSocket::operator>>(std::vector<char> &data) {
-    size_t bytesRead = 0;
+    size_t bytesRead;
     std::vector<char> buffer;
     std::pair<std::vector<char>, unsigned int> readData;
     std::function<std::pair<std::vector<char>, unsigned int>()> readOperation;
@@ -324,7 +324,7 @@ namespace HarborCLS {
     }
   }
 
-  [[nodiscard]] bool TcpSocket::isIpV6() {
+  [[nodiscard]] bool TcpSocket::isIpV6() const {
     return _ipv6;
   }
 }
