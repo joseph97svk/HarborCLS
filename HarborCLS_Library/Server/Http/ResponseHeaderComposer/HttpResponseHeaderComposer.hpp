@@ -12,6 +12,11 @@ namespace HarborCLS {
   class HttpResponseHeaderComposer : public IResponseHeaderComposer {
   public:
     std::string composeHeader(std::shared_ptr<HttpResponse> response) override {
+      if (response->socket == nullptr) {
+        throw std::runtime_error("Dumb mistake: someone forgot to set the socket in a service running on the"
+                                 " application middleware handler.");
+      }
+
       std::string header;
 
       header += response->htmlVersion + " ";

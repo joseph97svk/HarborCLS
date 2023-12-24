@@ -18,7 +18,9 @@
 
 #include "../Protocols/ProtocolConcept.hpp"
 
-#include "../../Common/DependenciesManagement/DependencyManager.hpp"
+#include "DependencyManagement/Builder.hpp"
+#include "DependencyManagement/WebServiceResolver.hpp"
+#include "WebAppDefaultServices/WebPageDispatchService.hpp"
 
 namespace HarborCLS {
 
@@ -43,7 +45,10 @@ namespace HarborCLS {
 
     std::shared_ptr<ILogger> _logger {};
 
-    DependencyManager _dependencyManager;
+    Builder<Protocol> _dependencyManager {};
+
+    std::shared_ptr<IWebServiceResolver<Protocol>> _webServiceResolver
+        = std::make_shared<WebServiceResolver<Protocol>>();;
 
   public:
     WebApplication() {
@@ -58,6 +63,10 @@ namespace HarborCLS {
      */
     void setDefaultFallBackConfiguration(const ServerConfiguration &fallBackConfiguration) {
       _configuration = fallBackConfiguration;
+    }
+
+    void setCustomWebServiceResolver(std::shared_ptr<IWebServiceResolver<Protocol>> webServiceResolver) {
+      _webServiceResolver = webServiceResolver;
     }
 
     /**
@@ -113,16 +122,22 @@ namespace HarborCLS {
       _logger = loggerFactory.createLogger();
 
       this->startResources(std::move(requestParser));
+
       _logger->info("Web application initialized");
       _logger->info("Listening on: " + getComputerIp() + ":" + std::to_string(_configuration.port));
 
       _socket->bind(_configuration.port);
       _socket->listen(_configuration.requestsQueueSize);
 
-      auto a = _dependencyManager.getApplicationStartupTaskSet();
-      a->runInitTasks();
-
       _tcpListener->start();
+
+      auto tasksContainer = _dependencyManager.getApplicationStartupTaskSet();
+      std::shared_ptr<std::vector<std::shared_ptr<BaseWebAppService<Protocol>>>> livingTasks
+          = tasksContainer->getLivingTasks();
+
+      for (auto &livingTask: *livingTasks) {
+        livingTask->start();
+      }
 
       for (auto &requestHandler: _requestMiddlewareHandlers) {
         requestHandler.start();
@@ -131,6 +146,8 @@ namespace HarborCLS {
       for (auto &applicationHandler: _applicationMiddlewareHandlers) {
         applicationHandler.start();
       }
+
+      tasksContainer->runInitTasks();
     }
 
     /**
@@ -165,12 +182,14 @@ namespace HarborCLS {
      * @brief Gives access to the dependency manager to add dependencies and services.
      * @return
      */
-    DependencyManager& manageDependencies() {
+    Builder<Protocol>& manageDependencies() {
       return _dependencyManager;
     }
 
   protected:
     inline void startResources(std::shared_ptr<RequestParserInterface> requestParser) {
+      _dependencyManager.template addLivingTask<WebServiceDispatchService<Protocol>>();
+
       std::string sslCertPath = _configuration.sslCertFileName;
       std::string sslKey = _configuration.sslKeyFileName;
 
@@ -193,6 +212,15 @@ namespace HarborCLS {
         );
       }
 
+      auto tasksContainer = _dependencyManager.getApplicationStartupTaskSet();
+      tasksContainer->initLivingTasks();
+
+      std::shared_ptr<std::vector<std::shared_ptr<BaseWebAppService<Protocol>>>> livingTasks
+          = tasksContainer->getLivingTasks();
+      for (auto &livingTask: *livingTasks) {
+        livingTask->setWebAppLinking(*_responsesQueue, _logger);
+      }
+
       for (int applicationHandlerIndex = 0;
            applicationHandlerIndex < _configuration.applicationHandlerAmount;
            ++applicationHandlerIndex) {
@@ -200,6 +228,8 @@ namespace HarborCLS {
             _requestsQueue
             , *_responsesQueue
             , _logger
+            , livingTasks
+            , _webServiceResolver
         );
       }
     }

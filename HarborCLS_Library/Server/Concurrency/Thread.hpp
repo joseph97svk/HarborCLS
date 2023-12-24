@@ -4,25 +4,27 @@
 #include <thread>
 #include <memory>
 
-class Thread {
- protected:
-  std::shared_ptr<std::thread> thread;
+namespace HarborCLS {
 
- public:
-  Thread() = default;
+  class Thread {
+  protected:
+    std::shared_ptr<std::thread> thread;
 
-  virtual ~Thread() = default;
+  public:
+    Thread() = default;
 
-  void start() {
-    this->thread = std::make_shared<std::thread>(&Thread::run, this);
-  }
+    virtual ~Thread() = default;
 
-  void waitToFinish() {
-    this->thread->join();
-  }
+    void start() {
+      this->thread = std::make_shared<std::thread>(&Thread::run, this);
+    }
 
- protected:
-  virtual void run() = 0;
-};
+    void waitToFinish() {
+      this->thread->join();
+    }
 
+  protected:
+    virtual void run() = 0;
+  };
+}
 #endif

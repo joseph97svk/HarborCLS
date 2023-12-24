@@ -34,7 +34,12 @@ int main() {
 
   server.addWebApplication(intermediaryServer);
 
-  server.startServer();
+  try {
+    server.startServer();
+  } catch (std::exception& e) {
+    std::cout << e.what() << std::endl;
+  }
+
 
   return 0;
 }
