@@ -31,6 +31,18 @@ namespace HarborCLS {
     virtual ILogger* build() = 0;
 
     /**
+     * @brief Gets the shared instance of the shared logger, if none has been set, it will create a new one with the
+     * given configuration
+     * @return shared pointer of a logger
+     */
+    virtual std::shared_ptr<ILogger> getSharedLogger() = 0;
+
+    /**
+     * @brief Sets the unique logger to be shared among all calls to uniqueLogger
+     */
+    virtual void setUniqueSharedLogger() = 0;
+
+    /**
      * @brief Reset the logger builder.
      */
     virtual void reset() = 0;

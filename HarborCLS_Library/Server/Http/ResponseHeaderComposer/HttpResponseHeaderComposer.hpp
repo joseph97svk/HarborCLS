@@ -6,6 +6,7 @@
 #define HARBOR_CLS_HTTPRESPONSEHEADERCOMPOSER_HPP
 
 #include "IResponseHeaderComposer.hpp"
+#include "Server/Http/HttpMessages/HttpMappings.hpp"
 
 namespace HarborCLS {
 

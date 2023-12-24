@@ -14,8 +14,8 @@ namespace HarborCLS {
 
   class BaseFileRotation : public ILogFileRotation {
   protected:
-    constexpr static const char *LOG_FILE_EXTENSION = ".log";
-    constexpr static const char *LOG_FILE_POSTFIX = "_logging_on_";
+    constexpr static const std::string LOG_FILE_EXTENSION = ".log";
+    constexpr static const std::string LOG_FILE_POSTFIX = "_logging_on_";
   public:
     BaseFileRotation() = default;
 
@@ -46,9 +46,17 @@ namespace HarborCLS {
       }
 
       std::string currentTimeAndDate = completeTimeAndDate ? getCurrentTimeAndDate() : getCurrentDate();
-      newFileName += LOG_FILE_POSTFIX + currentTimeAndDate + LOG_FILE_EXTENSION;
 
-      return newFileName;
+      // resource allocation can go crazy depending on the use of the heap, this somehow prevents it by manually
+      // allocating the necessary space for the string before building concatenation
+      std::string buffer;
+      buffer.reserve(newFileName.size() + LOG_FILE_POSTFIX.size() + currentTimeAndDate.size() + LOG_FILE_EXTENSION.size());
+      buffer.append(newFileName);
+      buffer.append(LOG_FILE_POSTFIX);
+      buffer.append(currentTimeAndDate);
+      buffer.append(LOG_FILE_EXTENSION);
+
+      return buffer;
     }
   };
 }

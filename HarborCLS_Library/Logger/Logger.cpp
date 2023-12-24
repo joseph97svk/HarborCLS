@@ -4,6 +4,8 @@
 
 #include "Logger.hpp"
 
+#include <cassert>
+
 namespace HarborCLS {
 
 Logger::Logger (std::shared_ptr<ILoggerBufferingPolicy> bufferingStrategy,
@@ -43,6 +45,8 @@ void Logger::info(std::string message) {
 template<class... Ts> struct overloaded : Ts... { using Ts::operator()...; };
 
 void Logger::logMessage(const std::string& messageType, std::string& message) {
+  assert(!message.empty());
+
   while (!_logFutures.empty()) {
     _logFutures.pop_back();
   }

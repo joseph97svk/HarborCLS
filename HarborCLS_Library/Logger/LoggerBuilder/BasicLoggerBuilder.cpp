@@ -7,12 +7,14 @@
 #include "BasicLoggerBuilder.hpp"
 #include "../Logger.hpp"
 #include "../LoggingFileManagementPolicies/FileAlwaysOpenPolicy.hpp"
-#include "../LogFileRotationPolicies/NoLogRatation.hpp"
+#include "../LogFileRotationPolicies/NoLogFileRotation.hpp"
 #include "../LoggingBufferingPolicies/NoBufferingPolicy.hpp"
 #include "../LoggingFileManagementPolicies/FileOpenOnDemandPolicy.hpp"
 #include "../LogFileRotationPolicies/BoundedFileRotation.hpp"
 
 namespace HarborCLS {
+
+  std::shared_ptr<HarborCLS::ILogger> HarborCLS::BasicLoggerBuilder::_uniqueLogger = nullptr;
 
   BasicLoggerBuilder::BasicLoggerBuilder() {
     this->registerAllLoggerCreationFunctions();
@@ -28,14 +30,8 @@ namespace HarborCLS {
   }
 
   ILogger* BasicLoggerBuilder::build() {
-    if (_configuration.sharedLog) {
-      static ILogger* uniqueLogger = new Logger(
-          std::move(_bufferingStrategy),
-          std::move(_fileManagementStrategy),
-          std::move(_fileRotationStrategy),
-          _configuration.logFilePath);
-
-      return uniqueLogger;
+    if (_bufferingStrategy == nullptr || _fileManagementStrategy == nullptr || _fileRotationStrategy == nullptr) {
+      this->setConfiguration(_configuration);
     }
 
     return new Logger(
@@ -93,6 +89,26 @@ namespace HarborCLS {
                                     []() -> std::unique_ptr<ILoggerBufferingPolicy> {
                                       return std::make_unique<NoBufferingPolicy>();
                                     });
+  }
+
+  void BasicLoggerBuilder::setUniqueSharedLogger() {
+    if (_bufferingStrategy == nullptr || _fileManagementStrategy == nullptr || _fileRotationStrategy == nullptr) {
+      this->setConfiguration(_configuration);
+    }
+
+    _uniqueLogger = std::make_shared<Logger>(
+        std::move(_bufferingStrategy),
+        std::move(_fileManagementStrategy),
+        std::move(_fileRotationStrategy),
+        _configuration.logFilePath);
+  }
+
+  std::shared_ptr<ILogger> BasicLoggerBuilder::getSharedLogger() {
+    if (_uniqueLogger == nullptr) {
+      this->setUniqueSharedLogger();
+    }
+
+    return _uniqueLogger;
   }
 }
 

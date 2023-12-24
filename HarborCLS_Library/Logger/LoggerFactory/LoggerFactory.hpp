@@ -8,6 +8,7 @@
 #include <functional>
 #include <unordered_map>
 #include <tuple>
+#include <cassert>
 
 #include "ILoggerFactory.hpp"
 #include "../LoggerConfiguration.hpp"
@@ -18,6 +19,7 @@ namespace HarborCLS {
 
   template<typename Builder = BasicLoggerBuilder>
   class LoggerFactory : public ILoggerFactory {
+  protected:
     LoggerConfiguration _loggerConfiguration{};
     Builder _loggerBuilder{};
 
@@ -41,7 +43,9 @@ namespace HarborCLS {
     [[nodiscard]] std::shared_ptr<ILogger> createLogger() override {
       _loggerBuilder.setConfiguration(_loggerConfiguration);
 
-      std::shared_ptr<ILogger> logger(_loggerBuilder.build());
+      std::shared_ptr<ILogger> logger = _loggerConfiguration.sharedLog
+                                        ? _loggerBuilder.getSharedLogger()
+                                        : std::shared_ptr<ILogger>(_loggerBuilder.build());
 
       _loggerBuilder.reset();
       return logger;
@@ -52,9 +56,7 @@ namespace HarborCLS {
      * @return A unique logger.
      */
     [[nodiscard]] std::unique_ptr<ILogger> createUniqueLogger() override {
-      if (_loggerConfiguration.sharedLog) {
-        throw std::runtime_error("Cannot create unique logger from shared logger configuration.");
-      }
+      assert (_loggerConfiguration.sharedLog == false);
 
       _loggerBuilder.setConfiguration(_loggerConfiguration);
 

@@ -2,8 +2,8 @@
 // Created by josephvalverde on 12/15/23.
 //
 
-#ifndef HARBOR_CLS_NOLOGRATATION_HPP
-#define HARBOR_CLS_NOLOGRATATION_HPP
+#ifndef HARBOR_CLS_NOLOGFILEROTATION_HPP
+#define HARBOR_CLS_NOLOGFILEROTATION_HPP
 
 #include "ILogFileRotation.hpp"
 #include "BaseFileRotation.hpp"
@@ -31,4 +31,4 @@ namespace HarborCLS {
   };
 }
 
-#endif //HARBOR_CLS_NOLOGRATATION_HPP
+#endif //HARBOR_CLS_NOLOGFILEROTATION_HPP

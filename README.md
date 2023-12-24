@@ -38,3 +38,5 @@ https://github.com/nlohmann/jsonTo
 ### Inversion of Control Container: Ybainier's Hypodermic ###
 https://github.com/ybainier/Hypodermic
 
+### googletest ###
+https://github.com/google/googletest
