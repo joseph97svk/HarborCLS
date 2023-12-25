@@ -29,7 +29,9 @@ namespace HarborCLS {
     ErrorType _errorType;
 
   public:
-    Error(std::string message, std::source_location location, ErrorType errorType)
+    Error(std::string message
+          , ErrorType errorType
+          , const std::source_location location = std::source_location::current())
         : _message(std::move(message))
         , _location(location)
         , _errorType(errorType) {
@@ -49,6 +51,12 @@ namespace HarborCLS {
     ErrorType errorType() const noexcept {
       return _errorType;
     }
+  };
+
+  /**
+   * @brief empty class meant to be used with a std::expected where the return type is void but a error is also needed
+   */
+  class Success {
   };
 }
 

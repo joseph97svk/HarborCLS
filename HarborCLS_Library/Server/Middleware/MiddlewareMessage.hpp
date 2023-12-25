@@ -32,7 +32,7 @@ namespace HarborCLS {
     explicit MiddlewareMessage(MessageDataType messageDataType)
         : _content(std::move(messageDataType)) {}
 
-    explicit MiddlewareMessage(StopCondition stopCondition)
+    MiddlewareMessage(StopCondition stopCondition)
         : _content(stopCondition) {}
 
     explicit MiddlewareMessage(Error<MessageErrors> error)

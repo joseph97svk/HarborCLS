@@ -7,6 +7,9 @@
 
 #include "../../../Protocols/ProtocolConcept.hpp"
 
+#include "../../DependencyManagement/BaseWebAppService.hpp"
+#include "Server/WebApplication/DependencyManagement/IWebServiceResolver.hpp"
+
 namespace HarborCLS {
 
   template<ServerProtocol Protocol>
@@ -15,29 +18,42 @@ namespace HarborCLS {
     using ConsumingType = std::shared_ptr<typename Protocol::RequestType>;
     using ProducingType = std::shared_ptr<typename Protocol::ResponseType>;
 
-    MiddlewareBlockingQueue<ProducingType> &_responsesQueue;
+    MiddlewareBlockingQueue<ProducingType>& _responsesQueue;
+    std::shared_ptr<std::vector<std::shared_ptr<BaseWebAppService<Protocol>>>> _services;
+    std::shared_ptr<IWebServiceResolver<Protocol>> _webServiceResolver;
 
   public:
-    ApplicationMiddlewareHandler(MiddlewareBlockingQueue<ConsumingType>& consumingQueue,
-                                 MiddlewareBlockingQueue<ProducingType>& producingQueue)
-        : Handler<ConsumingType>(consumingQueue)
-            , _responsesQueue(producingQueue) {}
+    ApplicationMiddlewareHandler(MiddlewareBlockingQueue<ConsumingType>& consumingQueue
+                                 , MiddlewareBlockingQueue<ProducingType>& producingQueue
+                                 , std::shared_ptr<ILogger> logger
+                                 , std::shared_ptr<std::vector<std::shared_ptr<BaseWebAppService<Protocol>>>> services
+                                 , std::shared_ptr<IWebServiceResolver<Protocol>> webServiceResolver)
+        : Handler<ConsumingType>(consumingQueue, std::move(logger))
+            , _responsesQueue(producingQueue)
+            , _services(services)
+            , _webServiceResolver(webServiceResolver) {}
 
   private:
     void optionalToEnd() override {
+      for (auto& service : *_services) {
+        service->release();
+        service->getEntryQueue().push(StopCondition());
+      }
+
       _responsesQueue.push(MiddlewareMessage<ProducingType>(StopCondition()));
     }
 
     void handleSingle(ConsumingType handlingData) override {
-      std::shared_ptr<HttpResponse> response = std::make_shared<HttpResponse>();
-      response->socket = handlingData->socket;
+      std::shared_ptr<BaseWebAppService<Protocol>> selectedApp =
+          _webServiceResolver->resolve(handlingData, *_services);
 
-      std::string body = "<html><body><h1>Hello there</h1></body></html>";
+      if (selectedApp == nullptr) {
+        _responsesQueue.push(MiddlewareMessage<ProducingType>(Error<MessageErrors>(
+            "No registered services found for web application"
+            , MessageErrors::GENERIC_ERROR)));
+      }
 
-      response->body = body;
-      response->contentLength = body.length();
-
-      _responsesQueue.push(MiddlewareMessage<ProducingType>(response));
+      selectedApp->getEntryQueue().push(MiddlewareMessage<ConsumingType>(std::move(handlingData)));
     };
   };
 }

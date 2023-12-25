@@ -31,10 +31,11 @@ namespace HarborCLS {
      * @param producingQueue the queue that the handler is going to produce to.
      * @param stopCondition the condition that the handler is going to stop on.
      */
-    RequestMiddlewareHandler(MiddlewareBlockingQueue<ConsumingType>& consumingQueue,
-                             MiddlewareBlockingQueue<ProducingType>& producingQueue,
-                             std::shared_ptr<RequestParserInterface> requestParser)
-        : Handler(consumingQueue)
+    RequestMiddlewareHandler(MiddlewareBlockingQueue<ConsumingType>& consumingQueue
+                             , MiddlewareBlockingQueue<ProducingType>& producingQueue
+                             , std::shared_ptr<RequestParserInterface> requestParser
+                             , std::shared_ptr<ILogger> logger)
+        : Handler(consumingQueue, std::move(logger))
         , _requestsQueue(producingQueue)
         , _requestParser(std::move(requestParser)) {}
 

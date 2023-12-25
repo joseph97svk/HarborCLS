@@ -19,9 +19,10 @@ namespace HarborCLS {
     std::shared_ptr<IResponseHeaderComposer> _headerComposer;
 
   public:
-    explicit ResponseMiddlewareHandler(MiddlewareBlockingQueue<ConsumingType>& consumingQueue,
-                                       std::shared_ptr<IResponseHeaderComposer> headerComposer)
-        : Handler(consumingQueue)
+    explicit ResponseMiddlewareHandler(MiddlewareBlockingQueue<ConsumingType>& consumingQueue
+                                       , std::shared_ptr<IResponseHeaderComposer> headerComposer
+                                       , std::shared_ptr<ILogger> logger)
+        : Handler(consumingQueue, std::move(logger))
         , _headerComposer(std::move(headerComposer))
     {}
 
@@ -29,11 +30,6 @@ namespace HarborCLS {
     void optionalToEnd() override {
 
     }
-
-    template<class... Ts>
-    struct overloaded : Ts ... {
-      using Ts::operator()...;
-    };
 
     void handleSingle(ConsumingType handlingData) override{
       std::string header = std::move(_headerComposer->composeHeader(handlingData));

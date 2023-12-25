@@ -7,7 +7,11 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <netdb.h>
+#include <expected>
+
+
 #include "TcpSocket.hpp"
+#include "Common/Error.hpp"
 
 
 namespace HarborCLS {
@@ -48,61 +52,17 @@ namespace HarborCLS {
       _ssl(false) {
   }
 
-  void TcpSocket::connect(const std::string &host, const int targetPort) {
-    if (_ipv6) {
-      this->ipv6Connect(host, targetPort);
-    } else {
-      this->ipv4Connect(host, targetPort);
-    }
-
-    if (_ssl) {
-      _sslController->SSLConnect(_socketId);
-    }
-  }
-
-  void TcpSocket::ipv4Connect(const std::string &host, int port) const {
-    struct sockaddr *ha;
-
-    struct sockaddr_in host4{};
-    memset((char *) &host4, 0, sizeof(host4));
-    host4.sin_family = AF_INET;
-
-    if (inet_pton(AF_INET, host.c_str(), &host4.sin_addr) == -1) {
-      throw std::runtime_error("TcpSocket::connect: Failed to convert host to IPv4 address");
-    }
-
-    host4.sin_port = htons(port);
-    ha = (struct sockaddr *) &host4;
-
-    if (::connect(_socketId, ha, sizeof(host4)) == -1) {
-      throw std::runtime_error("TcpSocket::connect: Failed to connect to host");
-    }
-  }
-
-  void TcpSocket::ipv6Connect(const std::string &host, int port) const {
-    struct sockaddr *ha;
-    struct sockaddr_in6 host6{};
-    memset((char *) &host6, 0, sizeof(host6));
-    host6.sin6_family = AF_INET6;
-
-    if (inet_pton(AF_INET6, host.c_str(), &host6.sin6_addr) == -1) {
-      throw std::runtime_error("TcpSocket::connect: Failed to convert host to IPv6 address");
-    }
-
-    host6.sin6_port = htons(port);
-    ha = (struct sockaddr *) &host6;
-
-    if (::connect(_socketId, ha, sizeof(host6)) == -1) {
-      throw std::runtime_error("TcpSocket::connect: Failed to connect to host");
-    }
-  }
-
-  void TcpSocket::connect(const std::string &host, const std::string &service) const {
+  [[nodiscard]] std::expected<Success, SocketError> TcpSocket::connect(const std::string &host, const std::string &service) const {
     if (!_ipv6) {
       throw std::runtime_error("TcpSocket::connect: IPv4 not supported for connect by service");
     }
     if (_ssl) {
-      _sslController->SSLConnect(_socketId);
+      std::expected<Success, SSLError> SSLConnection = _sslController->SSLConnect(_socketId);
+
+      if (!SSLConnection) {
+        return std::unexpected(SocketError("TcpSocket::connect: Failed to connect to host"
+                                           , SocketErrors::GENERIC_ERROR));
+      }
     }
 
     struct sockaddr_in6 host6{};
@@ -110,7 +70,9 @@ namespace HarborCLS {
     memset((char *) &host6, 0, sizeof(host6));
     host6.sin6_family = AF_INET6;
     if (inet_pton(AF_INET6, host.c_str(), &host6.sin6_addr) == 1) {
-      throw std::runtime_error("TcpSocket::connect: Failed to convert host to IPv6 address");
+      return std::unexpected(
+          SocketError("TcpSocket::connect: Failed to convert host to IPv6 address"
+                      , SocketErrors::GENERIC_ERROR));
     }
 
     struct addrinfo hints{}, *result, *rp;
@@ -122,7 +84,11 @@ namespace HarborCLS {
     hints.ai_protocol = 0;
 
     if (getaddrinfo(host.c_str(), service.c_str(), &hints, &result) != 0) {
-      throw std::runtime_error("TcpSocket::connect: Failed to get address info");
+      freeaddrinfo(result);
+      return std::unexpected(
+          SocketError("TcpSocket::connect: Failed to get address info"
+                      , SocketErrors::GENERIC_ERROR));
+
     }
 
     for (rp = result; rp; rp = rp->ai_next) {
@@ -131,6 +97,73 @@ namespace HarborCLS {
     }
 
     freeaddrinfo(result);
+
+    return Success();
+  }
+
+  [[nodiscard]] std::expected<Success, SocketError> TcpSocket::connect(const std::string &host, const int targetPort) const {
+    std::expected<Success, Error<SocketErrors>> connectionResult =
+        _ipv6 ? this->ipv6Connect(host, targetPort) : this->ipv4Connect(host, targetPort);
+
+    if (!connectionResult) {
+      return connectionResult;
+    }
+
+    if (_ssl) {
+      std::expected<Success, SSLError> sslResult = _sslController->SSLConnect(_socketId);
+
+      if (!sslResult) {
+        return std::unexpected(SocketError("TcpSocket::connect: Failed to connect to host"
+                                           , SocketErrors::GENERIC_ERROR));
+      }
+    }
+
+    return Success();
+  }
+
+  [[nodiscard]] std::expected<Success, SocketError> TcpSocket::ipv4Connect(const std::string &host, int port) const {
+    struct sockaddr *ha;
+
+    struct sockaddr_in host4{};
+    memset((char *) &host4, 0, sizeof(host4));
+    host4.sin_family = AF_INET;
+
+    if (inet_pton(AF_INET, host.c_str(), &host4.sin_addr) == -1) {
+      return std::unexpected(SocketError("TcpSocket::connect: Failed to convert host to IPv4 address"
+                                         , SocketErrors::GENERIC_ERROR));
+    }
+
+    host4.sin_port = htons(port);
+    ha = (struct sockaddr *) &host4;
+
+    if (::connect(_socketId, ha, sizeof(host4)) == -1) {
+      return std::unexpected(SocketError("TcpSocket::connect: Failed to connect to host"
+                                         , SocketErrors::GENERIC_ERROR));
+    }
+
+    return Success();
+  }
+
+  [[nodiscard]] std::expected<Success, SocketError> TcpSocket::ipv6Connect(const std::string &host, int port) const {
+    struct sockaddr *ha;
+    struct sockaddr_in6 host6{};
+    memset((char *) &host6, 0, sizeof(host6));
+    host6.sin6_family = AF_INET6;
+
+    if (inet_pton(AF_INET6, host.c_str(), &host6.sin6_addr) == -1) {
+      return std::unexpected(SocketError("TcpSocket::connect: Failed to convert host to IPv6 address"
+                                         , SocketErrors::GENERIC_ERROR));
+    }
+
+    host6.sin6_port = htons(port);
+    ha = (struct sockaddr *) &host6;
+
+    if (::connect(_socketId, ha, sizeof(host6)) == -1) {
+      return std::unexpected(SocketError("TcpSocket::connect: Failed to connect to host"
+                                         , SocketErrors::GENERIC_ERROR));
+    }
+
+    return Success();
   }
 
   void TcpSocket::close() const {
@@ -262,7 +295,7 @@ namespace HarborCLS {
     }
   }
 
-  [[nodiscard]] std::shared_ptr<TcpSocket> TcpSocket::accept() const {
+  [[nodiscard]] std::expected<std::shared_ptr<TcpSocket>, SocketError>TcpSocket::accept() const {
     struct sockaddr_in server{};
     socklen_t addr_len = sizeof(server);
 
@@ -273,7 +306,8 @@ namespace HarborCLS {
         );
 
     if (socketFD == -1) {
-      throw std::runtime_error("TcpSocket::accept: Failed to accept connection");
+      return std::unexpected(SocketError("TcpSocket::accept: Failed to accept connection"
+                                         , SocketErrors::GENERIC_ERROR));
     }
 
     std::shared_ptr<TcpSocket> acceptedConnection = std::make_shared<TcpSocket>(socketFD);
@@ -286,7 +320,7 @@ namespace HarborCLS {
     return acceptedConnection;
   }
 
-  [[nodiscard]] bool TcpSocket::isSSL() const {
+  [[nodiscard]] bool TcpSocket::isSSL() const noexcept {
     return _ssl;
   }
 
@@ -324,7 +358,7 @@ namespace HarborCLS {
     }
   }
 
-  [[nodiscard]] bool TcpSocket::isIpV6() const {
+  [[nodiscard]] bool TcpSocket::isIpV6() const noexcept {
     return _ipv6;
   }
 }
