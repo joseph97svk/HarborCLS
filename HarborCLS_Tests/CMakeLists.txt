@@ -11,6 +11,6 @@ link_libraries(OpenSSL::SSL OpenSSL::Crypto Threads::Threads)
 set(DEFAULT_TARGET ${PROJECT_NAME})
 add_executable(${DEFAULT_TARGET} ${PROJECT_SOURCES})
 
-target_link_libraries(${DEFAULT_TARGET} HarborCLS_Library gtest_main gtest)
+target_link_libraries(${DEFAULT_TARGET} HarborCLS_Library gtest_main gtest gmock_main gmock)
 
-target_include_directories(${DEFAULT_TARGET} PUBLIC "${gtest_SOURCE_DIR}/include")
+target_include_directories(${DEFAULT_TARGET} PUBLIC "${gtest_SOURCE_DIR}/include" "${gmock_SOURCE_DIR}/include")

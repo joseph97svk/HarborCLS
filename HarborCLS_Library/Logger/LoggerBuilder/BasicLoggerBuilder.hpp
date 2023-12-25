@@ -16,6 +16,7 @@
 namespace HarborCLS {
 
   class BasicLoggerBuilder : public ILoggerBuilder {
+  protected:
     std::unordered_map<
         LoggerConfiguration::FileAlwaysOpenPolicy,
         std::function<std::unique_ptr<ILoggerFileManagementPolicy>()>> _fileManagementStrategyCreationFunctions{};
@@ -35,6 +36,8 @@ namespace HarborCLS {
     std::unique_ptr<ILogFileRotation> _fileRotationStrategy{};
 
     LoggerConfiguration _configuration{};
+
+    static std::shared_ptr<ILogger> _uniqueLogger;
 
   public:
     /**
@@ -58,6 +61,18 @@ namespace HarborCLS {
      * @return A logger.
      */
     [[nodiscard]] ILogger* build() override;
+
+    /**
+     * @brief Gets the shared instance of the shared logger, if none has been set, it will create a new one with the
+     * given configuration
+     * @return shared pointer of a logger
+     */
+    std::shared_ptr<ILogger> getSharedLogger() override;
+
+    /**
+     * @brief Sets the unique logger to be shared among all calls to uniqueLogger
+     */
+    void setUniqueSharedLogger() override;
 
     /**
      * @brief Reset the logger builder.
