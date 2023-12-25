@@ -38,6 +38,7 @@ namespace HarborCLS {
       for (auto& service : *_services) {
         service->release();
         service->getEntryQueue().push(StopCondition());
+        service->waitToFinish();
       }
 
       _responsesQueue.push(MiddlewareMessage<ProducingType>(StopCondition()));
