@@ -2,11 +2,11 @@
 // Created by josephvalverde on 12/17/23.
 //
 
-#ifndef HARBOR_CLS_WEBAPPLICATION_HPP
-#define HARBOR_CLS_WEBAPPLICATION_HPP
+#ifndef HARBOR_CLS_GENERICWEBAPPLICATION_HPP
+#define HARBOR_CLS_GENERICWEBAPPLICATION_HPP
 
 #include <memory>
-#include "../Protocols/HttpProtocol.hpp"
+#include "Server/Http/HttpProtocol.hpp"
 #include "Middleware/Listeners/ConnectionListener.hpp"
 #include "Middleware/Handlers/ApplicationMiddlewareHandler.hpp"
 #include "Middleware/Handlers/RequestMiddlewareHandler.hpp"
@@ -22,10 +22,12 @@
 #include "DependencyManagement/WebServiceResolver.hpp"
 #include "WebAppDefaultServices/WebPageDispatchService.hpp"
 
+#include "Server/WebApplication/WebAppDefaultServices/MVC/Controller/BaseController.hpp"
+
 namespace HarborCLS {
 
   template<ServerProtocol Protocol = HttpProtocol>
-  class WebApplication {
+  class GenericWebApplication {
     using SocketType = typename Protocol::SocketType;
     using RequestType = typename Protocol::RequestType;
     using ResponseType = typename Protocol::ResponseType;
@@ -51,11 +53,11 @@ namespace HarborCLS {
         = std::make_shared<WebServiceResolver<Protocol>>();;
 
   public:
-    WebApplication() {
+    GenericWebApplication() {
       defineDirectory();
     }
 
-    NO_COPY(WebApplication)
+    NO_COPY(GenericWebApplication)
 
     /**
      * @brief Sets the default configuration that the server will use if no configuration is provided.
@@ -186,6 +188,12 @@ namespace HarborCLS {
       return _dependencyManager;
     }
 
+    template<typename Controller>
+    requires std::is_base_of<BaseController, Controller>::value
+    void addController() {
+
+    }
+
   protected:
     inline void startResources(std::shared_ptr<RequestParserInterface> requestParser) {
       _dependencyManager.template addLivingTask<WebServiceDispatchService<Protocol>>();
@@ -235,4 +243,4 @@ namespace HarborCLS {
     }
   };
 }
-#endif //HARBOR_CLS_WEBAPPLICATION_HPP
+#endif //HARBOR_CLS_GENERICWEBAPPLICATION_HPP

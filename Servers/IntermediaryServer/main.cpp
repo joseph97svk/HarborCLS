@@ -26,7 +26,7 @@ int main() {
 
   std::string path = "Servers/IntermediaryServer/Configuration.json";
 
-  HarborCLS::WebApplication intermediaryServer;
+  HarborCLS::GenericWebApplication intermediaryServer;
 
   intermediaryServer.manageDependencies().addOnStart<HelloWorld>(&HelloWorld::sayHello);
 

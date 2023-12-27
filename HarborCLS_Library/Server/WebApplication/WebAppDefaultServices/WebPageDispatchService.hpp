@@ -13,17 +13,18 @@ namespace HarborCLS {
   template<ServerProtocol Protocol>
   class WebServiceDispatchService : public BaseWebAppService<Protocol> {
     using ResponseType = typename Protocol::ResponseType;
+    using RequestType = typename Protocol::RequestType;
 
   public:
     void release() override {
       // no special loop to be released is present, so nothing to do here
     }
 
-    bool canHandle(std::shared_ptr<typename Protocol::RequestType> request) override {
+    bool canHandle(std::shared_ptr<RequestType> request) override {
       return false;
     }
 
-    MiddlewareMessage<std::shared_ptr<typename Protocol::ResponseType>> handleTask(
+    MiddlewareMessage<std::shared_ptr<ResponseType>> handleTask(
         std::shared_ptr<typename Protocol::RequestType> request) override {
       std::shared_ptr<HttpResponse> response = std::make_shared<HttpResponse>();
       response->socket = request->socket;

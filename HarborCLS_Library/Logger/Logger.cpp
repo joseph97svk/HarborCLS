@@ -51,7 +51,7 @@ void Logger::logMessage(const std::string& messageType, std::string& message) {
     _logFutures.pop_back();
   }
 
-  _logFutures.push_back(std::async([this, message, messageType]() {
+  _logFutures.push_back(std::async([this, message, messageType]() -> void {
     std::string completedMessage = getCurrentTime() + " [ " + messageType + " ] : " + message;
     std::optional<std::string> bufferedMessage = _bufferingStrategy->buffer(completedMessage);
 
