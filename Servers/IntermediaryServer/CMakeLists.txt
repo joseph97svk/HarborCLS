@@ -6,9 +6,5 @@ set(CMAKE_BUILD_TYPE Debug)
 
 file(GLOB_RECURSE PROJECT_SOURCES "*.cpp" "*.hpp")
 
-link_libraries(OpenSSL::SSL OpenSSL::Crypto Threads::Threads)
-
-set(DEFAULT_TARGET ${PROJECT_NAME})
-add_executable(${DEFAULT_TARGET} ${PROJECT_SOURCES})
-
-target_link_libraries(${DEFAULT_TARGET} HarborCLS_Library)
+add_executable(IntermediaryServer ${PROJECT_SOURCES})
+target_link_libraries(IntermediaryServer HarborCLS_Library LegoFigureMakerCommon)

@@ -21,5 +21,7 @@ namespace HarborCLS {
     using ResponseHeaderComposerInterface = IResponseHeaderComposer;
     using ResponseHeaderComposerType = HttpResponseHeaderComposer;
   };
+
 }
+
 #endif //HARBOR_CLS_HTTPPROTOCOL_HPP

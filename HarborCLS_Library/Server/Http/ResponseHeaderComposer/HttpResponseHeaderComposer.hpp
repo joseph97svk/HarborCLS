@@ -11,6 +11,11 @@
 namespace HarborCLS {
 
   class HttpResponseHeaderComposer : public IResponseHeaderComposer {
+    template<class... Ts>
+    struct overloaded : Ts ... {
+      using Ts::operator()...;
+    };
+
   public:
     std::string composeHeader(std::shared_ptr<HttpResponse> response) override {
       if (response->socket == nullptr) {
