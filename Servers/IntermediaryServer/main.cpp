@@ -6,6 +6,9 @@
 #include <csignal>
 
 #include "../../HarborCLS_Library/Server/Http/HttpServer.hpp"
+#include "../../HarborCLS_Library/Server/Http/WebApplication/HttpWebApplication.hpp"
+
+#include "Pages/MainPage.hpp"
 
 void signalHandler(int signal) {
   HarborCLS::HttpServer::getInstance().stopServer();
@@ -26,20 +29,26 @@ int main() {
 
   std::string path = "Servers/IntermediaryServer/Configuration.json";
 
-  HarborCLS::GenericWebApplication intermediaryServer;
+  std::shared_ptr<HarborCLS::HttpWebApplication> intermediaryServer =
+      std::make_shared<HarborCLS::HttpWebApplication>();
 
-  intermediaryServer.manageDependencies().addOnStart<HelloWorld>(&HelloWorld::sayHello);
+  auto& services = intermediaryServer->manageDependencies();
 
-  intermediaryServer.addConfiguration(path);
+  intermediaryServer->addMVC();
+  intermediaryServer->addPictureManager();
+  intermediaryServer->addFaviconManager();
+
+  intermediaryServer->addController<MainPage>("/");
+
+  services.addOnStart<HelloWorld>(&HelloWorld::sayHello);
+
+  intermediaryServer->addConfiguration(path);
 
   server.addWebApplication(intermediaryServer);
 
   try {
     server.startServer();
   } catch (std::exception& e) {
-    std::cout << e.what() << std::endl;
+    std::cout << "Server Fatal error - " << e.what() << std::endl;
   }
-
-
-  return 0;
 }

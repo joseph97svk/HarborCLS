@@ -4,7 +4,7 @@ project(IntermediaryServer)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_BUILD_TYPE Debug)
 
-file(GLOB_RECURSE PROJECT_SOURCES "*.cpp")
+file(GLOB_RECURSE PROJECT_SOURCES "*.cpp" "*.hpp")
 
 link_libraries(OpenSSL::SSL OpenSSL::Crypto Threads::Threads)
 

@@ -36,7 +36,7 @@ namespace HarborCLS {
 
       while (!htmlFile.eof()) {
         htmlContents += BaseView::getLineContents(htmlFile
-            , "{.*}"
+            , R"(\{.*\})"
             , [this](std::string& line, std::smatch& foundTag)-> void {
               this->replaceTagWithContents(line, foundTag);
             } );
@@ -110,9 +110,11 @@ namespace HarborCLS {
             };
 
         layoutContents += BaseView::getLineContents(layoutFile
-            , "{.*}"
+            , R"(\{Body\})"
             , replacementFunction);
       }
+
+      pageContents = layoutContents;
     }
   };
 

@@ -28,6 +28,7 @@ namespace HarborCLS {
 
   template<ServerProtocol Protocol = HttpProtocol>
   class GenericWebApplication {
+  protected:
     using SocketType = typename Protocol::SocketType;
     using RequestType = typename Protocol::RequestType;
     using ResponseType = typename Protocol::ResponseType;
@@ -93,8 +94,6 @@ namespace HarborCLS {
         if (_configuration == ServerConfiguration::createDefaultConfiguration()) {
           tempLogger->info("No fallback configuration provided, using default configuration");
         }
-
-        return;
       }
 
       try {
@@ -186,12 +185,6 @@ namespace HarborCLS {
      */
     Builder<Protocol>& manageDependencies() {
       return _dependencyManager;
-    }
-
-    template<typename Controller>
-    requires std::is_base_of<BaseController, Controller>::value
-    void addController() {
-
     }
 
   protected:

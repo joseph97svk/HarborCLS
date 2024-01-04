@@ -6,19 +6,40 @@
 #define HARBOR_CLS_CONTROLLERMANAGER_HPP
 
 #include "BaseController.hpp"
+#include "IControllerRegistration.hpp"
+#include "ControllerRegistration.hpp"
 
 namespace HarborCLS {
 
+  template<ServerProtocol Protocol>
   class ControllerManager {
-    std::vector<std::shared_ptr<BaseController>> _controllers {};
+    std::unordered_map<std::string, std::unique_ptr<IControllerRegistration<Protocol>>> _controllerRegistrations {};
+
+    Builder<Protocol>& _dependencyResolver;
 
   public:
-    ControllerManager() = default;
+    explicit ControllerManager(Builder<Protocol>& dependencyResolver)
+        : _dependencyResolver(dependencyResolver) {}
 
     template<typename Controller>
-    void addController() {
-      _controllers.push_back(std::make_shared<Controller>());
+    requires std::is_base_of<BaseController<Protocol>, Controller>::value
+    void addController(const std::string controllerName) {
+      _controllerRegistrations.insert({
+          controllerName
+          , std::make_unique<ControllerRegistration<Protocol, Controller>>(_dependencyResolver)
+      });
+
+      _dependencyResolver.template addScoped<Controller>();
     }
+
+    std::optional<std::shared_ptr<BaseController<Protocol>>> getController(std::string& controllerName) {
+      if (_controllerRegistrations.contains(controllerName)) {
+        return _controllerRegistrations[controllerName]->getController();
+      }
+
+      return std::nullopt;
+    }
+
   };
 
 }

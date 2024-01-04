@@ -23,7 +23,9 @@ namespace HarborCLS {
 
   enum class MessageErrors {
     OK = 0,
-    GENERIC_ERROR
+    GENERIC_ERROR,
+    NON_REGISTERED_SERVICE,
+    CONTROLLER_ERROR
   };
 
   template<typename MessageDataType>

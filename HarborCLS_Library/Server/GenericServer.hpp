@@ -29,7 +29,7 @@ namespace HarborCLS {
     using ResponseHeaderComposerType = typename Protocol::ResponseHeaderComposerType;
 
     std::vector<ResponseMiddlewareHandler<Protocol>> _responseMiddlewareHandlers;
-    std::vector<std::reference_wrapper<GenericWebApplication<Protocol>>> _webApplications;
+    std::vector<std::shared_ptr<GenericWebApplication<Protocol>>> _webApplications;
     MiddlewareBlockingQueue<std::shared_ptr<ResponseType>> _responsesQueue;
 
     ServerConfiguration _configuration;
@@ -54,7 +54,7 @@ namespace HarborCLS {
      * @brief adds a web application to the server
      * @param webApplication
      */
-    void addWebApplication(GenericWebApplication<Protocol> &webApplication) {
+    void addWebApplication(std::shared_ptr<GenericWebApplication<Protocol>> webApplication) {
       _webApplications.emplace_back(webApplication);
     }
 
@@ -97,8 +97,8 @@ namespace HarborCLS {
     void stopServer() {
       _logger->info("Stopping server");
 
-      for (GenericWebApplication<Protocol> &webApplication: _webApplications) {
-        webApplication.stopApplication();
+      for (std::shared_ptr<GenericWebApplication<Protocol>>& webApplication : _webApplications) {
+        webApplication->stopApplication();
       }
 
       _logger->info("Server terminated");
@@ -114,8 +114,8 @@ namespace HarborCLS {
         _requestParser = std::make_shared<RequestParserType>();
       }
 
-      for (GenericWebApplication<Protocol> &webApplication: _webApplications) {
-        webApplication.addResponsesQueue(_responsesQueue);
+      for (std::shared_ptr<GenericWebApplication<Protocol>>& webApplication : _webApplications) {
+        webApplication->addResponsesQueue(_responsesQueue);
       }
 
       if (_responseHeaderComposer == nullptr) {
@@ -135,19 +135,19 @@ namespace HarborCLS {
     }
 
     inline void runServerComponents() {
-      for (GenericWebApplication<Protocol> &webApplication: _webApplications) {
-        webApplication.startApplication(_requestParser);
+      for (std::shared_ptr<GenericWebApplication<Protocol>>& webApplication : _webApplications) {
+        webApplication->startApplication(_requestParser);
       }
 
-      for (ResponseMiddlewareHandler<Protocol> &responseMiddlewareHandler: _responseMiddlewareHandlers) {
+      for (ResponseMiddlewareHandler<Protocol> &responseMiddlewareHandler : _responseMiddlewareHandlers) {
         responseMiddlewareHandler.start();
       }
 
-      for (GenericWebApplication<Protocol> &webApplication: _webApplications) {
-        webApplication.waitToFinish();
+      for (std::shared_ptr<GenericWebApplication<Protocol>>& webApplication : _webApplications) {
+        webApplication->waitToFinish();
       }
 
-      for (ResponseMiddlewareHandler<Protocol> &responseMiddlewareHandler: _responseMiddlewareHandlers) {
+      for (ResponseMiddlewareHandler<Protocol> &responseMiddlewareHandler : _responseMiddlewareHandlers) {
         responseMiddlewareHandler.waitToFinish();
       }
 

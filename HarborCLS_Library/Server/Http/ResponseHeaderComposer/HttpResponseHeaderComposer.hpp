@@ -27,7 +27,20 @@ namespace HarborCLS {
         header += "Content-Type: " + contentTypeMap.at(response->contentType) + "\r\n";
       }
 
-      header += "Content-Length: " + std::to_string(response->contentLength) + "\r\n";
+      size_t contentLength = response->contentLength;
+
+      if (contentLength == 0) {
+        contentLength = std::visit(overloaded{
+            [](std::string &str) {
+              return str.size();
+            },
+            [](std::vector<char> &vec) {
+              return vec.size();
+            }
+        }, response->body);
+      }
+
+      header += "Content-Length: " + std::to_string(contentLength) + "\r\n";
 
       for (auto &field: response->otherHeaderFields) {
         header += field.fieldName + ": " + field.value + "\r\n";
