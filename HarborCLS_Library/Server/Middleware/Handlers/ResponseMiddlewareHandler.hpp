@@ -7,7 +7,7 @@
 
 #include "Server/Middleware/Handler.hpp"
 #include "../../Http/HttpMessages/Reponse/HttpResponse.hpp"
-#include "Server/Protocols/IResponseHeaderComposer.hpp"
+#include "Server/Protocols/IResponseComposer.hpp"
 #include "../../Protocols/ProtocolConcept.hpp"
 
 namespace HarborCLS {
@@ -15,17 +15,14 @@ namespace HarborCLS {
   template<ServerProtocol Protocol>
   class ResponseMiddlewareHandler : public Handler<std::shared_ptr<HttpResponse>> {
     using ConsumingType = std::shared_ptr<typename Protocol::ResponseType>;
-    using ResponseBodySerializer = typename Protocol::ResponseBodySerializer;
-    std::shared_ptr<IResponseHeaderComposer<typename Protocol::ResponseType>> _headerComposer;
-
-    ResponseBodySerializer _bodySerializer;
+    std::shared_ptr<IResponseComposer<typename Protocol::ResponseType>> _responseComposer;
 
   public:
     explicit ResponseMiddlewareHandler(MiddlewareBlockingQueue<ConsumingType>& consumingQueue
-                                       , std::shared_ptr<IResponseHeaderComposer<typename Protocol::ResponseType>> headerComposer
+                                       , std::shared_ptr<IResponseComposer<typename Protocol::ResponseType>> responseComposer
                                        , std::shared_ptr<ILogger> logger)
         : Handler(consumingQueue, std::move(logger))
-        , _headerComposer(std::move(headerComposer))
+        , _responseComposer(std::move(responseComposer))
     {}
 
   private:
@@ -42,13 +39,7 @@ namespace HarborCLS {
         return;
       }
 
-      std::string header = std::move(_headerComposer->composeHeader(*handlingData));
-
-      std::vector<char> responseVector(header.begin(), header.end());
-
-      std::vector<char> body = std::move(_bodySerializer.serialize(*handlingData));
-
-      responseVector.insert(responseVector.end(), body.begin(), body.end());
+      std::vector<char> responseVector = std::move(_responseComposer->compose(*handlingData));
 
       *handlingData->socket << responseVector;
     };

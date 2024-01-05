@@ -13,7 +13,7 @@ namespace HarborCLS {
     using RequestType = typename Protocol::RequestType;
 
     std::shared_ptr<IRequestParser<SocketType, RequestType>> requestParser;
-    std::shared_ptr<IResponseHeaderComposer<typename Protocol::ResponseType>> responseHeaderComposer;
+    std::shared_ptr<IResponseComposer<typename Protocol::ResponseType>> responseHeaderComposer;
   };
 }
 

@@ -21,7 +21,7 @@ namespace HarborCLS {
     using ConsumingType = std::shared_ptr<SocketType>;
     using ProducingType = std::shared_ptr<RequestType>;
 
-    MiddlewareBlockingQueue<ProducingType> &_requestsQueue;
+    MiddlewareBlockingQueue<ProducingType>& _requestsQueue;
 
     std::shared_ptr<RequestParserInterface> _requestParser;
 
@@ -53,13 +53,13 @@ namespace HarborCLS {
      * @param handlingData the data that is going to be handled.
      */
     void handleSingle(ConsumingType handlingData) override {
-      std::vector<char> request;
+      std::vector<char> requestData;
 
-      *handlingData >> request;
+      *handlingData >> requestData;
 
-      ProducingType httpRequest = _requestParser->createHttpRequest(request, handlingData);
+      ProducingType request = _requestParser->createRequest(requestData, handlingData);
 
-      _requestsQueue.push(MiddlewareMessage<ProducingType>(httpRequest));
+      _requestsQueue.push(MiddlewareMessage<ProducingType>(request));
     };
   };
 }

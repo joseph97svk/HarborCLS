@@ -8,9 +8,14 @@
 #include <string>
 #include <variant>
 #include <vector>
+
+#include "HarborCLS.hpp"
+
 #include "LFMProtocolHeader.hpp"
 
 struct LFMResponse {
+  std::shared_ptr<HarborCLS::TcpSocket> socket;
+
   LegoMessageCode messageCode;
 
   std::variant<std::string, std::vector<char>> responseContent;

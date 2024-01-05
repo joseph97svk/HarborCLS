@@ -8,8 +8,7 @@
 #include "Server/Http/HttpMessages/Request/HttpRequest.hpp"
 #include "Server/Http/HttpRequestParser/HttpRequestParser.hpp"
 #include "Server/Protocols/IRequestParser.hpp"
-#include "Server/Http/ResponseSerialization/HttpResponseBodySerializer.hpp"
-#include "Server/Http/ResponseSerialization/HttpResponseHeaderComposer.hpp"
+#include "Server/Http/ResponseSerialization/HttpResponseComposer.hpp"
 
 namespace HarborCLS {
 
@@ -17,11 +16,8 @@ namespace HarborCLS {
     using RequestType = HttpRequest;
     using ResponseType = HttpResponse;
     using SocketType = TcpSocket;
-    //using RequestParserInterface = IRequestParser<SocketType, RequestType>;
     using RequestParserType = HttpRequestParser;
-    //using ResponseHeaderComposerInterface = IResponseHeaderComposer;
-    using ResponseHeaderComposerType = HttpResponseHeaderComposer;
-    using ResponseBodySerializer = HttpResponseBodySerializer;
+    using ResponseComposerType = HttpResponseComposer;
   };
 
 }

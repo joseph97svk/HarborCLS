@@ -24,8 +24,8 @@ namespace HarborCLS {
   class GenericServer {
     using ResponseType = typename Protocol::ResponseType;
     using RequestParserType = typename Protocol::RequestParserType;
-    using ResponseHeaderComposerType = typename Protocol::ResponseHeaderComposerType;
-    using ResponseHeaderComposerInterface = IResponseHeaderComposer<ResponseType>;
+    using ResponseHeaderComposerType = typename Protocol::ResponseComposerType;
+    using ResponseHeaderComposerInterface = IResponseComposer<ResponseType>;
 
     using RequestParserInterface = IRequestParser<typename Protocol::SocketType, typename Protocol::RequestType>;
 

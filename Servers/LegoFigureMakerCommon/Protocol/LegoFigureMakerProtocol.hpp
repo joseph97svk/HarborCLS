@@ -6,7 +6,7 @@
 #define HARBOR_CLS_LEGOFIGUREMAKERPROTOCOL_HPP
 
 // #include "../../HarborCLS_Library/HarborCLS.hpp"
-#include <HarborCLS.hpp>
+#include "HarborCLS.hpp"
 
 #include "LFMRequest.hpp"
 #include "LFMResponse.hpp"
@@ -17,10 +17,8 @@ struct LegoFigureMakerProtocol {
   using SocketType = HarborCLS::TcpSocket;
   using RequestType = LFMRequest;
   using ResponseType = LFMResponse;
-  using RequestParserInterface = HarborCLS::IRequestParser<SocketType, RequestType>;
   using RequestParserType = LFMRequestParser;
-  using ResponseHeaderComposerInterface = HarborCLS::IResponseHeaderComposer;
-  using ResponseHeaderComposerType = LFMResponseComposer;
+  using ResponseComposerType = LFMResponseComposer;
 };
 
 #endif //HARBOR_CLS_LEGOFIGUREMAKERPROTOCOL_HPP

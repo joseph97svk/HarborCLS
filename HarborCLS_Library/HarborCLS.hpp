@@ -14,7 +14,7 @@
 
 #include "Server/Protocols/ProtocolConcept.hpp"
 #include "Server/Protocols/IRequestParser.hpp"
-#include "Server/Protocols/IResponseHeaderComposer.hpp"
+#include "Server/Protocols/IResponseComposer.hpp"
 
 #include "Server/Socket/TcpSocket.hpp"
 #include "Server/Middleware/Handler.hpp"

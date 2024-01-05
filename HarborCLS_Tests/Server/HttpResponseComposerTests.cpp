@@ -3,12 +3,12 @@
 //
 
 #include <gtest/gtest.h>
-#include "Server/Http/ResponseSerialization/HttpResponseHeaderComposer.hpp"
+#include "Server/Http/ResponseSerialization/HttpResponseComposer.hpp"
 
 
 class HttpComposerTests : public ::testing::Test {
 protected:
-  HarborCLS::HttpResponseHeaderComposer composer;
+  HarborCLS::HttpResponseComposer composer;
 
   std::shared_ptr<HarborCLS::HttpResponse> response;
 
@@ -26,13 +26,15 @@ protected:
 };
 
 TEST_F(HttpComposerTests, headerIsComposedCorrectly) {
-  std::string header = composer.composeHeader(*response);
+  std::vector<char> responseVector = composer.compose(*response);
 
   std::string expectedHeader =
       "HTTP/1.1 200 OK\r\n"
       "Content-Type: text/html\r\n"
       "Content-Length: 12\r\n"
       "\r\n\r\n";
+
+  std::string header = std::string(responseVector.begin(), responseVector.end());
 
   ASSERT_EQ(header, expectedHeader);
 }
@@ -40,7 +42,7 @@ TEST_F(HttpComposerTests, headerIsComposedCorrectly) {
 TEST_F(HttpComposerTests, headerWithAdditionalFieldsIsComposedCorrectly) {
   response->otherHeaderFields.push_back({"Test", "TestValue"});
 
-  std::string header = composer.composeHeader(*response);
+  std::vector<char> responseVector = composer.compose(*response);
 
   std::string expectedHeader =
       "HTTP/1.1 200 OK\r\n"
@@ -48,6 +50,8 @@ TEST_F(HttpComposerTests, headerWithAdditionalFieldsIsComposedCorrectly) {
       "Content-Length: 12\r\n"
       "Test: TestValue\r\n"
       "\r\n\r\n";
+
+  std::string header = std::string(responseVector.begin(), responseVector.end());
 
   ASSERT_EQ(header, expectedHeader);
 }

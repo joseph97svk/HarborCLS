@@ -11,8 +11,7 @@ concept ServerProtocol = requires {
   typename ProtocolType::RequestType;
   typename ProtocolType::ResponseType;
   typename ProtocolType::RequestParserType;
-  typename ProtocolType::ResponseHeaderComposerType;
-  typename ProtocolType::ResponseBodySerializer;
+  typename ProtocolType::ResponseComposerType;
 };
 
 #endif //HARBOR_CLS_PROTOCOLCONCEPT_HPP
