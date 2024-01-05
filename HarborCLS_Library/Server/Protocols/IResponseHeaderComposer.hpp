@@ -5,17 +5,18 @@
 #ifndef HARBOR_CLS_IRESPONSEHEADERCOMPOSER_HPP
 #define HARBOR_CLS_IRESPONSEHEADERCOMPOSER_HPP
 
-#include <string>
+#include "../../../../../../../usr/include/c++/13/string"
 
-#include "../HttpMessages/Reponse/HttpResponse.hpp"
+#include "../Http/HttpMessages/Reponse/HttpResponse.hpp"
 
 namespace HarborCLS {
 
+  template<typename ResponseType>
   class IResponseHeaderComposer {
   public:
     virtual ~IResponseHeaderComposer() = default;
 
-    virtual std::string composeHeader(std::shared_ptr<HttpResponse>) = 0;
+    virtual std::string composeHeader(ResponseType& response) = 0;
   };
 }
 

@@ -3,8 +3,8 @@
 //
 
 #include <gtest/gtest.h>
+#include "Server/Http/ResponseSerialization/HttpResponseHeaderComposer.hpp"
 
-#include "../../HarborCLS_Library/Server/Http/ResponseHeaderComposer/HttpResponseHeaderComposer.hpp"
 
 class HttpComposerTests : public ::testing::Test {
 protected:
@@ -26,7 +26,7 @@ protected:
 };
 
 TEST_F(HttpComposerTests, headerIsComposedCorrectly) {
-  std::string header = composer.composeHeader(response);
+  std::string header = composer.composeHeader(*response);
 
   std::string expectedHeader =
       "HTTP/1.1 200 OK\r\n"
@@ -40,7 +40,7 @@ TEST_F(HttpComposerTests, headerIsComposedCorrectly) {
 TEST_F(HttpComposerTests, headerWithAdditionalFieldsIsComposedCorrectly) {
   response->otherHeaderFields.push_back({"Test", "TestValue"});
 
-  std::string header = composer.composeHeader(response);
+  std::string header = composer.composeHeader(*response);
 
   std::string expectedHeader =
       "HTTP/1.1 200 OK\r\n"

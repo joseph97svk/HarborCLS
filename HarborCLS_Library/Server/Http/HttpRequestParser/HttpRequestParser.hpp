@@ -2,7 +2,7 @@
 // Created by josephvalverde on 12/11/23.
 //
 
-#include "IRequestParser.hpp"
+#include "Server/Protocols/IRequestParser.hpp"
 #include "../../Socket/TcpSocket.hpp"
 
 namespace HarborCLS {

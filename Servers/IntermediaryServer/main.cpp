@@ -5,8 +5,7 @@
 #include <iostream>
 #include <csignal>
 
-#include "../../HarborCLS_Library/Server/Http/HttpServer.hpp"
-#include "../../HarborCLS_Library/Server/Http/WebApplication/HttpWebApplication.hpp"
+#include <HarborCLS.hpp>
 
 #include "Pages/MainPage.hpp"
 

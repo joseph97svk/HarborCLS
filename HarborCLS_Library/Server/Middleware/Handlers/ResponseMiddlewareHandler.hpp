@@ -7,7 +7,7 @@
 
 #include "Server/Middleware/Handler.hpp"
 #include "../../Http/HttpMessages/Reponse/HttpResponse.hpp"
-#include "../../Http/ResponseHeaderComposer/IResponseHeaderComposer.hpp"
+#include "Server/Protocols/IResponseHeaderComposer.hpp"
 #include "../../Protocols/ProtocolConcept.hpp"
 
 namespace HarborCLS {
@@ -15,12 +15,14 @@ namespace HarborCLS {
   template<ServerProtocol Protocol>
   class ResponseMiddlewareHandler : public Handler<std::shared_ptr<HttpResponse>> {
     using ConsumingType = std::shared_ptr<typename Protocol::ResponseType>;
+    using ResponseBodySerializer = typename Protocol::ResponseBodySerializer;
+    std::shared_ptr<IResponseHeaderComposer<typename Protocol::ResponseType>> _headerComposer;
 
-    std::shared_ptr<IResponseHeaderComposer> _headerComposer;
+    ResponseBodySerializer _bodySerializer;
 
   public:
     explicit ResponseMiddlewareHandler(MiddlewareBlockingQueue<ConsumingType>& consumingQueue
-                                       , std::shared_ptr<IResponseHeaderComposer> headerComposer
+                                       , std::shared_ptr<IResponseHeaderComposer<typename Protocol::ResponseType>> headerComposer
                                        , std::shared_ptr<ILogger> logger)
         : Handler(consumingQueue, std::move(logger))
         , _headerComposer(std::move(headerComposer))
@@ -32,18 +34,21 @@ namespace HarborCLS {
     }
 
     void handleSingle(ConsumingType handlingData) override{
-      std::string header = std::move(_headerComposer->composeHeader(handlingData));
+      if (handlingData == nullptr) {
+        _logger->error(
+            "Handling data passed as response is null. Either do not respond or pass a valid response."
+            );
+
+        return;
+      }
+
+      std::string header = std::move(_headerComposer->composeHeader(*handlingData));
 
       std::vector<char> responseVector(header.begin(), header.end());
 
-      std::visit(overloaded{
-          [&responseVector](std::string &str) {
-            responseVector.insert(responseVector.end(), str.begin(), str.end());
-          },
-          [&responseVector](std::vector<char> &vec) {
-            responseVector.insert(responseVector.end(), vec.begin(), vec.end());
-          }
-      }, handlingData->body);
+      std::vector<char> body = std::move(_bodySerializer.serialize(*handlingData));
+
+      responseVector.insert(responseVector.end(), body.begin(), body.end());
 
       *handlingData->socket << responseVector;
     };

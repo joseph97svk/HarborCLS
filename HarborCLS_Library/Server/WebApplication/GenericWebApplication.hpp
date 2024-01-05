@@ -32,7 +32,8 @@ namespace HarborCLS {
     using SocketType = typename Protocol::SocketType;
     using RequestType = typename Protocol::RequestType;
     using ResponseType = typename Protocol::ResponseType;
-    using RequestParserInterface = typename Protocol::RequestParserInterface;
+
+    using RequestParserInterface = IRequestParser<SocketType, RequestType>;
 
     std::shared_ptr<SocketType> _socket {};
     std::optional<ConnectionListener<SocketType>> _tcpListener {};

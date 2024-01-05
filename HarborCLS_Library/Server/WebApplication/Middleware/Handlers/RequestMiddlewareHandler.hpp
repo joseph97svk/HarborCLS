@@ -15,7 +15,8 @@ namespace HarborCLS {
   class RequestMiddlewareHandler : public Handler<std::shared_ptr<TcpSocket>> {
     using RequestType = typename Protocol::RequestType;
     using SocketType = typename Protocol::SocketType;
-    using RequestParserInterface = typename Protocol::RequestParserInterface;
+
+    using RequestParserInterface = IRequestParser<SocketType, RequestType>;
 
     using ConsumingType = std::shared_ptr<SocketType>;
     using ProducingType = std::shared_ptr<RequestType>;

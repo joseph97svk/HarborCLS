@@ -23,10 +23,12 @@ namespace HarborCLS {
   template<ServerProtocol Protocol = HttpProtocol>
   class GenericServer {
     using ResponseType = typename Protocol::ResponseType;
-    using RequestParserInterface = typename Protocol::RequestParserInterface;
     using RequestParserType = typename Protocol::RequestParserType;
-    using ResponseHeaderComposerInterface = typename Protocol::ResponseHeaderComposerInterface;
     using ResponseHeaderComposerType = typename Protocol::ResponseHeaderComposerType;
+    using ResponseHeaderComposerInterface = IResponseHeaderComposer<ResponseType>;
+
+    using RequestParserInterface = IRequestParser<typename Protocol::SocketType, typename Protocol::RequestType>;
+
 
     std::vector<ResponseMiddlewareHandler<Protocol>> _responseMiddlewareHandlers;
     std::vector<std::shared_ptr<GenericWebApplication<Protocol>>> _webApplications;

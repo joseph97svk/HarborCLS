@@ -5,7 +5,7 @@
 #include <gtest/gtest.h>
 
 #include "../../HarborCLS_Library/Server/Http/HttpMessages/Request/HttpRequest.hpp"
-#include "../../HarborCLS_Library/Server/Http/HttpRequestParser/IRequestParser.hpp"
+#include "Server/Protocols/IRequestParser.hpp"
 #include "../../HarborCLS_Library/Server/Socket/TcpSocket.hpp"
 #include "Server/Http/HttpRequestParser/HttpRequestParser.hpp"
 

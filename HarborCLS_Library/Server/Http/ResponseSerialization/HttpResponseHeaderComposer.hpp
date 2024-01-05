@@ -5,34 +5,34 @@
 #ifndef HARBOR_CLS_HTTPRESPONSEHEADERCOMPOSER_HPP
 #define HARBOR_CLS_HTTPRESPONSEHEADERCOMPOSER_HPP
 
-#include "IResponseHeaderComposer.hpp"
+#include "Server/Protocols/IResponseHeaderComposer.hpp"
 #include "Server/Http/HttpMessages/HttpMappings.hpp"
 
 namespace HarborCLS {
 
-  class HttpResponseHeaderComposer : public IResponseHeaderComposer {
+  class HttpResponseHeaderComposer : public IResponseHeaderComposer<HttpResponse> {
     template<class... Ts>
     struct overloaded : Ts ... {
       using Ts::operator()...;
     };
 
   public:
-    std::string composeHeader(std::shared_ptr<HttpResponse> response) override {
-      if (response->socket == nullptr) {
+    std::string composeHeader(HttpResponse& response) override {
+      if (response.socket == nullptr) {
         throw std::runtime_error("Dumb mistake: someone forgot to set the socket in a service running on the"
                                  " application middleware handler.");
       }
 
       std::string header;
 
-      header += response->htmlVersion + " ";
-      header += HttpResponseStatusCode::getStatusCodeString(response->statusCode) + "\r\n";
+      header += response.htmlVersion + " ";
+      header += HttpResponseStatusCode::getStatusCodeString(response.statusCode) + "\r\n";
 
-      if (contentTypeMap.contains(response->contentType)) {
-        header += "Content-Type: " + contentTypeMap.at(response->contentType) + "\r\n";
+      if (contentTypeMap.contains(response.contentType)) {
+        header += "Content-Type: " + contentTypeMap.at(response.contentType) + "\r\n";
       }
 
-      size_t contentLength = response->contentLength;
+      size_t contentLength = response.contentLength;
 
       if (contentLength == 0) {
         contentLength = std::visit(overloaded{
@@ -42,12 +42,12 @@ namespace HarborCLS {
             [](std::vector<char> &vec) {
               return vec.size();
             }
-        }, response->body);
+        }, response.body);
       }
 
       header += "Content-Length: " + std::to_string(contentLength) + "\r\n";
 
-      for (auto &field: response->otherHeaderFields) {
+      for (auto &field: response.otherHeaderFields) {
         header += field.fieldName + ": " + field.value + "\r\n";
       }
 
