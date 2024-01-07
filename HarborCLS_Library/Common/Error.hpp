@@ -48,6 +48,13 @@ namespace HarborCLS {
       + ": " + std::to_string(_location.column());
     }
 
+    [[nodiscard]] const std::string what() const noexcept {
+      return _message
+      + " in " + _location.file_name()
+      + ": " + std::to_string(_location.line())
+      + ": " + std::to_string(_location.column());
+    }
+
     ErrorType errorType() const noexcept {
       return _errorType;
     }

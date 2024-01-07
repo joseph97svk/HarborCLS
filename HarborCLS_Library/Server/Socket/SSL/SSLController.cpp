@@ -7,9 +7,9 @@
 
 namespace HarborCLS {
 
-  SSLController::SSLController(const std::string &certFileName, const std::string &keyFileName) :
-      SSLContext({nullptr, &SSL_CTX_free}),
-      SSLStruct({nullptr, [](SSL *ssl) {
+  SSLController::SSLController(const std::string &certFileName, const std::string &keyFileName) noexcept(false)
+      : SSLContext({nullptr, &SSL_CTX_free})
+      , SSLStruct({nullptr, [](SSL *ssl) {
         close(SSL_get_fd(ssl));
         SSL_free(ssl);
       }}) {

@@ -13,13 +13,13 @@
 namespace HarborCLS {
 
   struct HttpHeader {
-    std::string rawContent{};
+    std::string rawContent {};
 
-    HttpMappings::Method method{};
-    std::string url{};
-    std::string httpVersion{};
+    HttpMappings::Method method {};
+    std::string url {};
+    std::string httpVersion {};
 
-    std::unordered_map<HttpMappings::HeaderField, std::string> fields{};
+    std::unordered_map<HttpMappings::HeaderField, std::string> fields {};
   };
 }
 

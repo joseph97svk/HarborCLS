@@ -8,11 +8,11 @@
 
 #include "Middleware/Handlers/ResponseMiddlewareHandler.hpp"
 #include "../Logger/Logger.hpp"
-#include "WebApplication/WebApplication.hpp"
+#include "Server/WebApplication/GenericWebApplication.hpp"
 #include "../Common/common.hpp"
 #include "../Common/PathManager.hpp"
 #include "Http/HttpBehavior/HttpBehavior.hpp"
-#include "Protocols/HttpProtocol.hpp"
+#include "Server/Http/HttpProtocol.hpp"
 #include "../Logger/LoggerFactory/LoggerFactory.hpp"
 #include "ServerConfiguration.hpp"
 
@@ -29,7 +29,7 @@ namespace HarborCLS {
     using ResponseHeaderComposerType = typename Protocol::ResponseHeaderComposerType;
 
     std::vector<ResponseMiddlewareHandler<Protocol>> _responseMiddlewareHandlers;
-    std::vector<std::reference_wrapper<WebApplication<Protocol>>> _webApplications;
+    std::vector<std::shared_ptr<GenericWebApplication<Protocol>>> _webApplications;
     MiddlewareBlockingQueue<std::shared_ptr<ResponseType>> _responsesQueue;
 
     ServerConfiguration _configuration;
@@ -54,7 +54,7 @@ namespace HarborCLS {
      * @brief adds a web application to the server
      * @param webApplication
      */
-    void addWebApplication(WebApplication<Protocol> &webApplication) {
+    void addWebApplication(std::shared_ptr<GenericWebApplication<Protocol>> webApplication) {
       _webApplications.emplace_back(webApplication);
     }
 
@@ -97,8 +97,8 @@ namespace HarborCLS {
     void stopServer() {
       _logger->info("Stopping server");
 
-      for (WebApplication<Protocol> &webApplication: _webApplications) {
-        webApplication.stopApplication();
+      for (std::shared_ptr<GenericWebApplication<Protocol>>& webApplication : _webApplications) {
+        webApplication->stopApplication();
       }
 
       _logger->info("Server terminated");
@@ -114,8 +114,8 @@ namespace HarborCLS {
         _requestParser = std::make_shared<RequestParserType>();
       }
 
-      for (WebApplication<Protocol> &webApplication: _webApplications) {
-        webApplication.addResponsesQueue(_responsesQueue);
+      for (std::shared_ptr<GenericWebApplication<Protocol>>& webApplication : _webApplications) {
+        webApplication->addResponsesQueue(_responsesQueue);
       }
 
       if (_responseHeaderComposer == nullptr) {
@@ -135,19 +135,19 @@ namespace HarborCLS {
     }
 
     inline void runServerComponents() {
-      for (WebApplication<Protocol> &webApplication: _webApplications) {
-        webApplication.startApplication(_requestParser);
+      for (std::shared_ptr<GenericWebApplication<Protocol>>& webApplication : _webApplications) {
+        webApplication->startApplication(_requestParser);
       }
 
-      for (ResponseMiddlewareHandler<Protocol> &responseMiddlewareHandler: _responseMiddlewareHandlers) {
+      for (ResponseMiddlewareHandler<Protocol> &responseMiddlewareHandler : _responseMiddlewareHandlers) {
         responseMiddlewareHandler.start();
       }
 
-      for (WebApplication<Protocol> &webApplication: _webApplications) {
-        webApplication.waitToFinish();
+      for (std::shared_ptr<GenericWebApplication<Protocol>>& webApplication : _webApplications) {
+        webApplication->waitToFinish();
       }
 
-      for (ResponseMiddlewareHandler<Protocol> &responseMiddlewareHandler: _responseMiddlewareHandlers) {
+      for (ResponseMiddlewareHandler<Protocol> &responseMiddlewareHandler : _responseMiddlewareHandlers) {
         responseMiddlewareHandler.waitToFinish();
       }
 

@@ -1,5 +1,5 @@
 {
-  "port": 8088,
+  "port": 8084,
   "requestHandlerAmount": 1,
   "applicationHandlerAmount": 1,
   "responseHandlerAmount": 1,

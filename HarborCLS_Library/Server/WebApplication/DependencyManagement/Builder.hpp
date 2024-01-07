@@ -7,9 +7,8 @@
 
 #include <type_traits>
 
-#include "../../../Common/DependenciesManagement/DependencyManager.hpp"
 #include "ApplicationStartupTaskSet.hpp"
-
+#include "../../../Common/DependenciesManagement/DependencyManager.hpp"
 #include "BaseWebAppService.hpp"
 
 namespace HarborCLS {
@@ -27,8 +26,10 @@ namespace HarborCLS {
 
     template<typename T>
     Type<T>& addOnStart(auto entryFunction) {
-      _applicationStartupTaskSet->addInitTask(
-          std::make_unique<Task < T, decltype(entryFunction), Hypodermic::Container>>(entryFunction));
+      std::unique_ptr<Task < T, decltype(entryFunction), Hypodermic::Container>> task =
+          std::make_unique<Task < T, decltype(entryFunction), Hypodermic::Container>>(entryFunction);
+
+      _applicationStartupTaskSet->addInitTask(std::move(task));
 
       return _taskBuilder.template registerType<T>();
     }

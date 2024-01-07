@@ -5,10 +5,10 @@
 #ifndef HARBOR_CLS_HTTPPROTOCOL_HPP
 #define HARBOR_CLS_HTTPPROTOCOL_HPP
 
-#include "../Http/HttpMessages/Request/HttpRequest.hpp"
-#include "../Http/HttpRequestParser/HttpRequestParser.hpp"
-#include "../Http/HttpRequestParser/IRequestParser.hpp"
-#include "../Http/ResponseHeaderComposer/HttpResponseHeaderComposer.hpp"
+#include "Server/Http/HttpMessages/Request/HttpRequest.hpp"
+#include "Server/Http/HttpRequestParser/HttpRequestParser.hpp"
+#include "Server/Http/HttpRequestParser/IRequestParser.hpp"
+#include "Server/Http/ResponseHeaderComposer/HttpResponseHeaderComposer.hpp"
 
 namespace HarborCLS {
 
