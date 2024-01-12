@@ -17,8 +17,10 @@
 #include "Server/Protocols/IResponseComposer.hpp"
 
 #include "Server/Socket/TcpSocket.hpp"
+#include "Server/Socket/UdpSocket.hpp"
 #include "Server/Middleware/Handler.hpp"
 #include "Server/Middleware/Listener.hpp"
+#include "Server/Middleware/MiddlewareMessage.hpp"
 
 // for all logger related includes
 #include "Logger/LoggerFactory/LoggerFactory.hpp"
@@ -26,5 +28,8 @@
 // for all json reader includes
 #include "JsonReader/JsonHandler.hpp"
 #include "JsonReader/ParsingPolicy.hpp"
+
+// common
+#include "Common/common.hpp"
 
 #endif //HARBOR_CLS_HARBORCLS_HPP

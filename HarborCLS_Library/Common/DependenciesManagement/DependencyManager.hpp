@@ -36,7 +36,7 @@ namespace HarborCLS {
 
     template<typename T>
     Type<T>& addSingleton() {
-      Type<T>& ref = _globalBuilder.template registerType<T>().singleInstance();
+      Type<T>& ref = _globalBuilder.template registerType<T>();
       ref.singleInstance();
 
       return ref;

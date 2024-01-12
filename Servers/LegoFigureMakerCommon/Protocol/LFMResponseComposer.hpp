@@ -15,7 +15,7 @@ public:
     char code =  std::to_string(response.messageCode)[0];
     char separator = std::to_string(SEPARATOR)[0];
 
-    std::vector<char> composedResponse {code, separator};
+    std::vector<char> composedResponse { code, separator };
 
     std::visit(overloaded {
       [&composedResponse](std::string& str) {

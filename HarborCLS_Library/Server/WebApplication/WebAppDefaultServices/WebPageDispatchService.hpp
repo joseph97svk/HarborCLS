@@ -24,10 +24,6 @@ namespace HarborCLS {
         : BaseWebAppService<Protocol>()
         , _controllerManager(controllerManager) {}
 
-    void release() override {
-      // no special loop to be released is present, so nothing to do here
-    }
-
     bool canHandle(std::shared_ptr<RequestType> request) override {
       return false;
     }

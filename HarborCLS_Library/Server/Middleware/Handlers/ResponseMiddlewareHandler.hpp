@@ -13,15 +13,17 @@
 namespace HarborCLS {
 
   template<ServerProtocol Protocol>
-  class ResponseMiddlewareHandler : public Handler<std::shared_ptr<HttpResponse>> {
+  class ResponseMiddlewareHandler : public Handler<std::shared_ptr<typename Protocol::ResponseType>> {
     using ConsumingType = std::shared_ptr<typename Protocol::ResponseType>;
-    std::shared_ptr<IResponseComposer<typename Protocol::ResponseType>> _responseComposer;
+    using ComposerType = IResponseComposer<typename Protocol::ResponseType>;
+
+    std::shared_ptr<ComposerType> _responseComposer;
 
   public:
     explicit ResponseMiddlewareHandler(MiddlewareBlockingQueue<ConsumingType>& consumingQueue
-                                       , std::shared_ptr<IResponseComposer<typename Protocol::ResponseType>> responseComposer
+                                       , std::shared_ptr<ComposerType> responseComposer
                                        , std::shared_ptr<ILogger> logger)
-        : Handler(consumingQueue, std::move(logger))
+        : Handler <std::shared_ptr<typename Protocol::ResponseType>> (consumingQueue, std::move(logger))
         , _responseComposer(std::move(responseComposer))
     {}
 
@@ -30,9 +32,9 @@ namespace HarborCLS {
 
     }
 
-    void handleSingle(ConsumingType handlingData) override{
+    void handleSingle(ConsumingType handlingData) override {
       if (handlingData == nullptr) {
-        _logger->error(
+        this->_logger->error(
             "Handling data passed as response is null. Either do not respond or pass a valid response."
             );
 

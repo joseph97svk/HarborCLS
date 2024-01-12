@@ -5,13 +5,15 @@
 #ifndef HARBOR_CLS_LEGOFIGUREMAKERPROTOCOL_HPP
 #define HARBOR_CLS_LEGOFIGUREMAKERPROTOCOL_HPP
 
-// #include "../../HarborCLS_Library/HarborCLS.hpp"
-#include "HarborCLS.hpp"
+#include "../../../HarborCLS_Library/HarborCLS.hpp"
+#include <HarborCLS.hpp>
 
 #include "LFMRequest.hpp"
 #include "LFMResponse.hpp"
 #include "LFMRequestParser.hpp"
 #include "LFMResponseComposer.hpp"
+
+#include "LFMProtocolHeader.hpp"
 
 struct LegoFigureMakerProtocol {
   using SocketType = HarborCLS::TcpSocket;

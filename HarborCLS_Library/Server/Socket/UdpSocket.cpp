@@ -11,8 +11,10 @@
 
 namespace HarborCLS {
 
-  UDPSocket::UDPSocket(bool ipv6) {
-    if (ipv6) {
+  UDPSocket::UDPSocket(bool ipv6)
+    : _ipv6(ipv6) {
+
+    if (_ipv6) {
       this->socketId = ::socket(AF_INET6, SOCK_DGRAM, 0);
     } else {
       this->socketId = ::socket(AF_INET, SOCK_DGRAM, 0);
@@ -74,6 +76,19 @@ namespace HarborCLS {
     }
 
     return data;
+  }
+
+  std::expected<Success, SocketError> UDPSocket::sendDecoyConnection(std::string &ip, int port) {
+    std::vector<char> data;
+    data.push_back('0');
+
+    (*this)[ip, port] << data;
+
+    return Success();
+  }
+
+  bool UDPSocket::isIpV6() const {
+    return this->_ipv6;
   }
 
   UDPSocket::UdpStream::UdpStream(UDPSocket &udpSocket, std::string &ip, int port, bool broadcast) :

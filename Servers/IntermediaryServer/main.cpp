@@ -9,6 +9,10 @@
 
 #include "Pages/MainPage.hpp"
 
+#include "../LegoFigureMakerCommon/Services/StartUpPresenceNotificationService.hpp"
+
+#include "Services/LegoDiscoverService.hpp"
+
 void signalHandler(int signal) {
   HarborCLS::HttpServer::getInstance().stopServer();
 }
@@ -39,7 +43,10 @@ int main() {
 
   intermediaryServer->addController<MainPage>("/");
 
+  services.addScoped<StartUpPresenceNotificationService>();
+
   services.addOnStart<HelloWorld>(&HelloWorld::sayHello);
+  services.addOnStart<LegoDiscoverService>(&LegoDiscoverService::broadcastPresence);
 
   intermediaryServer->addConfiguration(path);
 
@@ -51,3 +58,4 @@ int main() {
     std::cout << "Server Fatal error - " << e.what() << std::endl;
   }
 }
+

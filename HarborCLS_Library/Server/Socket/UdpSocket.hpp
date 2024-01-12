@@ -10,11 +10,18 @@
 #include <span>
 
 #include <netinet/in.h>
+#include <expected>
+
+
+#include "SocketError.hpp"
+#include "Common/Error.hpp"
 
 namespace HarborCLS {
 
   class UDPSocket {
     int socketId;
+
+    bool _ipv6;
 
   public:
     /**
@@ -75,6 +82,10 @@ namespace HarborCLS {
      * @return UdpStream object
      */
     UdpStream operator[](std::string &ip, int port);
+
+    std::expected<Success, SocketError> sendDecoyConnection(std::string &ip, int port);
+
+    [[nodiscard]] bool isIpV6() const;
 
   private:
     void setBroadcast(bool broadcast) const;

@@ -361,4 +361,8 @@ namespace HarborCLS {
   [[nodiscard]] bool TcpSocket::isIpV6() const noexcept {
     return _ipv6;
   }
+
+  std::expected<Success, Error<SocketErrors>> TcpSocket::sendDecoyConnection(std::string &ip, int port) const {
+    return this->connect(ip, port);
+  }
 }
