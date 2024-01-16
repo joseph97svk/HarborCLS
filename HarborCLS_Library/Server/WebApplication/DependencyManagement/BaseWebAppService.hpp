@@ -47,6 +47,10 @@ namespace HarborCLS {
       _tearDownSequence = std::move(tearDownSequence);
     }
 
+    std::shared_ptr<ILogger> getLogger() {
+      return _logger;
+    }
+
   protected:
     void run() override {
       if (_setUpSequence) {
@@ -60,8 +64,12 @@ namespace HarborCLS {
             = data.getContent();
 
         if (content) {
-          MiddlewareMessage<OutgoingMessageType> result = handleTask(content.value());
-          _exitQueue.value().get().push(result);
+          std::optional<MiddlewareMessage<OutgoingMessageType>> result = handleTask(content.value());
+
+          if (result) {
+            _exitQueue.value().get().push(*result);
+          }
+
           continue;
         }
 
@@ -82,7 +90,7 @@ namespace HarborCLS {
       }
     }
 
-    [[nodiscard]] virtual MiddlewareMessage<OutgoingMessageType> handleTask(IncomingMessageType message) = 0;
+    [[nodiscard]] virtual std::optional<MiddlewareMessage<OutgoingMessageType>> handleTask(IncomingMessageType message) = 0;
 
     void byPass() {
       _entryQueue.push(MiddlewareMessage<IncomingMessageType>(IncomingMessageType()));

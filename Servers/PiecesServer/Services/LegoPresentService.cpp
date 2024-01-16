@@ -41,13 +41,13 @@ constexpr static inline std::vector<std::pair<std::string, int>> createBroadcast
         + broadcastIpBase
         + std::to_string(broadcastIpId);
 
-    targets.emplace_back(broadcastIp, PIECES_UDP_PORT);
+    targets.emplace_back(broadcastIp, INTERMEDIARY_UDP_PORT);
 
     offset += ipDifference;
   }
 
   // broadcast to include same pc
-  targets.emplace_back("", PIECES_UDP_PORT);
+  targets.emplace_back("", INTERMEDIARY_UDP_PORT);
 
   return targets;
 }
@@ -76,6 +76,14 @@ inline std::vector<char> LegoPresentService::createPresenceMessage(
     message.insert(message.end(), legoFigure.begin(), legoFigure.end());
     message.push_back(SEPARATOR);
   }
+
+  std::cout << "Message: " << std::endl;
+
+  for (char c : message) {
+    std::cout << c;
+  }
+
+  std::cout << std::endl;
 
   return message;
 }

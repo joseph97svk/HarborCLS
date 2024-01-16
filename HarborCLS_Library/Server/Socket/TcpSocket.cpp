@@ -285,7 +285,7 @@ namespace HarborCLS {
     }
 
     if (::bind(_socketId, (sockaddr *) ha, size) == -1) {
-      throw std::runtime_error("TcpSocket::bind: Failed to bind to port");
+      throw std::runtime_error("TcpSocket::bind: Failed to bind to port: " + std::to_string(portToBindTo));
     }
   }
 

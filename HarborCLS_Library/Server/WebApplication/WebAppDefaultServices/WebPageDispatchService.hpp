@@ -22,13 +22,13 @@ namespace HarborCLS {
   public:
     explicit WebServiceDispatchService(std::shared_ptr<ControllerManager<Protocol>> controllerManager)
         : BaseWebAppService<Protocol>()
-        , _controllerManager(controllerManager) {}
+        , _controllerManager(controllerManager) { }
 
     bool canHandle(std::shared_ptr<RequestType> request) override {
       return false;
     }
 
-    MiddlewareMessage<std::shared_ptr<ResponseType>> handleTask(
+    std::optional<MiddlewareMessage<std::shared_ptr<ResponseType>>> handleTask(
         std::shared_ptr<RequestType> request) override {
       if (_controllerManager.get() == nullptr) {
         return MiddlewareMessage<std::shared_ptr<ResponseType>>(

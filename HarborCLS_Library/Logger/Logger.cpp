@@ -25,19 +25,25 @@ void Logger::log(std::string message) {
 }
 
 void Logger::warning(std::string message) {
-  const std::string messageType = "Warning";
+  const std::string yellowColor = "\033[1;33m";
+  const std::string resetColor = "\033[0m";
+  const std::string messageType = yellowColor + "Warning" + resetColor;
 
   this->logMessage(messageType, message);
 }
 
 void Logger::error(std::string message) {
-  const std::string messageType = "Error";
+  const std::string redColor = "\033[1;31m";
+  const std::string resetColor = "\033[0m";
+  const std::string messageType = redColor + "Error" + resetColor;
 
   this->logMessage(messageType, message);
 }
 
 void Logger::info(std::string message) {
-  const std::string messageType = "Info";
+  const std::string greenColor = "\033[1;32m";
+  const std::string resetColor = "\033[0m";
+  const std::string messageType = greenColor + "Info" + resetColor;
 
   this->logMessage(messageType, message);
 }

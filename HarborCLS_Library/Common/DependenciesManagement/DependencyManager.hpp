@@ -8,6 +8,8 @@
 #include "Hypodermic/Hypodermic/ContainerBuilder.h"
 #include "Server/WebApplication/DependencyManagement/ApplicationStartupTaskSet.hpp"
 
+#include "LimitedScopeRegistration.hpp"
+
 namespace HarborCLS {
 
   class DependencyManager {
@@ -18,28 +20,23 @@ namespace HarborCLS {
     template<typename T>
     using InstanceType = Hypodermic::RegistrationDescriptorBuilder::ForProvidedInstance<T>::Type;
 
-    Hypodermic::ContainerBuilder _globalBuilder;
-    Hypodermic::ContainerBuilder _scopedBuilder;
-    Hypodermic::ContainerBuilder _taskBuilder;
+    Hypodermic::ContainerBuilder _globalBuilder {};
+    Hypodermic::ContainerBuilder _scopedBuilder {};
+    Hypodermic::ContainerBuilder _taskBuilder {};
 
   public:
-    DependencyManager()
-        : _globalBuilder(), _scopedBuilder(), _taskBuilder() {}
-
     template<typename T>
-    Type<T>& addScoped() {
+    LimitedScopeRegistration<T> addScoped() {
       Type<T>& ref = _scopedBuilder.template registerType<T>();
-      ref.singleInstance();
 
-      return ref;
+      return LimitedScopeRegistration<T>(ref);
     }
 
     template<typename T>
-    Type<T>& addSingleton() {
+    LimitedScopeRegistration<T> addSingleton() {
       Type<T>& ref = _globalBuilder.template registerType<T>();
-      ref.singleInstance();
 
-      return ref;
+      return LimitedScopeRegistration<T>(ref);
     }
 
     template<typename T>
@@ -59,6 +56,18 @@ namespace HarborCLS {
           _scopedBuilder.buildNestedContainerFrom(*globalContainer);
 
       return nestedContainer;
+    }
+
+    Hypodermic::ContainerBuilder& getGlobalBuilder() {
+      return _globalBuilder;
+    }
+
+    Hypodermic::ContainerBuilder& getScopedBuilder() {
+      return _scopedBuilder;
+    }
+
+    Hypodermic::ContainerBuilder& getTaskBuilder() {
+      return _taskBuilder;
     }
   };
 }

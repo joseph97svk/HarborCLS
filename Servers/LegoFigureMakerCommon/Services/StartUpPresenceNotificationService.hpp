@@ -12,8 +12,11 @@
 
 #include "../Protocol/LFMProtocolHeader.hpp"
 
+#include "../../HarborCLS_Library/Server/Socket/UdpSocket.hpp"
+
 class StartUpPresenceNotificationService {
   HarborCLS::UDPSocket _socket {};
+
 public:
   void broadcastPresence(
       std::vector<std::pair<std::string, int>>& broadcastTargets

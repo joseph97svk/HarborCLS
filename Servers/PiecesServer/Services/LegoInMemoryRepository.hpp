@@ -12,12 +12,14 @@
 class LegoInMemoryRepository : public ILegoRepository {
   std::vector<LegoFigure> _legoFigures;
 
-  public:
-    LegoInMemoryRepository();
+public:
+  LegoInMemoryRepository();
 
-    std::vector<std::string> getAllNames() override;
+  ~LegoInMemoryRepository() override = default;
 
-    std::vector<LegoFigure>& getAllFigures() override;
+  std::vector<std::string> getAllNames() override;
+
+  std::vector<LegoFigure>& getAllFigures() override;
 };
 
 #endif //HARBOR_CLS_LEGOINMEMORYREPOSITORY_HPP

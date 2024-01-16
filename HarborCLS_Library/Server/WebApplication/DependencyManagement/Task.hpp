@@ -15,13 +15,17 @@ namespace HarborCLS {
 
     std::shared_ptr<Class> _taskClass;
 
+    std::function<std::shared_ptr<Class>(DependencyProviderContainer&)> _create;
+
   public:
-    explicit Task(EntryFunction entryFunction)
-        : _entryFunction(entryFunction) {
+    explicit Task(EntryFunction entryFunction
+                  , std::function<std::shared_ptr<Class>(DependencyProviderContainer&)> create)
+        : _entryFunction(entryFunction)
+        , _create(create) {
     }
 
-    void run(std::shared_ptr<DependencyProviderContainer> container) override {
-      _taskClass = container->template resolve<Class>();
+    void run(DependencyProviderContainer& container) override {
+      _taskClass = _create(container);
 
       if (_taskClass) {
         ((*_taskClass).*_entryFunction)();

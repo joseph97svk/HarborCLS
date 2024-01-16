@@ -14,8 +14,8 @@ namespace HarborCLS {
     std::shared_ptr<BaseWebAppService<Protocol>> _taskClass;
 
   public:
-    void set(std::shared_ptr<DependencyProviderContainer> container) override {
-      _taskClass = container->template resolve<ClassType>();
+    void set(DependencyProviderContainer& container) override {
+      _taskClass = container.template resolve<ClassType>();
     }
 
     std::shared_ptr<BaseWebAppService<Protocol>> get() override {
