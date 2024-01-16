@@ -6,11 +6,12 @@
 #define HARBOR_CLS_LEGOINMEMORYREPOSITORY_HPP
 
 #include <vector>
+#include <map>
 
 #include "ILegoRepository.hpp"
 
 class LegoInMemoryRepository : public ILegoRepository {
-  std::vector<LegoFigure> _legoFigures;
+  std::map<std::string, LegoFigure> _legoFigureMap;
 
 public:
   LegoInMemoryRepository();
@@ -19,7 +20,9 @@ public:
 
   std::vector<std::string> getAllNames() override;
 
-  std::vector<LegoFigure>& getAllFigures() override;
+  std::vector<LegoFigure> getAllFigures() override;
+
+  std::optional<std::reference_wrapper<LegoFigure>> getFigureByName(const std::string& name) override;
 };
 
 #endif //HARBOR_CLS_LEGOINMEMORYREPOSITORY_HPP

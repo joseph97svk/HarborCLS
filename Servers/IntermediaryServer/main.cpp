@@ -12,7 +12,7 @@
 #include "../LegoFigureMakerCommon/Services/StartUpPresenceNotificationService.hpp"
 
 #include "Services/LegoDiscoverService.hpp"
-#include "Services/RoutingMapService.hpp"
+#include "Services/RoutingService.hpp"
 #include "Services/LegoServerDiscoveryService.hpp"
 
 int main() {
@@ -32,7 +32,7 @@ int main() {
 
   intermediaryServer->addController<MainPage>("/");
 
-  services.addSingleton<RoutingMapService>();
+  services.addSingleton<RoutingService>();
 
   services.addOnStart<LegoDiscoverService>(&LegoDiscoverService::broadcastPresence);
 
@@ -42,8 +42,10 @@ int main() {
   services.addInstance(builderReferenceWrapper);
 
   services.addLivingTask<LegoServerDiscoveryService>();
+  services.addLivingTask<HarborCLS::DefaultResourcesProviderService>();
 
   services.addScoped<StartUpPresenceNotificationService>();
+  services.addScoped<FiguresService>();
 
   intermediaryServer->addConfiguration(path);
 

@@ -8,6 +8,7 @@
 #include "Services/LegoInMemoryRepository.hpp"
 #include "Services/LegoPresentService.hpp"
 #include "Services/LegoServerDiscoveryService.hpp"
+#include "Services/FigureRetrievalService.hpp"
 
 int main() {
   PiecesServer& server = PiecesServer::getInstance();
@@ -30,6 +31,7 @@ int main() {
   services.addScoped<StartUpPresenceNotificationService>();
 
   services.addLivingTask<LegoServerDiscoveryService>();
+  services.addLivingTask<FigureRetrievalService>();
 
   try {
     server.startServer();

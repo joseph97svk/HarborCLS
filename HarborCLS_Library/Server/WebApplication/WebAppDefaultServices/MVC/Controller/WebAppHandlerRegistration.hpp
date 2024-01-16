@@ -14,13 +14,14 @@ namespace HarborCLS {
 
   template<typename RequestType, typename ResponseType, typename ControllerImplementation>
   class WebAppHandlerRegistration : public IWebAppHandlerRegistration<RequestType, ResponseType> {
-    std::function<std::optional<std::shared_ptr<ResponseType>>(std::shared_ptr<RequestType>)> _handlerFunction;
+    using HandlerFunction = std::optional<std::shared_ptr<ResponseType>> (ControllerImplementation::*)(std::shared_ptr<RequestType>);
+    HandlerFunction _handlerFunction;
 
     ControllerImplementation& _controllerImplementation;
 
   public:
     explicit WebAppHandlerRegistration(
-        std::function<std::optional<std::shared_ptr<ResponseType>>(std::shared_ptr<RequestType>)> handlerFunction
+        HandlerFunction handlerFunction
         , ControllerImplementation& controllerImplementation)
             : _handlerFunction(handlerFunction)
             , _controllerImplementation(controllerImplementation) {
@@ -29,7 +30,6 @@ namespace HarborCLS {
     std::optional<std::shared_ptr<ResponseType>> executeHandler(std::shared_ptr<RequestType> request) override {
       return std::invoke(_handlerFunction, &_controllerImplementation, request);
     }
-
   };
 
 }

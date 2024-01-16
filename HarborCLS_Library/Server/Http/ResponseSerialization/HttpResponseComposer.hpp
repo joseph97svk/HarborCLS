@@ -55,6 +55,10 @@ namespace HarborCLS {
         header += field.fieldName + ": " + field.value + "\r\n";
       }
 
+      if (!response.contentTypeAdditionalInfo.empty()) {
+        header += response.contentTypeAdditionalInfo + "\r\n";
+      }
+
       header += HttpMappings::separator;
 
       return header;
@@ -72,6 +76,8 @@ namespace HarborCLS {
             body = std::move(vec);
           }
       }, response.body);
+
+      body.emplace_back('\0');
 
       return body;
     }

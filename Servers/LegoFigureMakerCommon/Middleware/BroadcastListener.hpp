@@ -39,16 +39,6 @@ public:
 
      (*this->_listeningSocket)[_ip, _port] >> *buffer;
 
-     std::string message = std::string(buffer->begin(), buffer->end());
-
-     std::cout << "Received message: " << message << std::endl;
-
-     for (char c : message) {
-       std::cout << (int) c << " ";
-     }
-
-     std::cout << std::endl;
-
      return HarborCLS::MiddlewareMessage<ListeningType>(std::move(buffer));
    }
 };

@@ -105,6 +105,23 @@ namespace HarborCLS {
       _parsingPolicy.applyPoliciesOnSerialization(*_dataToSerialize, json);
       return json.dump();
     }
+
+    /**
+     * @brief Get jsonTo value at key
+     * @param key or name of field in jason
+     * @return a std::nullopt if key does not exist or jsonfile not created successfully, otherwise the value at key
+     */
+    [[nodiscard]] std::optional<std::string> jsonAt(const std::string &key) override {
+      if (!_jsonToParse.has_value()) {
+        return std::nullopt;
+      }
+
+      if (!_jsonToParse->contains(key)) {
+        return std::nullopt;
+      }
+
+      return _jsonToParse->at(key).dump();
+    }
   };
 }
 

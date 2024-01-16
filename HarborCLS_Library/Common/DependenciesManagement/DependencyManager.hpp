@@ -24,6 +24,8 @@ namespace HarborCLS {
     Hypodermic::ContainerBuilder _scopedBuilder {};
     Hypodermic::ContainerBuilder _taskBuilder {};
 
+    std::shared_ptr<Hypodermic::Container> _globalContainer {};
+
   public:
     template<typename T>
     LimitedScopeRegistration<T> addScoped() {
@@ -50,10 +52,12 @@ namespace HarborCLS {
     }
 
     std::shared_ptr<Hypodermic::Container> createScopedContainer() {
-      std::shared_ptr<Hypodermic::Container> globalContainer =
-          _globalBuilder.build();
+      if (_globalContainer.get() == nullptr) {
+        _globalContainer = _globalBuilder.build();
+      }
+
       std::shared_ptr<Hypodermic::Container> nestedContainer =
-          _scopedBuilder.buildNestedContainerFrom(*globalContainer);
+          _scopedBuilder.buildNestedContainerFrom(*_globalContainer);
 
       return nestedContainer;
     }

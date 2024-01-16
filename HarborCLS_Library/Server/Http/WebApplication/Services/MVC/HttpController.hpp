@@ -57,10 +57,9 @@ namespace HarborCLS {
         : BaseController<HttpProtocol>(htmlFileName, std::move(layoutFileName)) {
     }
 
-
     template<typename ControllerImplementation>
     void registerGetHandler(const std::string& urlDescriptor
-        , HandlerFunction associatedFunction
+        , HandlerFunction<ControllerImplementation> associatedFunction
         , ControllerImplementation& controllerImplementation) {
       _getHandlers[urlDescriptor] =
           std::make_shared<WebAppHandlerRegistration<HttpRequest, HttpResponse, ControllerImplementation>>(
@@ -70,7 +69,7 @@ namespace HarborCLS {
 
     template<typename ControllerImplementation>
     void registerPostHandler(const std::string& urlDescriptor
-        , HandlerFunction associatedFunction
+        , HandlerFunction<ControllerImplementation> associatedFunction
         , ControllerImplementation& controllerImplementation) {
       _postHandlers[urlDescriptor] =
           std::make_shared<WebAppHandlerRegistration<HttpRequest, HttpResponse, ControllerImplementation>>(
@@ -80,7 +79,7 @@ namespace HarborCLS {
 
     template<typename ControllerImplementation>
     void registerPutHandler(const std::string& urlDescriptor
-        , HandlerFunction associatedFunction
+        , HandlerFunction<ControllerImplementation> associatedFunction
         , ControllerImplementation& controllerImplementation) {
       _putHandlers[urlDescriptor] =
           std::make_shared<WebAppHandlerRegistration<HttpRequest, HttpResponse, ControllerImplementation>>(
@@ -90,7 +89,7 @@ namespace HarborCLS {
 
     template<typename ControllerImplementation>
     void registerDeleteHandler(const std::string& urlDescriptor
-        , HandlerFunction associatedFunction
+        , HandlerFunction<ControllerImplementation> associatedFunction
         , ControllerImplementation& controllerImplementation) {
       _deleteHandlers[urlDescriptor] =
           std::make_shared<WebAppHandlerRegistration<HttpRequest, HttpResponse, ControllerImplementation>>(
@@ -100,7 +99,7 @@ namespace HarborCLS {
 
     template<typename ControllerImplementation>
     void registerHeadHandler(const std::string& urlDescriptor
-        , HandlerFunction associatedFunction
+        , HandlerFunction<ControllerImplementation> associatedFunction
         , ControllerImplementation& controllerImplementation) {
       _headHandlers[urlDescriptor] =
           std::make_shared<WebAppHandlerRegistration<HttpRequest, HttpResponse, ControllerImplementation>>(
@@ -110,7 +109,7 @@ namespace HarborCLS {
 
     template<typename ControllerImplementation>
     void registerTraceHandler(const std::string& urlDescriptor
-        , HandlerFunction associatedFunction
+        , HandlerFunction<ControllerImplementation> associatedFunction
         , ControllerImplementation& controllerImplementation) {
       _traceHandlers[urlDescriptor] =
           std::make_shared<WebAppHandlerRegistration<HttpRequest, HttpResponse, ControllerImplementation>>(
@@ -120,7 +119,7 @@ namespace HarborCLS {
 
     template<typename ControllerImplementation>
     void registerConnectHandler(const std::string& urlDescriptor
-        , HandlerFunction associatedFunction
+        , HandlerFunction<ControllerImplementation> associatedFunction
         , ControllerImplementation& controllerImplementation) {
       _connectHandlers[urlDescriptor] =
           std::make_shared<WebAppHandlerRegistration<HttpRequest, HttpResponse, ControllerImplementation>>(
@@ -130,7 +129,7 @@ namespace HarborCLS {
 
     template<typename ControllerImplementation>
     void registerPatchHandler(const std::string& urlDescriptor
-        , HandlerFunction associatedFunction
+        , HandlerFunction<ControllerImplementation> associatedFunction
         , ControllerImplementation& controllerImplementation) {
       _patchHandlers[urlDescriptor] =
           std::make_shared<WebAppHandlerRegistration<HttpRequest, HttpResponse, ControllerImplementation>>(

@@ -12,14 +12,20 @@ std::optional<LegoPiece> readLegoPiece(std::ifstream& file);
 
 std::vector<std::string> LegoInMemoryRepository::getAllNames() {
   std::vector<std::string> names;
-  for (auto& figure : _legoFigures) {
-    names.push_back(figure.figureName);
+  for (auto& figure : _legoFigureMap) {
+    names.push_back(figure.first);
   }
   return names;
 }
 
-std::vector<LegoFigure>& LegoInMemoryRepository::getAllFigures() {
-  return _legoFigures;
+std::vector<LegoFigure> LegoInMemoryRepository::getAllFigures() {
+  std::vector<LegoFigure> legoFigures;
+
+  for (auto& figure : _legoFigureMap) {
+    legoFigures.push_back(figure.second);
+  }
+
+  return legoFigures;
 }
 
 LegoInMemoryRepository::LegoInMemoryRepository() {
@@ -48,9 +54,17 @@ LegoInMemoryRepository::LegoInMemoryRepository() {
   while (legoFile) {
     std::optional<LegoFigure> figure = readLegoFigure(legoFile);
     if (figure.has_value()) {
-      _legoFigures.push_back(figure.value());
+      _legoFigureMap[figure.value().figureName] = figure.value();
     }
   }
+}
+
+std::optional<std::reference_wrapper<LegoFigure>> LegoInMemoryRepository::getFigureByName(const std::string &name) {
+  if (!_legoFigureMap.contains(name)) {
+    return std::nullopt;
+  }
+
+  return _legoFigureMap[name];
 }
 
 

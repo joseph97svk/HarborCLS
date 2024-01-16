@@ -24,7 +24,8 @@ namespace HarborCLS {
     std::optional<BaseView> _view {};
 
   public:
-    using HandlerFunction = std::function<std::optional<std::shared_ptr<ResponseType>>(std::shared_ptr<RequestType>)>;
+    template<typename ControllerImplementation>
+    using HandlerFunction = std::optional<std::shared_ptr<ResponseType>> (ControllerImplementation::*)(std::shared_ptr<RequestType>);
 
     enum class ControllerError {
       GENERIC_ERROR,

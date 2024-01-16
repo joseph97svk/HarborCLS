@@ -1,16 +1,16 @@
 //
-// Created by josephvalverde on 1/12/24.
+// Created by josephvalverde on 1/15/24.
 //
 
-#ifndef HARBOR_CLS_ROUTINGMAPSERVICE_HPP
-#define HARBOR_CLS_ROUTINGMAPSERVICE_HPP
+#ifndef HARBOR_CLS_ROUTINGMAP_HPP
+#define HARBOR_CLS_ROUTINGMAP_HPP
 
 #include <mutex>
 #include <unordered_map>
 
-#include "../../LegoFigureMakerCommon/ServerRoutingInfo.hpp"
+#include "../../../LegoFigureMakerCommon/ServerRoutingInfo.hpp"
 
-class RoutingMapService {
+class RoutingMap {
   using RoutingMapIterator = std::unordered_map<std::string, ServerRoutingInfo>::iterator;
 
   std::unordered_map<std::string, ServerRoutingInfo> _routingMap;
@@ -28,8 +28,6 @@ public:
 
   void erase(std::string& figure);
 
-  std::string toString();
-
   void erase(std::pair<std::string, int>& pairToDelete);
 
   void erase(const ServerRoutingInfo& routingInfo);
@@ -39,4 +37,5 @@ public:
   RoutingMapIterator end() ;
 };
 
-#endif //HARBOR_CLS_ROUTINGMAPSERVICE_HPP
+
+#endif //HARBOR_CLS_ROUTINGMAP_HPP

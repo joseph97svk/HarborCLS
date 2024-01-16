@@ -52,7 +52,8 @@ namespace HarborCLS {
     }
 
     void replace(const std::string& key, const std::string& value) {
-      _replacements.emplace_back(key, value);
+      std::string replacementTag = "{" + key + "}";
+      _replacements.emplace_back(replacementTag, value);
     }
 
   protected:

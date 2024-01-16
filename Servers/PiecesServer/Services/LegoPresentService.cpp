@@ -77,13 +77,5 @@ inline std::vector<char> LegoPresentService::createPresenceMessage(
     message.push_back(SEPARATOR);
   }
 
-  std::cout << "Message: " << std::endl;
-
-  for (char c : message) {
-    std::cout << c;
-  }
-
-  std::cout << std::endl;
-
   return message;
 }

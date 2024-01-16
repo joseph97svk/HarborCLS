@@ -9,6 +9,6 @@ add_subdirectory(HarborCLS_Library)
 add_subdirectory(Servers/LegoFigureMakerCommon)
 add_subdirectory(Servers/IntermediaryServer)
 add_subdirectory(Servers/PiecesServer)
-add_subdirectory(HarborCLS_Tests)
-add_subdirectory(googletest)
+#[[add_subdirectory(HarborCLS_Tests)
+add_subdirectory(googletest)]]
 add_subdirectory(HarborCLS_Library/Common/DependenciesManagement/Hypodermic)

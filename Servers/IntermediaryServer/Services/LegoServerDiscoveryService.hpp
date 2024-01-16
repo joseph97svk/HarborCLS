@@ -32,7 +32,7 @@ public:
     std::string ip;
 
     auto container = _dependencyResolver.createScopedContainer();
-    std::shared_ptr<RoutingMapService> routingMapService = container->resolve<RoutingMapService>();
+    std::shared_ptr<RoutingService> routingMapService = container->resolve<RoutingService>();
 
     this->setSetUpSequence([=, this](BaseWebAppService& app) {
       _broadcastListener = std::make_shared<BroadcastListener>(

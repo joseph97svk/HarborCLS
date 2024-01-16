@@ -23,6 +23,13 @@ namespace HarborCLS {
      * @return json string of serialized data
      */
     virtual std::string serialize() = 0;
+
+    /**
+     * @brief Get jsonTo value at key
+     * @param key or name of field in jason
+     * @return a std::nullopt if key does not exist or jsonfile not created successfully, otherwise the value at key
+     */
+    [[nodiscard]] virtual std::optional<std::string> jsonAt(const std::string &key) = 0;
   };
 }
 

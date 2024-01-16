@@ -8,6 +8,8 @@
 #include <string>
 namespace HarborCLS {
   struct ServerConfiguration {
+    std::string configurationFilePath {};
+
     unsigned int port{8017};
 
     unsigned int requestHandlerAmount{1};

@@ -1,10 +1,11 @@
 {
-  "port": 8085,
+  "port": 8001,
   "requestHandlerAmount": 1,
   "applicationHandlerAmount": 1,
   "responseHandlerAmount": 1,
   "requestsQueueSize": 16,
   "sslCertFileName": "Servers/IntermediaryServer/cert.crt",
   "sslKeyFileName": "Servers/IntermediaryServer/key.key",
-  "LoggerConfiguration:LoggerFilePath": "Servers/IntermediaryServer/Logs/Log.txt"
+  "LoggerConfiguration:LoggerFilePath": "Servers/IntermediaryServer/Logs/Log.txt",
+  "faviconPath": "Servers/IntermediaryServer/Resources/chickiIcon.ico"
 }

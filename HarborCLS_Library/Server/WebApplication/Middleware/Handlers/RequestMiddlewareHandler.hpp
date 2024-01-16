@@ -57,6 +57,13 @@ namespace HarborCLS {
 
       *handlingData >> requestData;
 
+      // ignore empty requests
+      if (std::all_of(requestData.begin(), requestData.end(), [](char c) { return c == '\0'; })) {
+        return;
+      }
+
+      std::string requestString(requestData.begin(), requestData.end());
+
       ProducingType request = _requestParser->createRequest(requestData, handlingData);
 
       _requestsQueue.push(MiddlewareMessage<ProducingType>(request));
