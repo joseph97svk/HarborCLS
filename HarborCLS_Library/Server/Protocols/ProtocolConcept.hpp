@@ -10,10 +10,8 @@ concept ServerProtocol = requires {
   typename ProtocolType::SocketType;
   typename ProtocolType::RequestType;
   typename ProtocolType::ResponseType;
-  typename ProtocolType::RequestParserInterface;
   typename ProtocolType::RequestParserType;
-  typename ProtocolType::ResponseHeaderComposerInterface;
-  typename ProtocolType::ResponseHeaderComposerType;
+  typename ProtocolType::ResponseComposerType;
 };
 
 #endif //HARBOR_CLS_PROTOCOLCONCEPT_HPP

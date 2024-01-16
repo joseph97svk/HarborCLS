@@ -22,12 +22,12 @@ namespace HarborCLS {
     std::string host;
     host.resize(256);
 
-    gethostname(host.data(), sizeof(host));
+    gethostname(host.data(), host.size());
 
-    struct hostent *hostentry = gethostbyname(host.data());
+    struct hostent *hostEntry = gethostbyname(host.data());
 
     host.clear();
-    host = inet_ntoa(*((struct in_addr *) hostentry->h_addr_list[0]));
+    host = inet_ntoa(*((struct in_addr *) hostEntry->h_addr_list[0]));
 
     return host;
   }
@@ -60,6 +60,12 @@ namespace HarborCLS {
     ss << std::put_time(std::localtime(&now_c), "%F");
 
     return ss.str();
+  }
+
+  [[nodiscard]] inline static std::vector<char> transformStringIntoCharVector(std::string& string) noexcept {
+    std::vector <char> vector (string.begin(), string.end());
+
+    return vector;
   }
 }
 #endif

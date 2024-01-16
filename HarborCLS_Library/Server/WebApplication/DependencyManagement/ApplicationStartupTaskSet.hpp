@@ -9,20 +9,21 @@
 
 #include "Task.hpp"
 #include "LivingTask.hpp"
+#include "ContainerBundle.hpp"
 
 namespace HarborCLS {
 
   template<typename DependencyProviderContainer, ServerProtocol Protocol>
   class ApplicationStartupTaskSet {
-    std::shared_ptr<DependencyProviderContainer> _container;
+    std::optional<ContainerBundle<DependencyProviderContainer>> _container { std::nullopt };
 
-    std::vector<std::unique_ptr<ITask<DependencyProviderContainer>>> _initTasks;
-    std::vector<std::unique_ptr<ILivingTask<Protocol, DependencyProviderContainer>>> _livingTasks;
+    std::vector<std::unique_ptr<ITask<DependencyProviderContainer>>> _initTasks {};
+    std::vector<std::unique_ptr<ILivingTask<Protocol, DependencyProviderContainer>>> _livingTasks {};
 
-    std::shared_ptr<std::vector<std::shared_ptr<BaseWebAppService<Protocol>>>> _services;
+    std::shared_ptr<std::vector<std::shared_ptr<BaseWebAppService<Protocol>>>> _services {};
 
   public:
-    void addContainer(std::shared_ptr<DependencyProviderContainer> container) {
+    void addContainer(ContainerBundle<DependencyProviderContainer> container) {
       this->_container = container;
     }
 
@@ -40,7 +41,7 @@ namespace HarborCLS {
       }
 
       for (auto &task: _initTasks) {
-        task->run(_container);
+        task->run(*(_container->_tasksContainer));
       }
     }
 
@@ -50,7 +51,7 @@ namespace HarborCLS {
       }
 
       for (auto &task: _livingTasks) {
-        task->set(_container);
+        task->set(*(_container->_tasksContainer));
       }
     }
 

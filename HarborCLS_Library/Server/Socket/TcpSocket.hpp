@@ -13,26 +13,10 @@
 #include "SSL/SSLController.hpp"
 #include "../../Common/common.hpp"
 
-#include "../../Common/Error.hpp"
+#include "SocketError.hpp"
 
 
 namespace HarborCLS {
-  enum class SocketErrors {
-    OK = 0,
-    GENERIC_ERROR,
-    SOCKET_CREATION_ERROR,
-    SOCKET_CONNECTION_ERROR,
-    SOCKET_BIND_ERROR,
-    SOCKET_LISTEN_ERROR,
-    SOCKET_ACCEPT_ERROR,
-    SOCKET_READ_ERROR,
-    SOCKET_WRITE_ERROR,
-    SOCKET_TIMEOUT_ERROR,
-    SOCKET_FAILED_TO_GET_ADDRESS
-  };
-
-  using SocketError = Error<SocketErrors>;
-
   class TcpSocket {
     int _socketId;
 
@@ -154,6 +138,8 @@ namespace HarborCLS {
     void setTimeout(size_t seconds, size_t microseconds) const;
 
     [[nodiscard]] bool isIpV6() const noexcept;
+
+    std::expected<Success, Error<SocketErrors>> sendDecoyConnection(std::string &ip, int port) const;
 
   private:
     void setSocket();

@@ -22,17 +22,13 @@ namespace HarborCLS {
   public:
     explicit WebServiceDispatchService(std::shared_ptr<ControllerManager<Protocol>> controllerManager)
         : BaseWebAppService<Protocol>()
-        , _controllerManager(controllerManager) {}
-
-    void release() override {
-      // no special loop to be released is present, so nothing to do here
-    }
+        , _controllerManager(controllerManager) { }
 
     bool canHandle(std::shared_ptr<RequestType> request) override {
       return false;
     }
 
-    MiddlewareMessage<std::shared_ptr<ResponseType>> handleTask(
+    std::optional<MiddlewareMessage<std::shared_ptr<ResponseType>>> handleTask(
         std::shared_ptr<RequestType> request) override {
       if (_controllerManager.get() == nullptr) {
         return MiddlewareMessage<std::shared_ptr<ResponseType>>(
@@ -40,8 +36,6 @@ namespace HarborCLS {
                 "Controller manager could not be resolved. MVC option was not selected for web application."
                 , MessageErrors::NON_REGISTERED_SERVICE));
       }
-
-      std::cout << request->header.url << std::endl;
 
       std::optional<std::shared_ptr<BaseController<Protocol>>> controller
           = _controllerManager->getController(request->header.url);
@@ -54,7 +48,7 @@ namespace HarborCLS {
           std::shared_ptr<ResponseType>>
           , Error<typename BaseController<Protocol>::ControllerError>
           > result =
-          controller.value()->processRequest(request, "");
+          controller.value()->processRequest(request, this->getHandler(request->header.url));
 
       if (!result) {
         return MiddlewareMessage<std::shared_ptr<ResponseType>>(
@@ -81,6 +75,29 @@ namespace HarborCLS {
       response->contentLength = body.length();
 
       return MiddlewareMessage<std::shared_ptr<ResponseType>>(response);
+    }
+
+  protected:
+    static std::string getHandler(std::string_view url) {
+      std::string_view handler = url;
+
+      if (handler[0] == '/') {
+        handler.remove_prefix(1);
+      }
+
+      if (handler.empty()) {
+        return {};
+      }
+
+      std::string handlerString = "?handler=";
+
+      size_t handlerDescriptorPosition = handler.find(handlerString);
+
+      if (handlerDescriptorPosition != std::string::npos) {
+        handler.remove_suffix(handlerString.length());
+      }
+
+      return std::string(handler);
     }
   };
 }

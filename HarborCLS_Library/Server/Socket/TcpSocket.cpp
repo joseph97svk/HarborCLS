@@ -285,7 +285,7 @@ namespace HarborCLS {
     }
 
     if (::bind(_socketId, (sockaddr *) ha, size) == -1) {
-      throw std::runtime_error("TcpSocket::bind: Failed to bind to port");
+      throw std::runtime_error("TcpSocket::bind: Failed to bind to port: " + std::to_string(portToBindTo));
     }
   }
 
@@ -360,5 +360,9 @@ namespace HarborCLS {
 
   [[nodiscard]] bool TcpSocket::isIpV6() const noexcept {
     return _ipv6;
+  }
+
+  std::expected<Success, Error<SocketErrors>> TcpSocket::sendDecoyConnection(std::string &ip, int port) const {
+    return this->connect(ip, port);
   }
 }

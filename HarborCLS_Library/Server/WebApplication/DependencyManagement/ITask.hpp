@@ -12,7 +12,7 @@ namespace HarborCLS {
   template<typename DependencyProviderContainer>
   class ITask {
   public:
-    virtual void run(std::shared_ptr<DependencyProviderContainer> container) = 0;
+    virtual void run(DependencyProviderContainer& container) = 0;
 
     virtual ~ITask() = default;
   };

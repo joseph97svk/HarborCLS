@@ -5,9 +5,9 @@
 #ifndef HARBOR_CLS_IREQUESTPARSER_HPP
 #define HARBOR_CLS_IREQUESTPARSER_HPP
 
-#include <memory>
+#include "../../../../../../../usr/include/c++/13/memory"
 
-#include "../HttpMessages/Request/HttpRequest.hpp"
+#include "../Http/HttpMessages/Request/HttpRequest.hpp"
 
 namespace HarborCLS {
 
@@ -16,9 +16,9 @@ namespace HarborCLS {
   public:
     virtual ~IRequestParser() = default;
 
-    [[nodiscard]] virtual std::shared_ptr<RequestType> createHttpRequest(
+    [[nodiscard]] virtual std::shared_ptr<RequestType> createRequest(
         std::vector<char> &request,
-        std::shared_ptr<SocketType>) = 0;
+        std::shared_ptr<SocketType> socket) = 0;
   };
 }
 #endif //HARBOR_CLS_IREQUESTPARSER_HPP

@@ -50,9 +50,10 @@ namespace HarborCLS {
     return body;
   }
 
-  [[nodiscard]] std::shared_ptr<HttpRequest> HttpRequestParser::createHttpRequest(std::vector<char> &request,
-                                                                                  std::shared_ptr<TcpSocket> socket) {
-    auto separatorLocation = std::search(request.begin(), request.end(), HttpMappings::separator.begin(),
+  [[nodiscard]] std::shared_ptr<HttpRequest> HttpRequestParser::createRequest(std::vector<char> &request,
+                                                                              std::shared_ptr<TcpSocket> socket) {
+    auto separatorLocation
+        = std::search(request.begin(), request.end(), HttpMappings::separator.begin(),
                                          HttpMappings::separator.end());
 
     std::string headerString(request.begin(), separatorLocation);
@@ -60,7 +61,8 @@ namespace HarborCLS {
 
     std::string bodyType = header.fields[HttpMappings::HeaderField::contentType];
 
-    std::shared_ptr<std::variant<std::string, std::vector<char>>> body = getBody(bodyType, separatorLocation, request);
+    std::shared_ptr<std::variant<std::string, std::vector<char>>> body
+        = getBody(bodyType, separatorLocation, request);
 
     return std::make_shared<HttpRequest>(
         socket,

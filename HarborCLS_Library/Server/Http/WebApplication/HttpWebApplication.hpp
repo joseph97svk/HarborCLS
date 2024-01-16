@@ -30,6 +30,7 @@ namespace HarborCLS {
 
     void addMVC() {
       _dependencyManager.addInstance<ControllerManager<HttpProtocol>>(_controllerManager);
+      _dependencyManager.template addLivingTask<WebServiceDispatchService<HttpProtocol>>();
     }
 
     void addPictureManager() {

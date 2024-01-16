@@ -5,7 +5,7 @@
 #include <gtest/gtest.h>
 
 #include "../../HarborCLS_Library/Server/Http/HttpMessages/Request/HttpRequest.hpp"
-#include "../../HarborCLS_Library/Server/Http/HttpRequestParser/IRequestParser.hpp"
+#include "Server/Protocols/IRequestParser.hpp"
 #include "../../HarborCLS_Library/Server/Socket/TcpSocket.hpp"
 #include "Server/Http/HttpRequestParser/HttpRequestParser.hpp"
 
@@ -38,7 +38,7 @@ TEST_F(HttpParserTests, headerMethodIsParsedCorrectly) {
   std::unique_ptr<HarborCLS::IRequestParser<HarborCLS::TcpSocket, HarborCLS::HttpRequest>> parser =
       std::make_unique<HarborCLS::HttpRequestParser>();
 
-  std::shared_ptr<HarborCLS::HttpRequest> httpRequest = parser->createHttpRequest(request, socket);
+  std::shared_ptr<HarborCLS::HttpRequest> httpRequest = parser->createRequest(request, socket);
 
   ASSERT_EQ(httpRequest->header.method, HarborCLS::HttpMappings::Method::GET);
 }
@@ -47,7 +47,7 @@ TEST_F(HttpParserTests, headerPathIsParsedCorrectly) {
   std::unique_ptr<HarborCLS::IRequestParser<HarborCLS::TcpSocket, HarborCLS::HttpRequest>> parser =
       std::make_unique<HarborCLS::HttpRequestParser>();
 
-  std::shared_ptr<HarborCLS::HttpRequest> httpRequest = parser->createHttpRequest(request, socket);
+  std::shared_ptr<HarborCLS::HttpRequest> httpRequest = parser->createRequest(request, socket);
 
   ASSERT_EQ(httpRequest->header.url, "/");
 }
@@ -56,7 +56,7 @@ TEST_F(HttpParserTests, headerVersionIsParsedCorrectly) {
   std::unique_ptr<HarborCLS::IRequestParser<HarborCLS::TcpSocket, HarborCLS::HttpRequest>> parser =
       std::make_unique<HarborCLS::HttpRequestParser>();
 
-  std::shared_ptr<HarborCLS::HttpRequest> httpRequest = parser->createHttpRequest(request, socket);
+  std::shared_ptr<HarborCLS::HttpRequest> httpRequest = parser->createRequest(request, socket);
 
   ASSERT_EQ(httpRequest->header.httpVersion, "HTTP/1.1");
 }
@@ -78,7 +78,7 @@ TEST_F(HttpParserTests, bodyTypeIsParsedCorrectlyForImages) {
   std::unique_ptr<HarborCLS::IRequestParser<HarborCLS::TcpSocket, HarborCLS::HttpRequest>> parser =
       std::make_unique<HarborCLS::HttpRequestParser>();
 
-  std::shared_ptr<HarborCLS::HttpRequest> httpRequest = parser->createHttpRequest(request, socket);
+  std::shared_ptr<HarborCLS::HttpRequest> httpRequest = parser->createRequest(request, socket);
 
   ASSERT_EQ(std::holds_alternative<std::vector<char>>(*httpRequest->body), true);
 }
@@ -87,7 +87,7 @@ TEST_F(HttpParserTests, bodyTypeIsParsedCorrectly) {
   std::unique_ptr<HarborCLS::IRequestParser<HarborCLS::TcpSocket, HarborCLS::HttpRequest>> parser =
       std::make_unique<HarborCLS::HttpRequestParser>();
 
-  std::shared_ptr<HarborCLS::HttpRequest> httpRequest = parser->createHttpRequest(request, socket);
+  std::shared_ptr<HarborCLS::HttpRequest> httpRequest = parser->createRequest(request, socket);
 
   ASSERT_EQ(std::holds_alternative<std::string>(*httpRequest->body), true);
 }
@@ -96,7 +96,7 @@ TEST_F(HttpParserTests, bodyIsParsedCorrectly) {
   std::unique_ptr<HarborCLS::IRequestParser<HarborCLS::TcpSocket, HarborCLS::HttpRequest>> parser =
       std::make_unique<HarborCLS::HttpRequestParser>();
 
-  std::shared_ptr<HarborCLS::HttpRequest> httpRequest = parser->createHttpRequest(request, socket);
+  std::shared_ptr<HarborCLS::HttpRequest> httpRequest = parser->createRequest(request, socket);
 
   ASSERT_EQ(std::get<std::string>(*httpRequest->body), "Hello World!");
 }

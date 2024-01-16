@@ -10,11 +10,18 @@
 #include <span>
 
 #include <netinet/in.h>
+#include <expected>
+
+
+#include "SocketError.hpp"
+#include "Common/Error.hpp"
 
 namespace HarborCLS {
 
   class UDPSocket {
-    int socketId;
+    int _socketId;
+
+    bool _ipv6;
 
   public:
     /**
@@ -23,13 +30,17 @@ namespace HarborCLS {
      */
     explicit UDPSocket(bool ipv6 = false);
 
+    ~UDPSocket();
+
     /**
      * @brief temporary object to ease comunications
      */
     class UdpStream {
-      UDPSocket &udpSocket;
-      sockaddr_in sockInfo;
-      bool broadcast;
+      UDPSocket& _udpSocket;
+      sockaddr_in _sockInfo;
+      bool _broadcast;
+
+      size_t _readBufferSize;
 
     public:
       /**
@@ -39,7 +50,7 @@ namespace HarborCLS {
        * @param port
        * @param broadcast
        */
-      UdpStream(UDPSocket &udpSocket, std::string &ip, int port, bool broadcast);
+      UdpStream(UDPSocket &udpSocket, std::string &ip, int port, bool broadcast, size_t readBufferSize);
 
       /**
        * @brief Sends the given data to the ip and port specified in the constructor.
@@ -74,7 +85,13 @@ namespace HarborCLS {
      * @param port to send data to or receive data from
      * @return UdpStream object
      */
-    UdpStream operator[](std::string &ip, int port);
+    UdpStream operator[](std::string ip, int port, size_t readBufferSize = 1024);
+
+    std::expected<Success, SocketError> sendDecoyConnection(std::string &ip, int port);
+
+    void bind(unsigned int portToBindTo) const;
+
+    [[nodiscard]] bool isIpV6() const;
 
   private:
     void setBroadcast(bool broadcast) const;

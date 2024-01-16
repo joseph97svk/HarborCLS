@@ -36,7 +36,6 @@ namespace HarborCLS {
   private:
     void optionalToEnd() override {
       for (auto& service : *_services) {
-        service->release();
         service->getEntryQueue().push(StopCondition());
         service->waitToFinish();
       }

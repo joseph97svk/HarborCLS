@@ -29,7 +29,7 @@ namespace HarborCLS {
 
     std::string contentTypeAdditionalInfo{};
 
-    unsigned long contentLength{0};
+    std::optional<unsigned long> contentLength {std::nullopt};
 
     std::variant<std::string, std::vector<char>> body;
 

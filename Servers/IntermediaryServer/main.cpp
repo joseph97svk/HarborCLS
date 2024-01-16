@@ -5,27 +5,20 @@
 #include <iostream>
 #include <csignal>
 
-#include "../../HarborCLS_Library/Server/Http/HttpServer.hpp"
-#include "../../HarborCLS_Library/Server/Http/WebApplication/HttpWebApplication.hpp"
+#include <HarborCLS.hpp>
 
 #include "Pages/MainPage.hpp"
 
-void signalHandler(int signal) {
-  HarborCLS::HttpServer::getInstance().stopServer();
-}
+#include "../LegoFigureMakerCommon/Services/StartUpPresenceNotificationService.hpp"
 
-class HelloWorld {
-public:
-  void sayHello() {
-    std::cout << "Hello World!" << std::endl;
-  }
-};
+#include "Services/LegoDiscoverService.hpp"
+#include "Services/RoutingMapService.hpp"
+#include "Services/LegoServerDiscoveryService.hpp"
 
 int main() {
-  signal(SIGINT, signalHandler);
-  signal(SIGKILL, signalHandler);
-
   HarborCLS::HttpServer& server = HarborCLS::HttpServer::getInstance();
+
+  server.addControlledShutdown(SIGINT, SIGKILL);
 
   std::string path = "Servers/IntermediaryServer/Configuration.json";
 
@@ -35,12 +28,22 @@ int main() {
   auto& services = intermediaryServer->manageDependencies();
 
   intermediaryServer->addMVC();
-  intermediaryServer->addPictureManager();
   intermediaryServer->addFaviconManager();
 
   intermediaryServer->addController<MainPage>("/");
 
-  services.addOnStart<HelloWorld>(&HelloWorld::sayHello);
+  services.addSingleton<RoutingMapService>();
+
+  services.addOnStart<LegoDiscoverService>(&LegoDiscoverService::broadcastPresence);
+
+  std::shared_ptr<HarborCLS::BuilderReferenceWrapper<HarborCLS::HttpProtocol>> builderReferenceWrapper =
+      std::make_shared<HarborCLS::BuilderReferenceWrapper<HarborCLS::HttpProtocol>>(services);
+
+  services.addInstance(builderReferenceWrapper);
+
+  services.addLivingTask<LegoServerDiscoveryService>();
+
+  services.addScoped<StartUpPresenceNotificationService>();
 
   intermediaryServer->addConfiguration(path);
 
@@ -52,3 +55,5 @@ int main() {
     std::cout << "Server Fatal error - " << e.what() << std::endl;
   }
 }
+
+

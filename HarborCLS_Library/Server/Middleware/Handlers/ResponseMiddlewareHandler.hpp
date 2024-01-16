@@ -7,23 +7,24 @@
 
 #include "Server/Middleware/Handler.hpp"
 #include "../../Http/HttpMessages/Reponse/HttpResponse.hpp"
-#include "../../Http/ResponseHeaderComposer/IResponseHeaderComposer.hpp"
+#include "Server/Protocols/IResponseComposer.hpp"
 #include "../../Protocols/ProtocolConcept.hpp"
 
 namespace HarborCLS {
 
   template<ServerProtocol Protocol>
-  class ResponseMiddlewareHandler : public Handler<std::shared_ptr<HttpResponse>> {
+  class ResponseMiddlewareHandler : public Handler<std::shared_ptr<typename Protocol::ResponseType>> {
     using ConsumingType = std::shared_ptr<typename Protocol::ResponseType>;
+    using ComposerType = IResponseComposer<typename Protocol::ResponseType>;
 
-    std::shared_ptr<IResponseHeaderComposer> _headerComposer;
+    std::shared_ptr<ComposerType> _responseComposer;
 
   public:
     explicit ResponseMiddlewareHandler(MiddlewareBlockingQueue<ConsumingType>& consumingQueue
-                                       , std::shared_ptr<IResponseHeaderComposer> headerComposer
+                                       , std::shared_ptr<ComposerType> responseComposer
                                        , std::shared_ptr<ILogger> logger)
-        : Handler(consumingQueue, std::move(logger))
-        , _headerComposer(std::move(headerComposer))
+        : Handler <std::shared_ptr<typename Protocol::ResponseType>> (consumingQueue, std::move(logger))
+        , _responseComposer(std::move(responseComposer))
     {}
 
   private:
@@ -31,19 +32,16 @@ namespace HarborCLS {
 
     }
 
-    void handleSingle(ConsumingType handlingData) override{
-      std::string header = std::move(_headerComposer->composeHeader(handlingData));
+    void handleSingle(ConsumingType handlingData) override {
+      if (handlingData == nullptr) {
+        this->_logger->error(
+            "Handling data passed as response is null. Either do not respond or pass a valid response."
+            );
 
-      std::vector<char> responseVector(header.begin(), header.end());
+        return;
+      }
 
-      std::visit(overloaded{
-          [&responseVector](std::string &str) {
-            responseVector.insert(responseVector.end(), str.begin(), str.end());
-          },
-          [&responseVector](std::vector<char> &vec) {
-            responseVector.insert(responseVector.end(), vec.begin(), vec.end());
-          }
-      }, handlingData->body);
+      std::vector<char> responseVector = std::move(_responseComposer->compose(*handlingData));
 
       *handlingData->socket << responseVector;
     };

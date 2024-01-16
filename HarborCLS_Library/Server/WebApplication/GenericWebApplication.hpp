@@ -32,7 +32,8 @@ namespace HarborCLS {
     using SocketType = typename Protocol::SocketType;
     using RequestType = typename Protocol::RequestType;
     using ResponseType = typename Protocol::ResponseType;
-    using RequestParserInterface = typename Protocol::RequestParserInterface;
+
+    using RequestParserInterface = IRequestParser<SocketType, RequestType>;
 
     std::shared_ptr<SocketType> _socket {};
     std::optional<ConnectionListener<SocketType>> _tcpListener {};
@@ -132,9 +133,9 @@ namespace HarborCLS {
 
       _tcpListener->start();
 
-      auto tasksContainer = _dependencyManager.getApplicationStartupTaskSet();
+      auto& tasksContainer = _dependencyManager.getApplicationStartupTaskSet();
       std::shared_ptr<std::vector<std::shared_ptr<BaseWebAppService<Protocol>>>> livingTasks
-          = tasksContainer->getLivingTasks();
+          = tasksContainer.getLivingTasks();
 
       for (auto &livingTask: *livingTasks) {
         livingTask->start();
@@ -148,7 +149,7 @@ namespace HarborCLS {
         applicationHandler.start();
       }
 
-      tasksContainer->runInitTasks();
+      tasksContainer.runInitTasks();
     }
 
     /**
@@ -189,8 +190,6 @@ namespace HarborCLS {
 
   protected:
     inline void startResources(std::shared_ptr<RequestParserInterface> requestParser) {
-      _dependencyManager.template addLivingTask<WebServiceDispatchService<Protocol>>();
-
       std::string sslCertPath = _configuration.sslCertFileName;
       std::string sslKey = _configuration.sslKeyFileName;
 
@@ -213,11 +212,12 @@ namespace HarborCLS {
         );
       }
 
-      auto tasksContainer = _dependencyManager.getApplicationStartupTaskSet();
-      tasksContainer->initLivingTasks();
+      auto& tasksContainer = _dependencyManager.getApplicationStartupTaskSet();
+      tasksContainer.initLivingTasks();
 
       std::shared_ptr<std::vector<std::shared_ptr<BaseWebAppService<Protocol>>>> livingTasks
-          = tasksContainer->getLivingTasks();
+          = tasksContainer.getLivingTasks();
+
       for (auto &livingTask: *livingTasks) {
         livingTask->setWebAppLinking(*_responsesQueue, _logger);
       }

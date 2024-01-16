@@ -22,6 +22,9 @@ namespace HarborCLS {
 
     std::optional<std::reference_wrapper<MiddlewareBlockingQueue<OutgoingMessageType>>> _exitQueue {};
 
+    std::optional<std::function<void(BaseWebAppService&)>> _setUpSequence;
+    std::optional<std::function<void(BaseWebAppService&)>> _tearDownSequence;
+
     std::shared_ptr<ILogger> _logger {};
   public:
     void setWebAppLinking(std::reference_wrapper<MiddlewareBlockingQueue<OutgoingMessageType>> exitQueue
@@ -30,16 +33,30 @@ namespace HarborCLS {
       _logger = std::move(logger);
     }
 
-    virtual void release() = 0;
-
     virtual bool canHandle(IncomingMessageType request) = 0;
 
     MiddlewareBlockingQueue<IncomingMessageType>& getEntryQueue() {
       return _entryQueue;
     }
 
+    void setSetUpSequence(std::function<void(BaseWebAppService&)> setUpSequence) {
+      _setUpSequence = std::move(setUpSequence);
+    }
+
+    void setTearDownSequence(std::function<void(BaseWebAppService&)> tearDownSequence) {
+      _tearDownSequence = std::move(tearDownSequence);
+    }
+
+    std::shared_ptr<ILogger> getLogger() {
+      return _logger;
+    }
+
   protected:
     void run() override {
+      if (_setUpSequence) {
+        _setUpSequence.value()(*this);
+      }
+
       while (true) {
         MiddlewareMessage<IncomingMessageType> data = _entryQueue.pop();
 
@@ -47,8 +64,12 @@ namespace HarborCLS {
             = data.getContent();
 
         if (content) {
-          MiddlewareMessage<OutgoingMessageType> result = handleTask(content.value());
-          _exitQueue.value().get().push(result);
+          std::optional<MiddlewareMessage<OutgoingMessageType>> result = handleTask(content.value());
+
+          if (result) {
+            _exitQueue.value().get().push(*result);
+          }
+
           continue;
         }
 
@@ -57,14 +78,19 @@ namespace HarborCLS {
               _exitQueue.value().get().push(MiddlewareMessage<OutgoingMessageType>(StopCondition()));
             },
             [this](Error<MessageErrors> &error) {
+              _logger->error(error.what());
             }
         }, content.error());
+
+        if (_tearDownSequence) {
+          _tearDownSequence.value()(*this);
+        }
 
         break;
       }
     }
 
-    [[nodiscard]] virtual MiddlewareMessage<OutgoingMessageType> handleTask(IncomingMessageType message) = 0;
+    [[nodiscard]] virtual std::optional<MiddlewareMessage<OutgoingMessageType>> handleTask(IncomingMessageType message) = 0;
 
     void byPass() {
       _entryQueue.push(MiddlewareMessage<IncomingMessageType>(IncomingMessageType()));
