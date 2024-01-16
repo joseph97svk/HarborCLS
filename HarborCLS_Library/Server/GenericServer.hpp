@@ -5,13 +5,14 @@
 #define HARBOR_CLS_GENERICSERVER_HPP
 
 #include <vector>
+#include <csignal>
 
 #include "Middleware/Handlers/ResponseMiddlewareHandler.hpp"
 #include "../Logger/Logger.hpp"
 #include "Server/WebApplication/GenericWebApplication.hpp"
 #include "../Common/common.hpp"
 #include "../Common/PathManager.hpp"
-#include "Http/HttpBehavior/HttpBehavior.hpp"
+#include "Server/Http/HttpBehavior/ServerBehavior.hpp"
 #include "Server/Http/HttpProtocol.hpp"
 #include "../Logger/LoggerFactory/LoggerFactory.hpp"
 #include "ServerConfiguration.hpp"
@@ -25,7 +26,7 @@ namespace HarborCLS {
     using ResponseType = typename Protocol::ResponseType;
     using RequestParserType = typename Protocol::RequestParserType;
     using ResponseHeaderComposerType = typename Protocol::ResponseComposerType;
-    using ResponseHeaderComposerInterface = IResponseComposer<ResponseType>;
+    using ResponseComposerInterface = IResponseComposer<ResponseType>;
 
     using RequestParserInterface = IRequestParser<typename Protocol::SocketType, typename Protocol::RequestType>;
 
@@ -39,7 +40,7 @@ namespace HarborCLS {
     std::shared_ptr<ILogger> _logger;
 
     std::shared_ptr<RequestParserInterface> _requestParser;
-    std::shared_ptr<ResponseHeaderComposerInterface> _responseHeaderComposer;
+    std::shared_ptr<ResponseComposerInterface> _responseHeaderComposer;
   public:
     /*
      * @brief returns the instance of the server
@@ -64,7 +65,7 @@ namespace HarborCLS {
      * @brief sets the behaviour on how http requests and responses are handled
      * @param configuration instance of HttpBehavior with the desired behaviour
      */
-    void setHttpBehaviour(HttpBehavior<Protocol> &httpBehavior) {
+    void setBehaviour(ServerBehavior<Protocol> &httpBehavior) {
       _requestParser = httpBehavior.requestParser;
       _responseHeaderComposer = httpBehavior.responseHeaderComposer;
     }
@@ -97,13 +98,31 @@ namespace HarborCLS {
      * Stops the operation of the server
      */
     void stopServer() {
-      _logger->info("Stopping server");
+      std::cout << std::endl;
+      _logger->warning("Stopping server");
 
       for (std::shared_ptr<GenericWebApplication<Protocol>>& webApplication : _webApplications) {
         webApplication->stopApplication();
       }
 
       _logger->info("Server terminated");
+    }
+
+    template<typename... Args>
+    void addControlledShutdown(int first, Args... args) {
+      signal(first, [](int signal) {
+        GenericServer::getInstance().stopServer();
+      });
+
+      if constexpr (sizeof...(args) > 0) {
+        addControlledShutdown(args...);
+      }
+    }
+
+    void addControlledShutdown(int first) {
+      signal(first, [](int signal) {
+        GenericServer::getInstance().stopServer();
+      });
     }
 
   protected:

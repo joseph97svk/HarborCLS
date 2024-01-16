@@ -22,6 +22,8 @@
 #include "Server/Middleware/Listener.hpp"
 #include "Server/Middleware/MiddlewareMessage.hpp"
 
+#include "Server/WebApplication/DependencyManagement/BuilderReferenceWrapper.hpp"
+
 // for all logger related includes
 #include "Logger/LoggerFactory/LoggerFactory.hpp"
 

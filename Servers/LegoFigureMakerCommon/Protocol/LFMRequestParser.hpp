@@ -9,7 +9,7 @@
 
 #include "LFMRequest.hpp"
 
-class LFMRequestParser : HarborCLS::IRequestParser<HarborCLS::TcpSocket, LFMRequest> {
+class LFMRequestParser : public HarborCLS::IRequestParser<HarborCLS::TcpSocket, LFMRequest> {
 public:
   [[nodiscard]] std::shared_ptr<LFMRequest> createRequest(
       std::vector<char> &request,

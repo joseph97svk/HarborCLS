@@ -6,6 +6,7 @@
 #define HARBOR_CLS_BROADCASTLISTENER_HPP
 
 #include <HarborCLS.hpp>
+#include <utility>
 #include "../../../HarborCLS_Library/Server/Middleware/Listener.hpp"
 #include "../../../HarborCLS_Library/Server/Socket/UdpSocket.hpp"
 
@@ -13,15 +14,15 @@ class BroadcastListener : public HarborCLS::Listener<std::shared_ptr<std::vector
   using ListeningType = std::shared_ptr<std::vector<char>>;
 
   std::string _ip;
-
   int _port;
+
 public:
    BroadcastListener(
       HarborCLS::MiddlewareBlockingQueue<ListeningType>& connectionsQueue
       , std::shared_ptr<HarborCLS::UDPSocket> socket
       , unsigned int stopPort
       , std::shared_ptr<HarborCLS::ILogger> logger
-      , std::string& ip
+      , const std::string ip
       , int port)
       : HarborCLS::Listener<ListeningType , HarborCLS::UDPSocket> (
           connectionsQueue
@@ -29,13 +30,24 @@ public:
           , stopPort
           , std::move(logger))
           , _ip(ip)
-          , _port(port) {}
+          , _port(port) {
+      this->_listeningSocket->bind(_port);
+   }
 
    HarborCLS::MiddlewareMessage<ListeningType> obtain() override {
      ListeningType buffer = std::make_shared<std::vector<char>>();
 
-     std::string ip;
      (*this->_listeningSocket)[_ip, _port] >> *buffer;
+
+     std::string message = std::string(buffer->begin(), buffer->end());
+
+     std::cout << "Received message: " << message << std::endl;
+
+     for (char c : message) {
+       std::cout << (int) c << " ";
+     }
+
+     std::cout << std::endl;
 
      return HarborCLS::MiddlewareMessage<ListeningType>(std::move(buffer));
    }

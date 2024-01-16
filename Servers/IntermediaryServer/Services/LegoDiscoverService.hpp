@@ -22,7 +22,6 @@ public:
       : _startUpPresenceNotificationService(std::move(startUpPresenceNotificationService)) {
   }
 
-
   void broadcastPresence() {
     std::vector<char> message = LegoDiscoverService::createPresenceMessage(
         LegoMessageCode::LEGO_DISCOVER
@@ -65,13 +64,13 @@ protected:
           + broadcastIpBase
           + std::to_string(broadcastIpId + offset);
 
-      targets.emplace_back(broadcastIp, INTERMEDIARY_UDP_PORT);
+      targets.emplace_back(broadcastIp, PIECES_UDP_PORT);
 
       offset += ipDifference;
     }
 
     // broadcast to include same pc
-    targets.emplace_back("", INTERMEDIARY_UDP_PORT);
+    targets.emplace_back("", PIECES_UDP_PORT);
 
     return targets;
   }

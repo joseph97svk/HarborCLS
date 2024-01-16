@@ -2,13 +2,13 @@
 // Created by josephvalverde on 12/18/23.
 //
 
-#ifndef HARBOR_CLS_HTTPBEHAVIOR_HPP
-#define HARBOR_CLS_HTTPBEHAVIOR_HPP
+#ifndef HARBOR_CLS_SERVERBEHAVIOR_HPP
+#define HARBOR_CLS_SERVERBEHAVIOR_HPP
 
 namespace HarborCLS {
 
   template<typename Protocol = HttpProtocol>
-  struct HttpBehavior {
+  struct ServerBehavior {
     using SocketType = typename Protocol::SocketType;
     using RequestType = typename Protocol::RequestType;
 
@@ -17,4 +17,4 @@ namespace HarborCLS {
   };
 }
 
-#endif //HARBOR_CLS_HTTPBEHAVIOR_HPP
+#endif //HARBOR_CLS_SERVERBEHAVIOR_HPP

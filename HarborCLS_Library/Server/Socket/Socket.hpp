@@ -44,14 +44,17 @@ public:
     sockaddr_in sockinfo;
     bool broadcast;
   public:
-    udpStream(Socket& mySocket, std::string& ip, int port, bool broadcast) : socket(mySocket), broadcast(broadcast)
+    udpStream(Socket& mySocket, std::string& ip, int port, bool broadcast)
+        : socket(mySocket)
+        , broadcast(broadcast)
+        , sockinfo()
     {
       memset(&(this->sockinfo), 0, sizeof(sockaddr_in));
       sockinfo.sin_family = AF_INET;
       sockinfo.sin_port = htons(port);
 
       this->broadcast = broadcast;
-      if (ip.size() > 0) {
+      if (!ip.empty()) {
         inet_pton(AF_INET, ip.data(), &(this->sockinfo.sin_addr));
       } else {
         this->sockinfo.sin_addr.s_addr = INADDR_ANY;

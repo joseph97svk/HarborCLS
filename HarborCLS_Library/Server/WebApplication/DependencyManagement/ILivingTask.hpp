@@ -17,7 +17,7 @@ namespace HarborCLS {
   public:
     virtual ~ILivingTask() = default;
 
-    virtual void set(std::shared_ptr<DependencyProviderContainer> container) = 0;
+    virtual void set(DependencyProviderContainer& container) = 0;
 
     virtual std::shared_ptr<BaseWebAppService<Protocol>> get() = 0;
   };

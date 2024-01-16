@@ -10,7 +10,7 @@
 #include "../Services/LegoInMemoryRepository.hpp"
 #include "../../LegoFigureMakerCommon/Protocol/LegoFigureMakerProtocol.hpp"
 
-class LegoDiscoverHandler : HarborCLS::Handler<std::shared_ptr<std::vector<char>>> {
+class LegoDiscoverHandler : public HarborCLS::Handler<std::shared_ptr<std::vector<char>>> {
   std::shared_ptr<ILegoRepository> _legoInMemoryRepository;
 public:
   explicit LegoDiscoverHandler(
@@ -25,13 +25,13 @@ public:
   }
 
   void handleSingle(std::shared_ptr<std::vector<char>> data) override {
-    LegoMessageCode code = static_cast<LegoMessageCode>((*data)[0]);
+    auto code = static_cast<LegoMessageCode>((*data)[0]);
     std::string message(data->begin() + 2, data->end());
 
-    std::string ip = message.substr(0, message.find(SEPARATOR));
-    std::string port = message.substr(message.find(SEPARATOR) + 1, message.size());
+    std::string ip = message.substr(0, message.find(':'));
+    std::string port = message.substr(message.find(':') + 1, message.size());
 
-    std::vector<char> response { LEGO_PRESENT, SEPARATOR };
+    std::vector<char> response { std::to_string(LEGO_PRESENT)[0], SEPARATOR };
 
     std::string ipToSend = HarborCLS::getComputerIp();
     std::string portToSend = std::to_string(PIECES_UDP_PORT);

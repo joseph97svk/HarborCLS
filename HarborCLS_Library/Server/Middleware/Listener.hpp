@@ -112,7 +112,7 @@ namespace HarborCLS {
      */
     void unlockListen() {
       SocketType closingSocket(_listeningSocket->isIpV6());
-      std::string ip = "any ip";
+      std::string ip;
 
       std::expected<Success, SocketError> socketConnection = closingSocket.sendDecoyConnection(ip, _stopPort);
 

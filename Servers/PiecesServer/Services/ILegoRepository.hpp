@@ -12,10 +12,11 @@
 
 class ILegoRepository {
 public:
-    virtual ~ILegoRepository() = default;
-    virtual std::vector<std::string> getAllNames() = 0;
+  virtual ~ILegoRepository() = default;
 
-    virtual std::vector<LegoFigure>& getAllFigures() = 0;
+  virtual std::vector<std::string> getAllNames() = 0;
+
+  virtual std::vector<LegoFigure>& getAllFigures() = 0;
 };
 
 #endif //HARBOR_CLS_ILEGOREPOSITORY_HPP
