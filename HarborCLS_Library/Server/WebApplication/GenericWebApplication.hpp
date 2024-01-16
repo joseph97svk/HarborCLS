@@ -122,10 +122,20 @@ namespace HarborCLS {
      * Initializes the application and starts its operation
      */
     void startApplication(std::shared_ptr<RequestParserInterface> requestParser) {
+      bool configurationSet = _configurationService != nullptr;
+
+      if (!configurationSet) {
+        _configurationService = std::make_shared<Configuration>(ServerConfiguration::createDefaultConfiguration());
+      }
+
       ServerConfiguration& configuration = _configurationService->getConfiguration();
 
       LoggerFactory loggerFactory(configuration.loggerConfiguration);
       _logger = loggerFactory.createLogger();
+
+      if (!configurationSet) {
+        _logger->warning("No configuration provided nor fallback configuration set. Using default configuration.");
+      }
 
       this->startResources(std::move(requestParser));
 

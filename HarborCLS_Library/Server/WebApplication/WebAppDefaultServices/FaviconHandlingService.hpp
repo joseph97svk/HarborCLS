@@ -51,9 +51,13 @@ namespace HarborCLS {
                                     std::istreambuf_iterator<char>());
 
       response->socket = request->socket;
+      response->contentLength = faviconData.size();
+
       response->body = std::move(faviconData);
-      response->contentType = ContentType::ImageXIcon;
+      response->contentType = ContentType::ImagePng;
       response->otherHeaderFields.emplace_back(AdditionalField{"Content-Transfer-Encoding", "binary"});
+
+      faviconFile.close();
 
       return MiddlewareMessage<std::shared_ptr<HttpProtocol::ResponseType>>(response);
     }

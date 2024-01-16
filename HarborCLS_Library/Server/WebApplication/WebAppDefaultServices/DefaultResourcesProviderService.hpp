@@ -56,6 +56,8 @@ namespace HarborCLS {
         response->contentType = ContentType::TextCss;
       }
 
+      file.close();
+
       return MiddlewareMessage<std::shared_ptr<HttpProtocol::ResponseType>>(response);
     }
   };
