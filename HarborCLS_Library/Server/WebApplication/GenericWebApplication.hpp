@@ -233,7 +233,6 @@ namespace HarborCLS {
 
       std::shared_ptr<std::vector<std::shared_ptr<BaseWebAppService<Protocol>>>> livingTasks
           = tasksContainer.getLivingTasks();
-
       for (auto &livingTask: *livingTasks) {
         livingTask->setWebAppLinking(*_responsesQueue, _logger);
       }

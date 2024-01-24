@@ -191,9 +191,6 @@ namespace HarborCLS {
     do {
       readData = readOperation();
       buffer.insert(buffer.end(), readData.first.begin(), readData.first.end());
-      std::cout << "<<<< Socket has read: " << readData.second << " bytes, "
-                                                                  " buffer size is:"
-                                                                  << BUFFER_SIZE << std::endl;
     } while (readData.second == BUFFER_SIZE);
 
     data = readDatatype(buffer.begin(), buffer.end());
@@ -243,18 +240,11 @@ namespace HarborCLS {
     }
 
     do {
-      std::cout << "<<<< Socket is reading >>>>" << std::endl;
       try {
         readData = readOperation();
       } catch (const std::exception &e) {
-        std::cout << "en exception was encountered while reading! : " << e.what() << std::endl;
         return *this;
       }
-
-      std::cout << "<<<< Socket has read: "
-          << readData.second << " bytes, "
-          " buffer size is:"
-          << BUFFER_SIZE  << " >>>>" << std::endl;
 
       data.insert(data.end(), readData.first.begin(), readData.first.end());
     } while (readData.second == BUFFER_SIZE);
@@ -334,9 +324,9 @@ namespace HarborCLS {
 
   inline std::pair<std::vector<char>, unsigned int> TcpSocket::Read() const {
     std::vector<char> buffer(BUFFER_SIZE);
-    std::cout << "---> read operation" << std::endl;
+
     long long bytesRead = ::read(_socketId, buffer.data(), buffer.size());
-    std::cout << "---> read operation finished" << std::endl;
+
     if (bytesRead < 0) {
       return std::make_pair(std::vector<char>(), -1);
     }
@@ -368,5 +358,9 @@ namespace HarborCLS {
 
   std::expected<Success, Error<SocketErrors>> TcpSocket::sendDecoyConnection(std::string &ip, int port) const {
     return this->connect(ip, port);
+  }
+
+  TcpSocket::~TcpSocket() {
+    this->close();
   }
 }

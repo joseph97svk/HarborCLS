@@ -27,26 +27,25 @@ public:
       const std::shared_ptr<HarborCLS::BuilderReferenceWrapper<LegoFigureMakerProtocol>>& dependencyResolver) :
       HarborCLS::BaseWebAppService<LegoFigureMakerProtocol>(){
 
-    std::string ip;
-
     auto container = dependencyResolver->builder.createScopedContainer();
     std::shared_ptr<ILegoRepository> repository = container->resolve<LegoInMemoryRepository>();
 
-    _broadcastListener = std::make_shared<BroadcastListener>(
-        _connectionsQueue
-        , std::make_shared<HarborCLS::UDPSocket>()
-        , PIECES_UDP_PORT
-        , this->_logger
-        , ip
-        , PIECES_UDP_PORT);
-
-    _legoDiscoverHandler = std::make_shared<LegoDiscoverHandler>(
-        _connectionsQueue
-        , this->_logger
-        , repository);
-
-    this->setSetUpSequence([this](BaseWebAppService& app) {
+    this->setSetUpSequence([=, this](BaseWebAppService& app) {
       (void) app;
+      std::string ip;
+
+      _broadcastListener = std::make_shared<BroadcastListener>(
+          _connectionsQueue
+          , std::make_shared<HarborCLS::UDPSocket>()
+          , PIECES_UDP_PORT
+          , this->_logger
+          , ip
+          , PIECES_UDP_PORT);
+
+      _legoDiscoverHandler = std::make_shared<LegoDiscoverHandler>(
+          _connectionsQueue
+          , this->_logger
+          , repository);
 
       _broadcastListener->start();
       _legoDiscoverHandler->start();

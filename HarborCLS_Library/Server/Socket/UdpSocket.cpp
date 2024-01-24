@@ -92,7 +92,7 @@ namespace HarborCLS {
   }
 
   std::expected<Success, SocketError> UDPSocket::sendDecoyConnection(std::string &ip, int port) {
-    std::vector<char> data {'0'};
+    std::vector<char> data { '0' };
 
     (*this)[ip, port] << data;
 

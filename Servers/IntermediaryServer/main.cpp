@@ -56,7 +56,7 @@ void addServices(HarborCLS::Builder<HarborCLS::HttpProtocol>& services) {
 
   services.addLivingTask<LegoServerDiscoveryService>();
   services.addLivingTask<HarborCLS::DefaultResourcesProviderService>();
- /* services.addLivingTask<ImageRequestForwardingService>();*/
+ services.addLivingTask<ImageRequestForwardingService>();
 
   services.addScoped<StartUpPresenceNotificationService>();
   services.addScoped<FiguresService>();

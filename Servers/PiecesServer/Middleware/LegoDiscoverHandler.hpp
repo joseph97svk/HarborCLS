@@ -20,6 +20,7 @@ public:
       , std::shared_ptr<ILegoRepository> legoInMemoryRepository)
       : HarborCLS::Handler<std::shared_ptr<std::vector<char>>>(consumingQueue, std::move(logger))
       , _legoInMemoryRepository(std::move(legoInMemoryRepository)) {
+    _id = "LegoDiscoverHandler: ";
   }
 
   void optionalToEnd() override {

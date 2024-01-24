@@ -52,7 +52,7 @@ namespace HarborCLS {
     /**
      * @brief Destroys the TcpSocket object.
      */
-    ~TcpSocket() = default;
+    ~TcpSocket();
 
     /**
      * @brief Connects to the given host and port.

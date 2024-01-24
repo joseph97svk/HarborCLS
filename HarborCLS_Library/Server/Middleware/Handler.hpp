@@ -35,18 +35,12 @@ namespace HarborCLS {
       while (true) {
         MiddlewareMessage<consumeDataType> data = _consumingQueue.pop();
 
-        _logger->warning(_id + "Handler: received data");
-
         std::expected<consumeDataType, std::variant<StopCondition, Error<MessageErrors>>> content = data.getContent();
 
         if (content) {
-          _logger->warning(_id + "Handler: Handling data");
           handleSingle(content.value());
-          _logger->warning(_id + "Handler: Data handled");
           continue;
         }
-
-        _logger->warning(_id + "Handler: no data to handle, checking error");
 
         std::visit(overloaded{
           [this](StopCondition &stopCondition) {

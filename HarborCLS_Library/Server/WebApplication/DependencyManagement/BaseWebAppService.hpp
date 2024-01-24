@@ -6,6 +6,7 @@
 #define HARBOR_CLS_BASEWEBAPPSERVICE_HPP
 
 #include <functional>
+#include <iostream>
 
 #include "Server/Concurrency/Thread.hpp"
 #include "Server/Middleware/MiddlewareMessage.hpp"
@@ -22,10 +23,10 @@ namespace HarborCLS {
   protected:
     MiddlewareBlockingQueue<IncomingMessageType> _entryQueue {};
 
-    std::optional<std::reference_wrapper<MiddlewareBlockingQueue<OutgoingMessageType>>> _exitQueue {};
+    std::optional<std::reference_wrapper<MiddlewareBlockingQueue<OutgoingMessageType>>> _exitQueue { std::nullopt };
 
-    std::optional<std::function<void(BaseWebAppService&)>> _setUpSequence;
-    std::optional<std::function<void(BaseWebAppService&)>> _tearDownSequence;
+    std::optional<std::function<void(BaseWebAppService&)>> _setUpSequence { std::nullopt };
+    std::optional<std::function<void(BaseWebAppService&)>> _tearDownSequence { std::nullopt };
 
     std::shared_ptr<ILogger> _logger {};
   public:

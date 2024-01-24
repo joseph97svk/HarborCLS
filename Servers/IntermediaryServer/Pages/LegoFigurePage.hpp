@@ -22,7 +22,7 @@ public:
   }
 
   std::optional<std::shared_ptr<HarborCLS::HttpResponse>> serveFigure(std::shared_ptr<HarborCLS::HttpRequest> request) {
-    std::string_view figureNameBuffer = request->header.url.substr(1);
+    std::string_view figureNameBuffer = std::string_view(request->header.url).substr(1);
     figureNameBuffer.remove_prefix(figureNameBuffer.find('=') + 1);
     std::string figureName = std::string(figureNameBuffer);
 

@@ -1,5 +1,5 @@
 {
-  "port": 5050,
+  "port": 5052,
   "requestHandlerAmount": 1,
   "applicationHandlerAmount": 1,
   "responseHandlerAmount": 1,

@@ -14,6 +14,7 @@
 #include <future>
 #include <optional>
 #include <vector>
+#include <list>
 
 #include "../Common/FileManagement.hpp"
 #include "../Common/common.hpp"
@@ -32,10 +33,11 @@ namespace HarborCLS {
     std::shared_ptr<ILogFileRotation> _fileRotationStrategy {};
 
     std::mutex _canWrite {};
+    std::mutex _canModifyFutures {};
 
     std::variant<std::string, std::ofstream> _logFile {};
 
-    std::vector<std::future<void>> _logFutures {};
+    std::list<std::shared_future<void>> _logFutures {};
 
   public:
     /**
@@ -53,7 +55,7 @@ namespace HarborCLS {
     /**
      * @brief Destroy the Logger object
      */
-    ~Logger() override = default;
+    ~Logger() override;
 
     /**
      * @brief logs a generic log message
