@@ -1,50 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Lego Figure Maker</title>
-</head>
+    <head>
+        <meta charset="UTF-8">
+        <title>Lego Figure Maker</title>
 
-<style>
-    .navigation-bar {
-        background-color: #333;
-        display: block;
-        margin: -10px;
-        padding: 20px 0 20px 30px;
-        color: white;
-        text-decoration: none;
-    }
-
-    .page-title {
-        font-size: 25px;
-    }
-
-    body {
-        background-color: #f5f5f5;
-        font-family: Verdana, sans-serif;
-    }
-</style>
-
-<body>
-
-<header>
-    <div class="navigation-bar">
-        <div class="page-title">
-            Lego Figure Maker
-        </div>
-    </div>
-</header>
-
-<main>
-    {Body}
-</main>
-
-<footer class="footer border-top text-muted" style="text-align: center; margin-bottom: 0">
-    <p>
-        Author: Joseph Valverde
-    </p>
-</footer>
-
-</body>
-
+        <link rel="stylesheet" href="Servers/IntermediaryServer/Resources/common.css">
+    </head>
+    <body>
+        <header>
+            <div class="navigation-bar">
+                <div class="page-title" onclick="window.location.href='/'">
+                    Lego Figure Maker
+                </div>
+            </div>
+        </header>
+        <main>
+            {Body}
+        </main>
+        <footer class="footer border-top text-muted" style="text-align: center; margin-bottom: 0">
+            <p>
+                Author: Joseph Valverde
+            </p>
+        </footer>
+    </body>
 </html>

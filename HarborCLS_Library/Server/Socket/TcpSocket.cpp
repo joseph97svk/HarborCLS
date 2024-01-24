@@ -336,11 +336,15 @@ namespace HarborCLS {
     return std::make_pair(buffer, bytesRead);
   }
 
-  void TcpSocket::setTimeout(const size_t seconds, const size_t microseconds) const {
+  void TcpSocket::setTimeout(const size_t seconds, const size_t microseconds) {
     timeval timeout {
         .tv_sec = static_cast<time_t>(seconds),
         .tv_usec = static_cast<suseconds_t>(microseconds)
     };
+
+    _bufferedTimeoutBeforeChange = std::make_optional<timeval>();
+    socklen_t bufferSize = sizeof *_bufferedTimeoutBeforeChange;
+    ::getsockopt(_socketId, SOL_SOCKET, SO_RCVTIMEO, &timeout, &bufferSize);
 
     if (setsockopt(_socketId, SOL_SOCKET, SO_RCVTIMEO, &timeout,
                    sizeof timeout) < 0) {
@@ -350,6 +354,23 @@ namespace HarborCLS {
                    sizeof timeout) < 0) {
       throw std::runtime_error("TcpSocket::setTimeout: Failed to set timeout");
     }
+  }
+
+  void TcpSocket::resetTimeout() {
+    if (!_bufferedTimeoutBeforeChange) {
+      return;
+    }
+
+    if (setsockopt(_socketId, SOL_SOCKET, SO_RCVTIMEO, &*_bufferedTimeoutBeforeChange,
+                   sizeof *_bufferedTimeoutBeforeChange) < 0) {
+      throw std::runtime_error("TcpSocket::setTimeout: Failed to set timeout");
+    }
+    if (setsockopt(_socketId, SOL_SOCKET, SO_SNDTIMEO, &*_bufferedTimeoutBeforeChange,
+                   sizeof *_bufferedTimeoutBeforeChange) < 0) {
+      throw std::runtime_error("TcpSocket::setTimeout: Failed to set timeout");
+    }
+
+    _bufferedTimeoutBeforeChange = std::nullopt;
   }
 
   [[nodiscard]] bool TcpSocket::isIpV6() const noexcept {

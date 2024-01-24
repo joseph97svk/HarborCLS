@@ -41,6 +41,23 @@ public:
     }
 
     HarborCLS::HtmlElement table("table");
+    table.addProperty("border", "1");
+    table.addProperty("cellpadding", "5");
+    table.addProperty("align", "center");
+
+    auto figurePictureRow = HarborCLS::HtmlElement::create("tr");
+    table.addChild(figurePictureRow);
+
+    auto figurePictureCol = HarborCLS::HtmlElement::create("td");
+    figurePictureCol->addProperty("colspan", "3");
+    figurePictureRow->addChild(figurePictureCol);
+
+    auto figurePicture = HarborCLS::HtmlElement::create("img");
+    figurePictureCol->addChild(figurePicture);
+    figurePicture->addProperty("src", figure->get().imagePath);
+    figurePicture->addProperty("width", "500");
+    figurePicture->addProperty("height", "500");
+
     table.addChild(getTableHeader());
 
     for (const auto& piece : figure->get().legoPieces) {
@@ -57,21 +74,23 @@ public:
   }
 
   static std::shared_ptr<HarborCLS::HtmlElement> getPieceRow(const LegoPiece& piece) {
-    std::shared_ptr<HarborCLS::HtmlElement> tableRow = std::make_shared<HarborCLS::HtmlElement>("tr");
+    auto tableRow = HarborCLS::HtmlElement::create("tr");
 
-    std::shared_ptr<HarborCLS::HtmlElement> quantity = std::make_shared<HarborCLS::HtmlElement>("td");
+    auto quantity = HarborCLS::HtmlElement::create("td");
     quantity->addContent(std::to_string(piece.quantity));
     tableRow->addChild(quantity);
 
-    std::shared_ptr<HarborCLS::HtmlElement> description = std::make_shared<HarborCLS::HtmlElement>("td");
+    auto description = HarborCLS::HtmlElement::create("td");
     description->addContent(piece.pieceName);
     tableRow->addChild(description);
 
-    std::shared_ptr<HarborCLS::HtmlElement> image = std::make_shared<HarborCLS::HtmlElement>("td");
+    auto image = HarborCLS::HtmlElement::create("td");
     tableRow->addChild(image);
 
-    std::shared_ptr<HarborCLS::HtmlElement> imageElement = std::make_shared<HarborCLS::HtmlElement>("img");
+    auto imageElement = HarborCLS::HtmlElement::create("img");
     imageElement->addProperty("src", piece.imagePath);
+    imageElement->addProperty("width", "100");
+    imageElement->addProperty("height", "100");
     imageElement->addProperty("alt", piece.pieceName);
     image->addChild(imageElement);
 
@@ -79,17 +98,17 @@ public:
   }
 
   static std::shared_ptr<HarborCLS::HtmlElement> getTableHeader() {
-    std::shared_ptr<HarborCLS::HtmlElement> headerRow = std::make_shared<HarborCLS::HtmlElement>("tr");
+    auto headerRow = HarborCLS::HtmlElement::create("tr");
 
-    std::shared_ptr<HarborCLS::HtmlElement> quantityHeader = std::make_shared<HarborCLS::HtmlElement>("th");
+    auto quantityHeader = HarborCLS::HtmlElement::create("th");
     quantityHeader->addContent("Cantidad");
     headerRow->addChild(quantityHeader);
 
-    std::shared_ptr<HarborCLS::HtmlElement> descriptionHeader = std::make_shared<HarborCLS::HtmlElement>("th");
+    auto descriptionHeader = HarborCLS::HtmlElement::create("th");
     descriptionHeader->addContent("Descripcion");
     headerRow->addChild(descriptionHeader);
 
-    std::shared_ptr<HarborCLS::HtmlElement> pictureHeader = std::make_shared<HarborCLS::HtmlElement>("th");
+    auto pictureHeader = HarborCLS::HtmlElement::create("th");
     pictureHeader->addContent("Imagen");
     headerRow->addChild(pictureHeader);
 

@@ -25,6 +25,8 @@ namespace HarborCLS {
 
     std::optional<SSLController> _sslController;
 
+    std::optional<timeval> _bufferedTimeoutBeforeChange;
+
     const unsigned int BUFFER_SIZE = 512;
   public:
     /**
@@ -135,7 +137,9 @@ namespace HarborCLS {
      * @param seconds to wait for timeout.
      * @param microseconds to wait for timeout.
      */
-    void setTimeout(size_t seconds, size_t microseconds) const;
+    void setTimeout(size_t seconds, size_t microseconds);
+
+    void resetTimeout();
 
     [[nodiscard]] bool isIpV6() const noexcept;
 

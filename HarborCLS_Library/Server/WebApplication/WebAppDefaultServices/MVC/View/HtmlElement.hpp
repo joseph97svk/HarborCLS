@@ -68,20 +68,22 @@ namespace HarborCLS {
         result += " " + property.first + "=\"" + property.second + "\" ";
       }
 
-      result += " style=\"";
+      if (!_styles.empty()) {
+        result += " style=\"";
 
-      for (const auto &style: _styles) {
-        result += style.first + ": " + style.second + "; ";
+        for (const auto &style: _styles) {
+          result += style.first + ": " + style.second + "; ";
+        }
+
+        result += "\" ";
       }
-
-      result += "\" ";
 
       result += ">\n";
 
       result += _content;
 
       for (const auto &child: _children) {
-        result += child->toString();
+        result += " " + child->toString();
       }
 
       result += "</" + _elementTag + ">\n";
@@ -89,11 +91,9 @@ namespace HarborCLS {
       return result;
     }
 
-    static std::shared_ptr<HtmlElement> createHtmlElement(
-        std::string elementTag
-        , std::string name = ""
-        , std::string id = "") {
-      return std::make_shared<HtmlElement>(std::move(elementTag), std::move(name), std::move(id));
+    template<typename... Args>
+    static std::shared_ptr<HtmlElement> create(Args&& ... args) {
+      return std::make_shared<HtmlElement>(std::forward<Args>(args)...);
     }
   };
 }

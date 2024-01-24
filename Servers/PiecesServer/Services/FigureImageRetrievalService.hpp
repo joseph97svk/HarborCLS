@@ -56,7 +56,7 @@ public:
   }
 
 protected:
-  std::optional<std::vector<char>> getImage(std::string& path ) {
+  static std::optional<std::vector<char>> getImage(std::string& path ) {
     if (path.empty()) {
       return std::nullopt;
     }

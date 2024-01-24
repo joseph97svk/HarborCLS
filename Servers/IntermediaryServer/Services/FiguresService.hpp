@@ -40,7 +40,12 @@ public:
     }
 
     std::vector<char> message = createMessage(figureName);
-    std::vector<char> figureTable = sendRequest(message, *routingInfo).value();
+    auto requestedFigure = sendRequest(message, *routingInfo);
+    if (!requestedFigure) {
+      return std::nullopt;
+    }
+
+    std::vector<char> figureTable = *requestedFigure;
 
     return std::string(figureTable.begin(), figureTable.end());
   }
@@ -58,7 +63,12 @@ public:
     }
 
     std::vector<char> message = createMessage(path);
-    std::vector<char> image = sendRequest(message, *routingInfo).value();
+    auto receivedMessage = sendRequest(message, *routingInfo);
+    if (!receivedMessage) {
+      return std::nullopt;
+    }
+
+    std::vector<char> image = *receivedMessage;
 
     return image;
   }
@@ -112,10 +122,20 @@ private:
 
     std::vector<char> response;
 
+    socket.resetTimeout();
     socket << message;
     socket >> response;
 
-    socket.close();
+    std::string codeString { response[0] };
+    auto code = static_cast<LegoMessageCode>(std::stoi(codeString));
+
+    if (code != LegoMessageCode::LEGO_RESPONSE) {
+      return std::nullopt;
+    }
+
+    response = std::vector<char>(response.begin() + 2, response.end());
+
+    std::cout << "image received with size: " << response.size() << std::endl;
 
     return response;
   }

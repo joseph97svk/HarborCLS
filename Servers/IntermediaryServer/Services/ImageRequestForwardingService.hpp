@@ -62,6 +62,9 @@ public:
       return HarborCLS::MiddlewareMessage<std::shared_ptr<HarborCLS::HttpResponse>>(response);
     }
 
+    response->otherHeaderFields.emplace_back(
+        HarborCLS::AdditionalField{"Content-Transfer-Encoding", "binary"}
+        );
     response->contentType = HarborCLS::ContentType::ImagePng;
     response->contentLength = image.value().size();
     response->body = std::move(image.value());

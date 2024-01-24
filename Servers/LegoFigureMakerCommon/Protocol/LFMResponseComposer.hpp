@@ -26,6 +26,8 @@ public:
       }
     }, response.responseContent);
 
+    std::cout << "Composed response size: " << composedResponse.size() << std::endl;
+
     return composedResponse;
   }
 };

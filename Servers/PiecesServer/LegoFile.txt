@@ -1,6 +1,6 @@
 Lego source File :: group ESJOJO
 Chicki
-/lego/Chicki.jpg
+Chicki/Lego/Chicki.jpg
 2x4 blanco
 /Chicki/Lego/pictures/brick-2x4-blanco.jpg
 39
@@ -33,7 +33,7 @@ Chicki
 10
 *
 Dragon
-/lego/Dragon.jpg
+Dragon/Lego/Dragon.jpg
 brick 2x6 plate grey
 /Dragon/Lego/pictures/brick-2x6-plate-grey.jpg
 4
