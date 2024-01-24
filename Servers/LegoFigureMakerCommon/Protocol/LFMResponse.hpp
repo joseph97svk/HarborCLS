@@ -20,10 +20,20 @@ struct LFMResponse {
 
   std::variant<std::string, std::vector<char>> responseContent;
 
-  LFMResponse(std::shared_ptr<HarborCLS::TcpSocket> socket, LegoMessageCode messageCode, std::string responseContent)
-      : socket(std::move(socket))
-      , messageCode(messageCode)
-      , responseContent(std::move(responseContent)) {
+  LFMResponse(std::shared_ptr<HarborCLS::TcpSocket> connectionSocket
+              , LegoMessageCode responseMessageCode
+              , std::string responseMessageContent)
+      : socket(std::move(connectionSocket))
+      , messageCode(responseMessageCode)
+      , responseContent(std::move(responseMessageContent)) {
+  }
+
+  LFMResponse(std::shared_ptr<HarborCLS::TcpSocket> connectionSocket
+              , LegoMessageCode responseMessageCode
+              , std::vector<char> responseMessageContent)
+      : socket(std::move(connectionSocket))
+      , messageCode(responseMessageCode)
+      , responseContent(std::move(responseMessageContent)) {
   }
 };
 

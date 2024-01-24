@@ -54,7 +54,7 @@ namespace HarborCLS {
       response->contentLength = faviconData.size();
 
       response->body = std::move(faviconData);
-      response->contentType = ContentType::ImagePng;
+      response->contentType = ContentType::ImageXIcon;
       response->otherHeaderFields.emplace_back(AdditionalField{"Content-Transfer-Encoding", "binary"});
 
       faviconFile.close();

@@ -31,7 +31,9 @@ namespace HarborCLS {
         : Handler<ConsumingType>(consumingQueue, std::move(logger))
             , _responsesQueue(producingQueue)
             , _services(services)
-            , _webServiceResolver(webServiceResolver) {}
+            , _webServiceResolver(webServiceResolver) {
+      this->_id = "ApplicationMiddlewareHandler: ";
+    }
 
   private:
     void optionalToEnd() override {

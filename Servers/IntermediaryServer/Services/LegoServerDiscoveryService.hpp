@@ -53,6 +53,8 @@ public:
     });
 
     this->setTearDownSequence([this](BaseWebAppService& app) {
+      (void) app;
+
       _broadcastListener->stop();
 
       _broadcastListener->waitToFinish();
@@ -61,10 +63,14 @@ public:
   }
 
   bool canHandle(IncommingMessageType request) override {
+    (void) request;
+
     return false;
   }
 
   std::optional<HarborCLS::MiddlewareMessage<OutgoingMessageType>> handleTask(IncommingMessageType request) override {
+    (void) request;
+
     return std::nullopt;
   }
 };

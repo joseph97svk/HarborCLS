@@ -23,7 +23,7 @@ namespace HarborCLS {
      * @param json json to serialize to
      */
     explicit PolicyOperation(std::function<AttributeType &(SourceType &)> operation, std::string &key)
-        : operation(operation), key(key) {}
+        : _operation(operation), _key(key) {}
 
     /**
      * @brief Deserialize json to data
@@ -31,9 +31,9 @@ namespace HarborCLS {
      * @param json json to deserialize
      */
     void serialize(SourceType &data, nlohmann::json &json) override {
-      AttributeType &attribute = this->operation(data);
+      AttributeType &attribute = this->_operation(data);
       std::any anyAttribute = attribute;
-      this->serializeOperation(this->key, json, anyAttribute);
+      this->serializeOperation(this->_key, json, anyAttribute);
     }
 
     /**
@@ -42,9 +42,9 @@ namespace HarborCLS {
      * @param json json to deserialize
      */
     void deserialize(SourceType &data, nlohmann::json &json) override {
-      AttributeType &attribute = this->operation(data);
+      AttributeType &attribute = this->_operation(data);
 
-      std::any result = this->deserializeOperation(this->key, json);
+      std::any result = this->deserializeOperation(this->_key, json);
 
       if (result.type() == typeid(AttributeType)) {
         AttributeType attributeBuffer = std::any_cast<AttributeType>(result);
@@ -55,8 +55,8 @@ namespace HarborCLS {
     }
 
   private:
-    std::function<AttributeType &(SourceType &)> operation;
-    std::string key;
+    std::function<AttributeType &(SourceType &)> _operation;
+    std::string _key;
   };
 }
 

@@ -52,7 +52,7 @@ namespace HarborCLS {
     }
 
     std::shared_ptr<Hypodermic::Container> createScopedContainer() {
-      if (_globalContainer.get() == nullptr) {
+      if (_globalContainer == nullptr) {
         _globalContainer = _globalBuilder.build();
       }
 

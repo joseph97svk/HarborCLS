@@ -12,8 +12,8 @@ Logger::Logger (std::shared_ptr<ILoggerBufferingPolicy> bufferingStrategy,
                 std::shared_ptr<ILoggerFileManagementPolicy> fileManagementStrategy,
                 std::shared_ptr<ILogFileRotation> fileRotationStrategy,
                 std::string& logFilePath)
-        : _bufferingStrategy(std::move(bufferingStrategy))
-        , _fileManagementStrategy(std::move(fileManagementStrategy))
+        : _fileManagementStrategy(std::move(fileManagementStrategy))
+        , _bufferingStrategy(std::move(bufferingStrategy))
         , _fileRotationStrategy(std::move(fileRotationStrategy))
         , _logFile(_fileManagementStrategy->getLogFile(logFilePath)) {}
 
@@ -70,6 +70,7 @@ void Logger::logMessage(const std::string& messageType, std::string& message) {
         fileStream = ofs;
       },
       [&fileStream](const std::string& str) {
+        (void) str;
         fileStream = std::nullopt;
       }
     }, _logFile);

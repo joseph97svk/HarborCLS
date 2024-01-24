@@ -8,11 +8,10 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <expected>
-
+#include <iostream>
 
 #include "TcpSocket.hpp"
 #include "Common/Error.hpp"
-
 
 namespace HarborCLS {
 
@@ -65,9 +64,7 @@ namespace HarborCLS {
       }
     }
 
-    struct sockaddr_in6 host6{};
-
-    memset((char *) &host6, 0, sizeof(host6));
+    struct sockaddr_in6 host6 {};
     host6.sin6_family = AF_INET6;
     if (inet_pton(AF_INET6, host.c_str(), &host6.sin6_addr) == 1) {
       return std::unexpected(
@@ -75,7 +72,7 @@ namespace HarborCLS {
                       , SocketErrors::GENERIC_ERROR));
     }
 
-    struct addrinfo hints{}, *result, *rp;
+    struct addrinfo hints {}, *result, *rp;
 
     memset(&hints, 0, sizeof(struct addrinfo));
     hints.ai_family = AF_UNSPEC;
@@ -122,48 +119,51 @@ namespace HarborCLS {
   }
 
   [[nodiscard]] std::expected<Success, SocketError> TcpSocket::ipv4Connect(const std::string &host, int port) const {
-    struct sockaddr *ha;
-
-    struct sockaddr_in host4{};
-    memset((char *) &host4, 0, sizeof(host4));
+    struct sockaddr_in host4 {};
     host4.sin_family = AF_INET;
+    host4.sin_port = htons(static_cast<uint16_t>(port));
 
     if (inet_pton(AF_INET, host.c_str(), &host4.sin_addr) == -1) {
       return std::unexpected(SocketError("TcpSocket::connect: Failed to convert host to IPv4 address"
                                          , SocketErrors::GENERIC_ERROR));
     }
 
-    host4.sin_port = htons(port);
-    ha = (struct sockaddr *) &host4;
-
-    if (::connect(_socketId, ha, sizeof(host4)) == -1) {
-      return std::unexpected(SocketError("TcpSocket::connect: Failed to connect to host"
-                                         , SocketErrors::GENERIC_ERROR));
+    switch (::connect(_socketId, reinterpret_cast<sockaddr*>(&host4), sizeof(host4))) {
+      case 0:
+        return Success();
+      case ECONNREFUSED:
+        return std::unexpected(SocketError("TcpSocket::connect: Connection refused"
+                                           , SocketErrors::SOCKET_CONNECTION_REFUSED));
+      default:
+        break;
     }
 
-    return Success();
+    return std::unexpected(SocketError("TcpSocket::connect: Failed to connect to host"
+        , SocketErrors::GENERIC_ERROR));
   }
 
   [[nodiscard]] std::expected<Success, SocketError> TcpSocket::ipv6Connect(const std::string &host, int port) const {
-    struct sockaddr *ha;
-    struct sockaddr_in6 host6{};
-    memset((char *) &host6, 0, sizeof(host6));
+    struct sockaddr_in6 host6 {};
     host6.sin6_family = AF_INET6;
+    host6.sin6_port = htons(static_cast<uint16_t>(port));
 
     if (inet_pton(AF_INET6, host.c_str(), &host6.sin6_addr) == -1) {
       return std::unexpected(SocketError("TcpSocket::connect: Failed to convert host to IPv6 address"
                                          , SocketErrors::GENERIC_ERROR));
     }
 
-    host6.sin6_port = htons(port);
-    ha = (struct sockaddr *) &host6;
-
-    if (::connect(_socketId, ha, sizeof(host6)) == -1) {
-      return std::unexpected(SocketError("TcpSocket::connect: Failed to connect to host"
-                                         , SocketErrors::GENERIC_ERROR));
+    switch (::connect(_socketId, reinterpret_cast<sockaddr*>(&host6), sizeof(host6))) {
+      case 0:
+        return Success();
+      case ECONNREFUSED:
+        return std::unexpected(SocketError("TcpSocket::connect: Connection refused"
+            , SocketErrors::SOCKET_CONNECTION_REFUSED));
+      default:
+        break;
     }
 
-    return Success();
+    return std::unexpected(SocketError("TcpSocket::connect: Failed to connect to host"
+        , SocketErrors::GENERIC_ERROR));
   }
 
   void TcpSocket::close() const {
@@ -172,8 +172,6 @@ namespace HarborCLS {
 
   template<typename readDatatype>
   TcpSocket &TcpSocket::operator>>(readDatatype &data) {
-    size_t bytesRead;
-
     std::vector<char> buffer;
     std::pair<std::vector<char>, unsigned int> readData;
 
@@ -192,10 +190,11 @@ namespace HarborCLS {
 
     do {
       readData = readOperation();
-
-      bytesRead = readData.second;
       buffer.insert(buffer.end(), readData.first.begin(), readData.first.end());
-    } while (bytesRead == BUFFER_SIZE);
+      std::cout << "<<<< Socket has read: " << readData.second << " bytes, "
+                                                                  " buffer size is:"
+                                                                  << BUFFER_SIZE << std::endl;
+    } while (readData.second == BUFFER_SIZE);
 
     data = readDatatype(buffer.begin(), buffer.end());
 
@@ -218,7 +217,7 @@ namespace HarborCLS {
   }
 
   TcpSocket &TcpSocket::operator<<(std::vector<char> &data) {
-    unsigned int bytesWritten = _ssl ?
+    size_t bytesWritten = _ssl ?
                                 _sslController->SSLWrite(std::span<char>(data.data(), data.size())) :
                                 this->Write(std::span<char>(data.data(), data.size()));
 
@@ -229,9 +228,7 @@ namespace HarborCLS {
   }
 
   TcpSocket &TcpSocket::operator>>(std::vector<char> &data) {
-    size_t bytesRead;
-    std::vector<char> buffer;
-    std::pair<std::vector<char>, unsigned int> readData;
+    std::pair<std::vector<char>, long long> readData;
     std::function<std::pair<std::vector<char>, unsigned int>()> readOperation;
 
     if (_ssl) {
@@ -246,45 +243,46 @@ namespace HarborCLS {
     }
 
     do {
-      readData = readOperation();
+      std::cout << "<<<< Socket is reading >>>>" << std::endl;
+      try {
+        readData = readOperation();
+      } catch (const std::exception &e) {
+        std::cout << "en exception was encountered while reading! : " << e.what() << std::endl;
+        return *this;
+      }
 
-      bytesRead = readData.second;
-      buffer.insert(buffer.end(), readData.first.begin(), readData.first.end());
-    } while (bytesRead == BUFFER_SIZE);
+      std::cout << "<<<< Socket has read: "
+          << readData.second << " bytes, "
+          " buffer size is:"
+          << BUFFER_SIZE  << " >>>>" << std::endl;
 
-    if (data.empty()) {
-      data = std::move(buffer);
-    } else {
-      data.insert(data.end(), buffer.begin(), buffer.end());
-    }
+      data.insert(data.end(), readData.first.begin(), readData.first.end());
+    } while (readData.second == BUFFER_SIZE);
 
     return *this;
   }
 
   void TcpSocket::bind(const unsigned int portToBindTo) const {
-    struct sockaddr *ha;
-    struct sockaddr_in host4{};
-    struct sockaddr_in6 host6{};
+    uint16_t port = htons(static_cast<uint16_t>(portToBindTo));
+    struct sockaddr_in host4 {
+        .sin_family = AF_INET,
+        .sin_port = port,
+        .sin_addr = { INADDR_ANY },
+        .sin_zero = { 0 }
+    };
+    struct sockaddr_in6 host6 {
+        .sin6_family = AF_INET6,
+        .sin6_port = port,
+        .sin6_flowinfo = 0,
+        .sin6_addr = in6addr_any,
+        .sin6_scope_id = 0
+    };
 
-    socklen_t size;
+    std::pair<sockaddr *, socklen_t> ha = _ipv6 ?
+        std::make_pair(reinterpret_cast<sockaddr *>(&host6), sizeof(host6)) :
+        std::make_pair(reinterpret_cast<sockaddr *>(&host4), sizeof(host4));
 
-    if (_ipv6) {
-      memset(&host6, 0, sizeof(host6));
-      host6.sin6_family = AF_INET6;
-      host6.sin6_port = htons(portToBindTo);
-      host6.sin6_addr = in6addr_any;
-      ha = (sockaddr *) &host6;
-      size = sizeof(host6);
-    } else {
-      memset(&host4, 0, sizeof(host4));
-      host4.sin_family = AF_INET;
-      host4.sin_port = htons(portToBindTo);
-      host4.sin_addr.s_addr = INADDR_ANY;
-      ha = (sockaddr *) &host4;
-      size = sizeof(host4);
-    }
-
-    if (::bind(_socketId, (sockaddr *) ha, size) == -1) {
+    if (::bind(_socketId, ha.first, ha.second) == -1) {
       throw std::runtime_error("TcpSocket::bind: Failed to bind to port: " + std::to_string(portToBindTo));
     }
   }
@@ -296,12 +294,12 @@ namespace HarborCLS {
   }
 
   [[nodiscard]] std::expected<std::shared_ptr<TcpSocket>, SocketError>TcpSocket::accept() const {
-    struct sockaddr_in server{};
+    struct sockaddr_in server {};
     socklen_t addr_len = sizeof(server);
 
     int socketFD =
         ::accept(_socketId,
-                 (sockaddr *) &server,
+                 reinterpret_cast<sockaddr *>(&server),
                  &addr_len
         );
 
@@ -324,7 +322,7 @@ namespace HarborCLS {
     return _ssl;
   }
 
-  inline unsigned int TcpSocket::Write(const std::span<char> &message) const {
+  inline size_t TcpSocket::Write(const std::span<char> &message) const {
     size_t bytesWritten = ::write(_socketId, message.data(), message.size());
 
     if (bytesWritten != message.size()) {
@@ -336,13 +334,20 @@ namespace HarborCLS {
 
   inline std::pair<std::vector<char>, unsigned int> TcpSocket::Read() const {
     std::vector<char> buffer(BUFFER_SIZE);
-    size_t bytesRead = ::read(_socketId, buffer.data(), buffer.size());
+    std::cout << "---> read operation" << std::endl;
+    long long bytesRead = ::read(_socketId, buffer.data(), buffer.size());
+    std::cout << "---> read operation finished" << std::endl;
+    if (bytesRead < 0) {
+      return std::make_pair(std::vector<char>(), -1);
+    }
+
+    buffer.resize(bytesRead);
 
     return std::make_pair(buffer, bytesRead);
   }
 
   void TcpSocket::setTimeout(const size_t seconds, const size_t microseconds) const {
-    struct timeval timeout{
+    timeval timeout {
         .tv_sec = static_cast<time_t>(seconds),
         .tv_usec = static_cast<suseconds_t>(microseconds)
     };
@@ -351,7 +356,6 @@ namespace HarborCLS {
                    sizeof timeout) < 0) {
       throw std::runtime_error("TcpSocket::setTimeout: Failed to set timeout");
     }
-
     if (setsockopt(_socketId, SOL_SOCKET, SO_SNDTIMEO, &timeout,
                    sizeof timeout) < 0) {
       throw std::runtime_error("TcpSocket::setTimeout: Failed to set timeout");

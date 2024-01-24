@@ -5,6 +5,8 @@
 #ifndef HARBOR_CLS_BASEWEBAPPSERVICE_HPP
 #define HARBOR_CLS_BASEWEBAPPSERVICE_HPP
 
+#include <functional>
+
 #include "Server/Concurrency/Thread.hpp"
 #include "Server/Middleware/MiddlewareMessage.hpp"
 #include "Logger/ILogger.hpp"
@@ -75,7 +77,7 @@ namespace HarborCLS {
 
         std::visit(overloaded{
             [this](StopCondition &stopCondition) {
-              _exitQueue.value().get().push(MiddlewareMessage<OutgoingMessageType>(StopCondition()));
+              _exitQueue.value().get().push(MiddlewareMessage<OutgoingMessageType>(stopCondition));
             },
             [this](Error<MessageErrors> &error) {
               _logger->error(error.what());

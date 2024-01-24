@@ -20,10 +20,10 @@ namespace HarborCLS {
   template<typename dataType, template<typename> typename ParsingPolicy, typename JsonFileType = nlohmann::json>
       requires IsParsingPolicy<ParsingPolicy, JsonFileType>
   class JsonHandler : public IJsonHandler<dataType> {
-    std::optional<JsonFileType> _jsonToParse;
-    std::optional<dataType> _dataToSerialize;
+    std::optional<JsonFileType> _jsonToParse {};
+    std::optional<dataType> _dataToSerialize {};
 
-    ParsingPolicy<JsonFileType> _parsingPolicy;
+    ParsingPolicy<JsonFileType> _parsingPolicy {};
 
   public:
     /**
@@ -31,10 +31,7 @@ namespace HarborCLS {
      * @param json string or path to jsonTo file
      * @param isPath whether provided string is a path or not
      */
-    explicit JsonHandler(const std::string &json, bool isPath)
-        : _parsingPolicy(),
-          _jsonToParse(),
-          _dataToSerialize() {
+    explicit JsonHandler(const std::string &json, bool isPath) {
       _parsingPolicy.addAllPolicies();
 
       if (!isPath) {

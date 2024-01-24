@@ -111,6 +111,7 @@ namespace HarborCLS {
     template<typename... Args>
     void addControlledShutdown(int first, Args... args) {
       signal(first, [](int signal) {
+        (void) signal;
         GenericServer::getInstance().stopServer();
       });
 
@@ -121,6 +122,7 @@ namespace HarborCLS {
 
     void addControlledShutdown(int first) {
       signal(first, [](int signal) {
+        (void) signal;
         GenericServer::getInstance().stopServer();
       });
     }
@@ -143,7 +145,7 @@ namespace HarborCLS {
         _responseHeaderComposer = std::make_shared<ResponseHeaderComposerType>();
       }
 
-      for (int responseHandlerIndex = 0;
+      for (unsigned int responseHandlerIndex = 0;
            responseHandlerIndex < _configuration.responseHandlerAmount;
            ++responseHandlerIndex) {
 

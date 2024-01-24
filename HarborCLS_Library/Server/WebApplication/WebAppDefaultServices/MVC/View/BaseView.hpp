@@ -72,7 +72,7 @@ namespace HarborCLS {
         replacementFunction(line, foundTag);
       }
 
-      return line;
+      return line + "\n";
     }
 
     void replaceTagWithContents(std::string& line

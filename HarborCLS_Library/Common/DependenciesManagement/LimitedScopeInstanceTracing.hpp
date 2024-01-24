@@ -16,12 +16,13 @@ struct LimitedScopeInstanceTracing {
 
   bool _alreadyInstancedAsSingleton = false;
 
-  explicit LimitedScopeInstanceTracing(Type& ref)
-      : ref(ref) {
+  explicit LimitedScopeInstanceTracing(Type& registrationReference)
+      : ref(registrationReference) {
   }
 
   template <typename interface>
   void as() {
+    _alreadyInstancedAsSingleton = true;
     ref.template as<interface>().singleInstance();
   }
 

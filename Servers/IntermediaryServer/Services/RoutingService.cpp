@@ -36,7 +36,9 @@ void RoutingService::erase(std::pair<std::string, int>& pairToDelete) {
 }
 
 void RoutingService::erase(const ServerRoutingInfo& routingInfo) {
-
+  _routingMap.erase({
+                        .ip = routingInfo.ip
+                        , .port = routingInfo.port});
 }
 
 std::vector<std::string> RoutingService::getAllFigures() {
@@ -47,4 +49,12 @@ std::vector<std::string> RoutingService::getAllFigures() {
   }
 
   return figures;
+}
+
+std::optional<ServerRoutingInfo> RoutingService::getRoutingInfo(std::string &figure) {
+  if (_routingMap.count(figure) == 0) {
+    return std::nullopt;
+  }
+
+  return _routingMap[figure];
 }

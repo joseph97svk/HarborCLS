@@ -31,7 +31,7 @@ namespace HarborCLS {
      * @brief Creates a TcpSocket object with the given parameters.
      * @param ipv6 Whether or not to use _ipv6.
      */
-    explicit TcpSocket(bool ipv6);
+    explicit TcpSocket(bool ipv6 = false);
 
     /**
      * @brief Creates a TcpSocket object with the given parameters.
@@ -148,7 +148,7 @@ namespace HarborCLS {
 
     [[nodiscard]] std::expected<Success, SocketError> ipv6Connect(const std::string &host, int port) const;
 
-    [[nodiscard]] unsigned int Write(const std::span<char> &message) const;
+    [[nodiscard]] size_t Write(const std::span<char> &message) const;
 
     [[nodiscard]] std::pair<std::vector<char>, unsigned int> Read() const;
   };

@@ -17,6 +17,8 @@ namespace HarborCLS {
   void FileOpenOnDemandPolicy::log(std::string completeLoggingMessage,
                                    std::optional<std::reference_wrapper<std::ofstream>> &loggingFile,
                                    std::mutex &canWrite) {
+    (void) loggingFile; // not used in this policy
+
     std::lock_guard<std::mutex> lock(canWrite);
 
     std::cout << completeLoggingMessage << std::endl;

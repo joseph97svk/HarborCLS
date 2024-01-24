@@ -101,8 +101,10 @@ namespace HarborCLS {
   }
 
   std::expected<Success, SSLError> SSLController::SSLAccept() {
-    if (::SSL_accept(this->SSLStruct.get()) != 1) {
-      int err = SSL_get_error(this->SSLStruct.get(), err);
+    int acceptResult = SSL_accept(this->SSLStruct.get());
+    if (acceptResult != 1) {
+      int err = SSL_get_error(this->SSLStruct.get(), acceptResult);
+
       if (!(err == SSL_ERROR_WANT_READ || err == SSL_ERROR_WANT_WRITE)) {
         return std::unexpected(
             SSLError("SSLController::SSLAccept: Failed to accept SSL; handshake failed"
@@ -140,10 +142,12 @@ namespace HarborCLS {
       }
     }
 
+    buffer.resize(bytesRead);
+
     return std::make_pair(buffer, bytesRead);
   }
 
-  unsigned int SSLController::SSLWrite(const std::span<char> &data) {
+  size_t SSLController::SSLWrite(const std::span<char> &data) {
     int bytesWritten = SSL_write(this->SSLStruct.get(), data.data(), static_cast<int>(data.size()));
 
     if (bytesWritten < 0) {
@@ -155,6 +159,6 @@ namespace HarborCLS {
       }
     }
 
-    return bytesWritten;
+    return static_cast<size_t>(bytesWritten);
   }
 }

@@ -25,7 +25,9 @@ namespace HarborCLS {
                                        , std::shared_ptr<ILogger> logger)
         : Handler <std::shared_ptr<typename Protocol::ResponseType>> (consumingQueue, std::move(logger))
         , _responseComposer(std::move(responseComposer))
-    {}
+    {
+      this->_id = "ResponseMiddlewareHandler: ";
+    }
 
   private:
     void optionalToEnd() override {
@@ -41,7 +43,8 @@ namespace HarborCLS {
         return;
       }
 
-      std::vector<char> responseVector = std::move(_responseComposer->compose(*handlingData));
+      std::vector<char> responseVector = _responseComposer->compose(*handlingData);
+      std::string message(responseVector.begin(), responseVector.end());
 
       *handlingData->socket << responseVector;
     };

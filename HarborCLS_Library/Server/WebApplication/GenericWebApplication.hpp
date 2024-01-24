@@ -53,7 +53,7 @@ namespace HarborCLS {
     Builder<Protocol> _dependencyManager {};
 
     std::shared_ptr<IWebServiceResolver<Protocol>> _webServiceResolver
-        = std::make_shared<WebServiceResolver<Protocol>>();;
+        = std::make_shared<WebServiceResolver<Protocol>>();
 
   public:
     GenericWebApplication() {
@@ -88,7 +88,7 @@ namespace HarborCLS {
       };
 
       LoggerFactory loggerFactory(loggerConfiguration);
-      auto tempLogger = std::move(loggerFactory.createLogger());
+      auto tempLogger = loggerFactory.createLogger();
 
       if (configurationJsonPath.empty()) {
         tempLogger->info("No configuration provided, using default configuration");
@@ -217,7 +217,7 @@ namespace HarborCLS {
           , _logger
       );
 
-      for (int requestHandlerIndex = 0;
+      for (unsigned int requestHandlerIndex = 0;
            requestHandlerIndex < configuration.requestHandlerAmount;
            ++requestHandlerIndex) {
         _requestMiddlewareHandlers.emplace_back(
@@ -238,7 +238,7 @@ namespace HarborCLS {
         livingTask->setWebAppLinking(*_responsesQueue, _logger);
       }
 
-      for (int applicationHandlerIndex = 0;
+      for (unsigned int applicationHandlerIndex = 0;
            applicationHandlerIndex < configuration.applicationHandlerAmount;
            ++applicationHandlerIndex) {
         _applicationMiddlewareHandlers.emplace_back(

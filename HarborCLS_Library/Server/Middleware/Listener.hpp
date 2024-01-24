@@ -66,6 +66,8 @@ namespace HarborCLS {
       while (true) {
         MiddlewareMessage<enqueueType> data = this->obtain();
 
+        _logger->warning("Listener: Obtained data");
+
         if (_stopThread) {
           _queue.get().push(MiddlewareMessage<enqueueType>(StopCondition()));
           break;
@@ -75,6 +77,7 @@ namespace HarborCLS {
         if (!dataContents) {
           std::visit(overloaded{
               [this](StopCondition& stopCondition) {
+                (void) stopCondition;
                 _stopThread = true;
               },
               [this](Error<MessageErrors>& error) {
@@ -89,8 +92,9 @@ namespace HarborCLS {
             break;
           }
         }
-
+        _logger->warning("Listener: Pushing data to queue");
         _queue.get().push(data);
+        _logger->warning("Listener: Pushed data to queue");
       }
     }
 

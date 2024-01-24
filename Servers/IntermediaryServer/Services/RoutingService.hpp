@@ -7,6 +7,7 @@
 
 #include <vector>
 #include <iostream>
+#include <optional>
 
 #include "Utility/RoutingMap.hpp"
 
@@ -15,6 +16,8 @@ class RoutingService {
 
 public:
   size_t getCount(std::string& figure);
+
+  std::optional<ServerRoutingInfo> getRoutingInfo(std::string& figure);
 
   void addRoute(std::pair<std::string, ServerRoutingInfo> figureStructure);
 

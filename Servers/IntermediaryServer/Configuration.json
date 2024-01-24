@@ -1,9 +1,9 @@
 {
-  "port": 8007,
+  "port": 5050,
   "requestHandlerAmount": 1,
   "applicationHandlerAmount": 1,
   "responseHandlerAmount": 1,
-  "requestsQueueSize": 16,
+  "requestsQueueSize": 64,
   "sslCertFileName": "Servers/IntermediaryServer/cert.crt",
   "sslKeyFileName": "Servers/IntermediaryServer/key.key",
   "LoggerConfiguration:LoggerFilePath": "Servers/IntermediaryServer/Logs/Log.txt",

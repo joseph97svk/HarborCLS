@@ -27,15 +27,15 @@
 namespace HarborCLS {
 
   class Logger : public ILogger {
-    std::shared_ptr<ILoggerFileManagementPolicy> _fileManagementStrategy{};
-    std::shared_ptr<ILoggerBufferingPolicy> _bufferingStrategy{};
-    std::shared_ptr<ILogFileRotation> _fileRotationStrategy{};
+    std::shared_ptr<ILoggerFileManagementPolicy> _fileManagementStrategy {};
+    std::shared_ptr<ILoggerBufferingPolicy> _bufferingStrategy {};
+    std::shared_ptr<ILogFileRotation> _fileRotationStrategy {};
 
-    std::mutex _canWrite{};
+    std::mutex _canWrite {};
 
-    std::variant<std::string, std::ofstream> _logFile{};
+    std::variant<std::string, std::ofstream> _logFile {};
 
-    std::vector<std::future<void>> _logFutures{};
+    std::vector<std::future<void>> _logFutures {};
 
   public:
     /**

@@ -36,14 +36,21 @@ namespace HarborCLS {
 
   private:
     [[nodiscard]] static std::string generateHeader(HttpResponse& response, size_t bodySize, bool vectorized) {
+      (void) vectorized;
+
       std::string header;
 
-      header += response.htmlVersion + " ";
-      header += HttpResponseStatusCode::getStatusCodeString(response.statusCode) + HttpMappings::separator;
+      header +=
+          response.htmlVersion
+          + " "
+          + HttpResponseStatusCode::getStatusCodeString(response.statusCode)
+          + HttpMappings::separator;
 
       if (contentTypeMap.contains(response.contentType)) {
         header += "Content-Type: " + contentTypeMap.at(response.contentType) + HttpMappings::separator;
       }
+
+      header += "Server: HarborCLS" + HttpMappings::separator;
 
       for (auto &field: response.otherHeaderFields) {
         header += field.fieldName + ": " + field.value + HttpMappings::separator;
@@ -53,6 +60,7 @@ namespace HarborCLS {
                              ? response.contentLength.value()
                              : bodySize;
 
+
       header += "Content-Length: " + std::to_string(contentLength) + HttpMappings::separator;
 
       if (!response.contentTypeAdditionalInfo.empty()) {
@@ -60,9 +68,7 @@ namespace HarborCLS {
       }
 
       header += HttpMappings::separator;
-      if (!vectorized) {
-        header += HttpMappings::separator;
-      }
+/*      header += HttpMappings::separator;*/
 
       return header;
     }
@@ -73,7 +79,6 @@ namespace HarborCLS {
       std::visit(overloaded{
           [&body](std::string &str) {
             body.first = std::move(std::vector<char>(str.begin(), str.end()));
-            body.first.emplace_back('\0');
           },
           [&body](std::vector<char> &vec) {
             body.first = std::move(vec);

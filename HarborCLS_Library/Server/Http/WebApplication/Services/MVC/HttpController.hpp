@@ -204,6 +204,16 @@ namespace HarborCLS {
       return response;
     }
 
+    static std::shared_ptr<HttpResponse> NotFound404Response(std::shared_ptr<HttpRequest> request) {
+      std::shared_ptr<HttpResponse> response = std::make_shared<HttpResponse>();
+      response->statusCode = StatusCode::NotFound;
+      response->body = "404 Not Found";
+      response->socket = request->socket;
+      response->contentLength = std::get<std::string>(response->body).size();
+
+      return response;
+    }
+
   private:
     std::optional<std::shared_ptr<HttpResponse>> handleGetRequest(
         const std::shared_ptr<HttpRequest>& httpRequest
@@ -219,7 +229,7 @@ namespace HarborCLS {
         }
       }
 
-      std::optional<std::string> html = std::move(_view->getHtmlContents());
+      std::optional<std::string> html = _view->getHtmlContents();
 
       if (!html) {
         throw std::runtime_error("BaseController: html file could not be read");
@@ -228,6 +238,7 @@ namespace HarborCLS {
       std::shared_ptr<HttpResponse> httpResponse = std::make_shared<HttpResponse>();
       httpResponse->socket = httpRequest->socket;
       httpResponse->body = html.value();
+      httpResponse->contentLength = std::get<std::string>(httpResponse->body).size();
 
       return httpResponse;
     }

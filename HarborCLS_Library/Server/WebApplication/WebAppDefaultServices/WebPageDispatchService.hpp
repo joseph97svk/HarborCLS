@@ -25,6 +25,7 @@ namespace HarborCLS {
         , _controllerManager(controllerManager) { }
 
     bool canHandle(std::shared_ptr<RequestType> request) override {
+      (void) request;
       return false;
     }
 
@@ -37,10 +38,19 @@ namespace HarborCLS {
                 , MessageErrors::NON_REGISTERED_SERVICE));
       }
 
+      std::optional<std::string> controllerUrl = getController(request->header.url);
+      if (!controllerUrl) {
+        return handle404(request);
+      }
       std::optional<std::shared_ptr<BaseController<Protocol>>> controller
-          = _controllerManager->getController(request->header.url);
+          = _controllerManager->getController(*controllerUrl);
 
       if (!controller) {
+        return handle404(request);
+      }
+
+      std::optional<std::string> handler = getHandler(request->header.url);
+      if (!handler) {
         return handle404(request);
       }
 
@@ -48,16 +58,14 @@ namespace HarborCLS {
           std::shared_ptr<ResponseType>>
           , Error<typename BaseController<Protocol>::ControllerError>
           > result =
-          controller.value()->processRequest(request, this->getHandler(request->header.url));
+          controller.value()->processRequest(request, *handler);
 
       if (!result) {
         return MiddlewareMessage<std::shared_ptr<ResponseType>>(
             Error<MessageErrors>(
                 result.error().what()
                 , MessageErrors::CONTROLLER_ERROR));
-      }
-
-      if (!result.value()) {
+      } else if (!result.value()) {
         return handle404(request);
       }
 
@@ -78,26 +86,39 @@ namespace HarborCLS {
     }
 
   protected:
-    static std::string getHandler(std::string_view url) {
-      std::string_view handler = url;
+    static std::optional<std::string> getController(std::string& url) {
+      std::string_view controllerUrl = url;
+      controllerUrl.remove_prefix(1);
 
-      if (handler[0] == '/') {
-        handler.remove_prefix(1);
+      try {
+        if (!controllerUrl.empty()) {
+          size_t end = controllerUrl.find('?') == std::string::npos ?
+                        controllerUrl.length() : controllerUrl.find('?');
+          controllerUrl.remove_suffix(controllerUrl.length() - end);
+        }
+      } catch (std::exception& e) {
+        return std::nullopt;
       }
 
-      if (handler.empty()) {
-        return {};
+      return std::string(controllerUrl);
+    }
+
+    static std::optional<std::string> getHandler(std::string& url) {
+      std::string_view handlerBuffer = url;
+      handlerBuffer.remove_prefix(1);
+
+      try {
+        if (!handlerBuffer.empty()) {
+          handlerBuffer.remove_prefix(handlerBuffer.find('?') + 1);
+          size_t end = handlerBuffer.find('=') == std::string::npos ?
+                        handlerBuffer.length() : handlerBuffer.find('=');
+          handlerBuffer.remove_suffix(handlerBuffer.length() - end);
+        }
+      } catch (std::exception& e) {
+        return std::nullopt;
       }
 
-      std::string handlerString = "?handler=";
-
-      size_t handlerDescriptorPosition = handler.find(handlerString);
-
-      if (handlerDescriptorPosition != std::string::npos) {
-        handler.remove_suffix(handlerString.length());
-      }
-
-      return std::string(handler);
+      return std::string(handlerBuffer);
     }
   };
 }

@@ -20,7 +20,7 @@ namespace HarborCLS {
 
     _logFilePath = logFilePath;
 
-    return std::move(fileStream);
+    return fileStream;
   }
 
   void FileAlwaysOpenPolicy::log(std::string completeLoggingMessage,

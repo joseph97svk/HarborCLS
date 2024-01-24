@@ -38,7 +38,9 @@ namespace HarborCLS {
                              , std::shared_ptr<ILogger> logger)
         : Handler(consumingQueue, std::move(logger))
         , _requestsQueue(producingQueue)
-        , _requestParser(std::move(requestParser)) {}
+        , _requestParser(std::move(requestParser)) {
+      _id = "RequestMiddlewareHandler: ";
+    }
 
   private:
     /**
@@ -53,17 +55,29 @@ namespace HarborCLS {
      * @param handlingData the data that is going to be handled.
      */
     void handleSingle(ConsumingType handlingData) override {
+      _logger->warning("<RequestMiddlewareHandler> :: Handling data");
       std::vector<char> requestData;
 
       *handlingData >> requestData;
+      _logger->warning("<RequestMiddlewareHandler> :: Data read");
 
       // ignore empty requests
       if (std::all_of(requestData.begin(), requestData.end(), [](char c) { return c == '\0'; })) {
+        _logger->warning("Received empty request");
         return;
       }
 
-      std::string requestString(requestData.begin(), requestData.end());
-
+      std::string_view requestString(requestData.begin(), requestData.end());
+      std::cout << "request text with size {" << requestString.size() << "}: " << std::endl;
+      for (auto& c : requestString) {
+        std::cout << c;
+      }
+      std::cout << std::endl;
+      std::cout << "request data: <";
+      for (auto& c : requestData) {
+        std::cout << static_cast<int>(c) << " ";
+      }
+      std::cout << ">\nend request data" << std::endl;
       ProducingType request = _requestParser->createRequest(requestData, handlingData);
 
       _requestsQueue.push(MiddlewareMessage<ProducingType>(request));

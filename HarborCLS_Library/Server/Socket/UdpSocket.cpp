@@ -100,30 +100,27 @@ namespace HarborCLS {
   }
 
   void UDPSocket::bind(const unsigned int portToBindTo) const {
-    struct sockaddr *ha;
-    struct sockaddr_in host4{};
-    struct sockaddr_in6 host6{};
+    uint16_t port = htons(static_cast<uint16_t>(portToBindTo));
+    struct sockaddr_in host4 {
+        .sin_family = AF_INET,
+        .sin_port = port,
+        .sin_addr = { INADDR_ANY },
+        .sin_zero = { 0 }
+    };
+    struct sockaddr_in6 host6 {
+        .sin6_family = AF_INET6,
+        .sin6_port = port,
+        .sin6_flowinfo = 0,
+        .sin6_addr = in6addr_any,
+        .sin6_scope_id = 0
+    };
 
-    socklen_t size;
+    std::pair<sockaddr *, socklen_t> ha = _ipv6 ?
+                                          std::make_pair(reinterpret_cast<sockaddr *>(&host6), sizeof(host6)) :
+                                          std::make_pair(reinterpret_cast<sockaddr *>(&host4), sizeof(host4));
 
-    if (_ipv6) {
-      memset(&host6, 0, sizeof(host6));
-      host6.sin6_family = AF_INET6;
-      host6.sin6_port = htons(portToBindTo);
-      host6.sin6_addr = in6addr_any;
-      ha = (sockaddr *) &host6;
-      size = sizeof(host6);
-    } else {
-      memset(&host4, 0, sizeof(host4));
-      host4.sin_family = AF_INET;
-      host4.sin_port = htons(portToBindTo);
-      host4.sin_addr.s_addr = INADDR_ANY;
-      ha = (sockaddr *) &host4;
-      size = sizeof(host4);
-    }
-
-    if (::bind(_socketId, (sockaddr *) ha, size) == -1) {
-      throw std::runtime_error("UdpSocket::bind: Failed to bind to port " + std::to_string(portToBindTo));
+    if (::bind(_socketId, ha.first, ha.second) == -1) {
+      throw std::runtime_error("TcpSocket::bind: Failed to bind to port: " + std::to_string(portToBindTo));
     }
   }
 
@@ -141,13 +138,13 @@ namespace HarborCLS {
                                   , bool broadcast
                                   , size_t readBufferSize) :
       _udpSocket(udpSocket)
-      , _broadcast(broadcast)
       , _sockInfo{}
+      , _broadcast(broadcast)
       , _readBufferSize(readBufferSize){
 
     memset(&(this->_sockInfo), 0, sizeof(sockaddr_in));
     _sockInfo.sin_family = AF_INET;
-    _sockInfo.sin_port = htons(port);
+    _sockInfo.sin_port = htons(static_cast<uint16_t>(port));
 
     this->_broadcast = broadcast;
     if (!ip.empty()) {

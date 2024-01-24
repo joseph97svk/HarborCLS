@@ -8,48 +8,35 @@
 #include <HarborCLS.hpp>
 
 #include "Pages/MainPage.hpp"
+#include "Pages/LegoFigurePage.hpp"
 
 #include "../LegoFigureMakerCommon/Services/StartUpPresenceNotificationService.hpp"
 
 #include "Services/LegoDiscoverService.hpp"
 #include "Services/RoutingService.hpp"
 #include "Services/LegoServerDiscoveryService.hpp"
+#include "Services/ImageRequestForwardingService.hpp"
+
+void addServices(HarborCLS::Builder<HarborCLS::HttpProtocol>& services);
 
 int main() {
   HarborCLS::HttpServer& server = HarborCLS::HttpServer::getInstance();
-
   server.addControlledShutdown(SIGINT, SIGKILL);
-
-  std::string path = "Servers/IntermediaryServer/Configuration.json";
 
   std::shared_ptr<HarborCLS::HttpWebApplication> intermediaryServer =
       std::make_shared<HarborCLS::HttpWebApplication>();
+  server.addWebApplication(intermediaryServer);
 
-  auto& services = intermediaryServer->manageDependencies();
-
+  std::string path = "Servers/IntermediaryServer/Configuration.json";
+  intermediaryServer->addConfiguration(path);
   intermediaryServer->addMVC();
   intermediaryServer->addFaviconManager();
 
-  intermediaryServer->addController<MainPage>("/");
+  intermediaryServer->addController<MainPage>("");
+  intermediaryServer->addController<LegoFigurePage>("legoFigure");
 
-  services.addSingleton<RoutingService>();
-
-  services.addOnStart<LegoDiscoverService>(&LegoDiscoverService::broadcastPresence);
-
-  std::shared_ptr<HarborCLS::BuilderReferenceWrapper<HarborCLS::HttpProtocol>> builderReferenceWrapper =
-      std::make_shared<HarborCLS::BuilderReferenceWrapper<HarborCLS::HttpProtocol>>(services);
-
-  services.addInstance(builderReferenceWrapper);
-
-  services.addLivingTask<LegoServerDiscoveryService>();
-  services.addLivingTask<HarborCLS::DefaultResourcesProviderService>();
-
-  services.addScoped<StartUpPresenceNotificationService>();
-  services.addScoped<FiguresService>();
-
-  intermediaryServer->addConfiguration(path);
-
-  server.addWebApplication(intermediaryServer);
+  auto& services = intermediaryServer->manageDependencies();
+  addServices(services);
 
   try {
     server.startServer();
@@ -58,4 +45,20 @@ int main() {
   }
 }
 
+void addServices(HarborCLS::Builder<HarborCLS::HttpProtocol>& services) {
+  services.addSingleton<RoutingService>();
+
+  services.addOnStart<LegoDiscoverService>(&LegoDiscoverService::broadcastPresence);
+
+  std::shared_ptr<HarborCLS::BuilderReferenceWrapper<HarborCLS::HttpProtocol>> builderReferenceWrapper =
+      std::make_shared<HarborCLS::BuilderReferenceWrapper<HarborCLS::HttpProtocol>>(services);
+  services.addInstance(builderReferenceWrapper);
+
+  services.addLivingTask<LegoServerDiscoveryService>();
+  services.addLivingTask<HarborCLS::DefaultResourcesProviderService>();
+ /* services.addLivingTask<ImageRequestForwardingService>();*/
+
+  services.addScoped<StartUpPresenceNotificationService>();
+  services.addScoped<FiguresService>();
+}
 

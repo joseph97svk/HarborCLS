@@ -34,10 +34,6 @@ namespace HarborCLS {
       _dependencyManager.template addLivingTask<WebServiceDispatchService<HttpProtocol>>();
     }
 
-    void addPictureManager() {
-
-    }
-
     void addFaviconManager() {
       _dependencyManager.template addLivingTask<FaviconHandlingService>();
     }
