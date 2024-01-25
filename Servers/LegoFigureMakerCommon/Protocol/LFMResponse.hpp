@@ -19,6 +19,22 @@ struct LFMResponse {
   LegoMessageCode messageCode;
 
   std::variant<std::string, std::vector<char>> responseContent;
+
+  LFMResponse(std::shared_ptr<HarborCLS::TcpSocket> connectionSocket
+              , LegoMessageCode responseMessageCode
+              , std::string responseMessageContent)
+      : socket(std::move(connectionSocket))
+      , messageCode(responseMessageCode)
+      , responseContent(std::move(responseMessageContent)) {
+  }
+
+  LFMResponse(std::shared_ptr<HarborCLS::TcpSocket> connectionSocket
+              , LegoMessageCode responseMessageCode
+              , std::vector<char> responseMessageContent)
+      : socket(std::move(connectionSocket))
+      , messageCode(responseMessageCode)
+      , responseContent(std::move(responseMessageContent)) {
+  }
 };
 
 #endif //HARBOR_CLS_LFMRESPONSE_HPP

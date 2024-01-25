@@ -52,7 +52,8 @@ namespace HarborCLS {
     }
 
     void replace(const std::string& key, const std::string& value) {
-      _replacements.emplace_back(key, value);
+      std::string replacementTag = "{" + key + "}";
+      _replacements.emplace_back(replacementTag, value);
     }
 
   protected:
@@ -71,7 +72,7 @@ namespace HarborCLS {
         replacementFunction(line, foundTag);
       }
 
-      return line;
+      return line + "\n";
     }
 
     void replaceTagWithContents(std::string& line

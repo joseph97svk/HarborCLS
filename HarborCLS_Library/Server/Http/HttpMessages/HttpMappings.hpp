@@ -10,7 +10,7 @@
 namespace HarborCLS {
 
   struct HttpMappings {
-    static constexpr const std::string separator = "\r\n\r\n";
+    static constexpr const std::string separator = "\r\n";
 
     enum class Method {
       DEFAULT = 0,

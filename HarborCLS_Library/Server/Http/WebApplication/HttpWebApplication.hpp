@@ -10,6 +10,7 @@
 
 #include "../../WebApplication/WebAppDefaultServices/MVC/Controller/ControllerManager.hpp"
 #include "Server/Http/WebApplication/Services/MVC/HttpController.hpp"
+#include "../../WebApplication/WebAppDefaultServices/FaviconHandlingService.hpp"
 
 namespace HarborCLS {
 
@@ -33,12 +34,8 @@ namespace HarborCLS {
       _dependencyManager.template addLivingTask<WebServiceDispatchService<HttpProtocol>>();
     }
 
-    void addPictureManager() {
-
-    }
-
     void addFaviconManager() {
-
+      _dependencyManager.template addLivingTask<FaviconHandlingService>();
     }
   };
 

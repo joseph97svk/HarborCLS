@@ -61,14 +61,17 @@ namespace HarborCLS {
 
   protected:
     void setApplicationDataSetContainer() {
-      std::shared_ptr<Hypodermic::Container> globalContainer = _globalBuilder.build();
+      if (this->_globalContainer.get() == nullptr) {
+        this->_globalContainer = _globalBuilder.build();
+      }
+
       std::shared_ptr<Hypodermic::Container> scopedContainer =
-          _scopedBuilder.buildNestedContainerFrom(*globalContainer);
+          _scopedBuilder.buildNestedContainerFrom(*_globalContainer);
       std::shared_ptr<Hypodermic::Container> tasksContainer =
           _taskBuilder.buildNestedContainerFrom(*scopedContainer);
 
       ContainerBundle<Hypodermic::Container> tasksContainerBundle {
-          ._globalContainer = globalContainer
+          ._globalContainer = _globalContainer
           , ._scopedContainer = scopedContainer
           , ._tasksContainer = tasksContainer
       };

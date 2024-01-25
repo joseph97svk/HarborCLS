@@ -16,7 +16,9 @@ public:
 
   virtual std::vector<std::string> getAllNames() = 0;
 
-  virtual std::vector<LegoFigure>& getAllFigures() = 0;
+  virtual std::vector<LegoFigure> getAllFigures() = 0;
+
+  virtual std::optional<std::reference_wrapper<LegoFigure>> getFigureByName(const std::string& name) = 0;
 };
 
 #endif //HARBOR_CLS_ILEGOREPOSITORY_HPP

@@ -52,9 +52,10 @@ namespace HarborCLS {
 
   [[nodiscard]] std::shared_ptr<HttpRequest> HttpRequestParser::createRequest(std::vector<char> &request,
                                                                               std::shared_ptr<TcpSocket> socket) {
+    std::string headerEnd = HttpMappings::separator + HttpMappings::separator;
     auto separatorLocation
-        = std::search(request.begin(), request.end(), HttpMappings::separator.begin(),
-                                         HttpMappings::separator.end());
+        = std::search(request.begin(), request.end(), headerEnd.begin(),
+                                         headerEnd.end());
 
     std::string headerString(request.begin(), separatorLocation);
     HttpHeader header = HttpHeaderParser::parseHeader(headerString);

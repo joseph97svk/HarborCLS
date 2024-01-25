@@ -23,6 +23,11 @@
 #include "Server/Middleware/MiddlewareMessage.hpp"
 
 #include "Server/WebApplication/DependencyManagement/BuilderReferenceWrapper.hpp"
+#include "Server/WebApplication/WebAppDefaultServices/MVC/Controller/BaseController.hpp"
+#include "Server/WebApplication/WebAppDefaultServices/MVC/View/BaseView.hpp"
+#include "Server/WebApplication/WebAppDefaultServices/MVC/View/HtmlElement.hpp"
+#include "Server/WebApplication/WebAppDefaultServices/DefaultResourcesProviderService.hpp"
+#include "Server/WebApplication/WebAppDefaultServices/StaticImageProviderService.hpp"
 
 // for all logger related includes
 #include "Logger/LoggerFactory/LoggerFactory.hpp"

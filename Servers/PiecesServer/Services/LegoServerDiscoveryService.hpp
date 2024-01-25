@@ -17,40 +17,43 @@ class LegoServerDiscoveryService : public HarborCLS::BaseWebAppService<LegoFigur
   using IncomingMessageType = std::shared_ptr<typename LegoFigureMakerProtocol::RequestType>;
   using OutgoingMessageType = std::shared_ptr<typename LegoFigureMakerProtocol::ResponseType>;
 
-  HarborCLS::MiddlewareBlockingQueue<std::shared_ptr<std::vector<char>>> _connectionsQueue;
+  HarborCLS::MiddlewareBlockingQueue<std::shared_ptr<std::vector<char>>> _connectionsQueue {};
 
-  std::shared_ptr<BroadcastListener> _broadcastListener;
-  std::shared_ptr<LegoDiscoverHandler> _legoDiscoverHandler;
+  std::shared_ptr<BroadcastListener> _broadcastListener {};
+  std::shared_ptr<LegoDiscoverHandler> _legoDiscoverHandler {};
 
 public:
   explicit LegoServerDiscoveryService(
-      std::shared_ptr<HarborCLS::BuilderReferenceWrapper<LegoFigureMakerProtocol>> dependencyResolver) :
+      const std::shared_ptr<HarborCLS::BuilderReferenceWrapper<LegoFigureMakerProtocol>>& dependencyResolver) :
       HarborCLS::BaseWebAppService<LegoFigureMakerProtocol>(){
-
-    std::string ip;
 
     auto container = dependencyResolver->builder.createScopedContainer();
     std::shared_ptr<ILegoRepository> repository = container->resolve<LegoInMemoryRepository>();
 
-    _broadcastListener = std::make_shared<BroadcastListener>(
-        _connectionsQueue
-        , std::make_shared<HarborCLS::UDPSocket>()
-        , PIECES_UDP_PORT
-        , this->_logger
-        , ip
-        , PIECES_UDP_PORT);
+    this->setSetUpSequence([=, this](BaseWebAppService& app) {
+      (void) app;
+      std::string ip;
 
-    _legoDiscoverHandler = std::make_shared<LegoDiscoverHandler>(
-        _connectionsQueue
-        , this->_logger
-        , repository);
+      _broadcastListener = std::make_shared<BroadcastListener>(
+          _connectionsQueue
+          , std::make_shared<HarborCLS::UDPSocket>()
+          , PIECES_UDP_PORT
+          , this->_logger
+          , ip
+          , PIECES_UDP_PORT);
 
-    this->setSetUpSequence([this](BaseWebAppService& app) {
+      _legoDiscoverHandler = std::make_shared<LegoDiscoverHandler>(
+          _connectionsQueue
+          , this->_logger
+          , repository);
+
       _broadcastListener->start();
       _legoDiscoverHandler->start();
     });
 
     this->setTearDownSequence([this](BaseWebAppService& app) {
+      (void) app;
+
       _broadcastListener->stop();
 
       _broadcastListener->waitToFinish();
@@ -59,10 +62,14 @@ public:
   }
 
   bool canHandle(IncomingMessageType request) override {
+    (void) request;
+
     return false;
   }
 
   std::optional<HarborCLS::MiddlewareMessage<OutgoingMessageType>> handleTask(IncomingMessageType request) override {
+    (void) request;
+
     return std::nullopt;
   }
 };

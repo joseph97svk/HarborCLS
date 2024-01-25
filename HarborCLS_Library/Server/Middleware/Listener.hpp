@@ -72,9 +72,11 @@ namespace HarborCLS {
         }
 
         std::expected<enqueueType, std::variant<StopCondition, Error<MessageErrors>>> dataContents = data.getContent();
+
         if (!dataContents) {
           std::visit(overloaded{
               [this](StopCondition& stopCondition) {
+                (void) stopCondition;
                 _stopThread = true;
               },
               [this](Error<MessageErrors>& error) {
@@ -89,7 +91,6 @@ namespace HarborCLS {
             break;
           }
         }
-
         _queue.get().push(data);
       }
     }

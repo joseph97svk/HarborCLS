@@ -10,16 +10,16 @@
 
 #include "../../LegoFigureMakerCommon/Protocol/LegoFigureMakerProtocol.hpp"
 
-#include "../Services/RoutingMapService.hpp"
+#include "../Services/RoutingService.hpp"
 
 class LegoPresentHandler : public HarborCLS::Handler<std::shared_ptr<std::vector<char>>> {
-  std::shared_ptr<RoutingMapService> _routingMapService;
+  std::shared_ptr<RoutingService> _routingMapService;
 
 public:
   LegoPresentHandler(
       HarborCLS::MiddlewareBlockingQueue<std::shared_ptr<std::vector<char>>> &incomingQueue
       , std::shared_ptr<HarborCLS::ILogger> logger
-      , std::shared_ptr<RoutingMapService> routingMapService)
+      , std::shared_ptr<RoutingService> routingMapService)
       : HarborCLS::Handler<std::shared_ptr<std::vector<char>>>(incomingQueue, std::move(logger))
       , _routingMapService(std::move(routingMapService)) {
   }
@@ -46,7 +46,7 @@ public:
 
     message.remove_prefix(message.find(SEPARATOR));
 
-    while (!message.empty()) {
+    while (!message.empty() && !(message.size() == 1 && message[0] == SEPARATOR)) {
       std::string_view messageSearchTarget = message.substr(1);
       size_t figureEnd = messageSearchTarget.find(SEPARATOR) == std::string::npos
           ? messageSearchTarget.size()
@@ -56,7 +56,7 @@ public:
 
       message.remove_prefix(figureEnd + 1);
 
-      _routingMapService->insert({ figureName, routingInfo });
+      _routingMapService->addRoute({figureName, routingInfo});
     }
   }
 

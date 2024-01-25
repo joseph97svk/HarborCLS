@@ -18,6 +18,8 @@ namespace HarborCLS {
 
     std::shared_ptr<ILogger> _logger;
 
+    std::string _id = "";
+
   public:
     explicit Handler(MiddlewareBlockingQueue<consumeDataType>& consumingQueue
                      , std::shared_ptr<ILogger> logger)
@@ -42,6 +44,7 @@ namespace HarborCLS {
 
         std::visit(overloaded{
           [this](StopCondition &stopCondition) {
+            (void) stopCondition;
             this->optionalToEnd();
           },
           [this](Error<MessageErrors> &error) {

@@ -23,6 +23,7 @@
 #include "WebAppDefaultServices/WebPageDispatchService.hpp"
 
 #include "Server/WebApplication/WebAppDefaultServices/MVC/Controller/BaseController.hpp"
+#include "Server/WebApplication/WebAppDefaultServices/Configuration.hpp"
 
 namespace HarborCLS {
 
@@ -45,14 +46,14 @@ namespace HarborCLS {
     MiddlewareBlockingQueue<std::shared_ptr<RequestType>> _requestsQueue {};
     std::optional<std::reference_wrapper<MiddlewareBlockingQueue<std::shared_ptr<ResponseType>>>> _responsesQueue {};
 
-    ServerConfiguration _configuration {};
+    std::shared_ptr<IConfiguration<ServerConfiguration>> _configurationService {};
 
     std::shared_ptr<ILogger> _logger {};
 
     Builder<Protocol> _dependencyManager {};
 
     std::shared_ptr<IWebServiceResolver<Protocol>> _webServiceResolver
-        = std::make_shared<WebServiceResolver<Protocol>>();;
+        = std::make_shared<WebServiceResolver<Protocol>>();
 
   public:
     GenericWebApplication() {
@@ -66,7 +67,7 @@ namespace HarborCLS {
      * @param fallBackConfiguration the default configuration
      */
     void setDefaultFallBackConfiguration(const ServerConfiguration &fallBackConfiguration) {
-      _configuration = fallBackConfiguration;
+      _configurationService = std::make_shared<Configuration>(fallBackConfiguration);
     }
 
     void setCustomWebServiceResolver(std::shared_ptr<IWebServiceResolver<Protocol>> webServiceResolver) {
@@ -87,25 +88,26 @@ namespace HarborCLS {
       };
 
       LoggerFactory loggerFactory(loggerConfiguration);
-      auto tempLogger = std::move(loggerFactory.createLogger());
+      auto tempLogger = loggerFactory.createLogger();
 
       if (configurationJsonPath.empty()) {
         tempLogger->info("No configuration provided, using default configuration");
 
-        if (_configuration == ServerConfiguration::createDefaultConfiguration()) {
+        if (_configurationService->getConfiguration() == ServerConfiguration::createDefaultConfiguration()) {
           tempLogger->info("No fallback configuration provided, using default configuration");
         }
       }
 
       try {
-        JsonHandler<ServerConfiguration, ServerConfigurationParsingPolicy>
-            jsonHandler(configurationJsonPath, true);
-        _configuration = jsonHandler.deserialize();
+        _configurationService = std::make_shared<Configuration>(configurationJsonPath);
       } catch (std::exception &exception) {
         tempLogger->error("Error while parsing configuration file: " + std::string(exception.what()));
         tempLogger->info("Using default configuration");
-        _configuration = ServerConfiguration::createDefaultConfiguration();
+        _configurationService = std::make_shared<Configuration>(
+            ServerConfiguration::createDefaultConfiguration());
       }
+
+      this->_dependencyManager.addInstance(_configurationService);
     }
 
     /**
@@ -120,16 +122,28 @@ namespace HarborCLS {
      * Initializes the application and starts its operation
      */
     void startApplication(std::shared_ptr<RequestParserInterface> requestParser) {
-      LoggerFactory loggerFactory(_configuration.loggerConfiguration);
+      bool configurationSet = _configurationService != nullptr;
+
+      if (!configurationSet) {
+        _configurationService = std::make_shared<Configuration>(ServerConfiguration::createDefaultConfiguration());
+      }
+
+      ServerConfiguration& configuration = _configurationService->getConfiguration();
+
+      LoggerFactory loggerFactory(configuration.loggerConfiguration);
       _logger = loggerFactory.createLogger();
+
+      if (!configurationSet) {
+        _logger->warning("No configuration provided nor fallback configuration set. Using default configuration.");
+      }
 
       this->startResources(std::move(requestParser));
 
       _logger->info("Web application initialized");
-      _logger->info("Listening on: " + getComputerIp() + ":" + std::to_string(_configuration.port));
+      _logger->info("Listening on: " + getComputerIp() + ":" + std::to_string(configuration.port));
 
-      _socket->bind(_configuration.port);
-      _socket->listen(_configuration.requestsQueueSize);
+      _socket->bind(configuration.port);
+      _socket->listen(configuration.requestsQueueSize);
 
       _tcpListener->start();
 
@@ -190,19 +204,21 @@ namespace HarborCLS {
 
   protected:
     inline void startResources(std::shared_ptr<RequestParserInterface> requestParser) {
-      std::string sslCertPath = _configuration.sslCertFileName;
-      std::string sslKey = _configuration.sslKeyFileName;
+      ServerConfiguration& configuration = _configurationService->getConfiguration();
+
+      std::string sslCertPath = configuration.sslCertFileName;
+      std::string sslKey = configuration.sslKeyFileName;
 
       _socket = std::make_shared<SocketType>(false);
       _tcpListener = std::make_optional<ConnectionListener<SocketType>>(
           _connectionsQueue
           , _socket
-          , _configuration.port
+          , configuration.port
           , _logger
       );
 
-      for (int requestHandlerIndex = 0;
-           requestHandlerIndex < _configuration.requestHandlerAmount;
+      for (unsigned int requestHandlerIndex = 0;
+           requestHandlerIndex < configuration.requestHandlerAmount;
            ++requestHandlerIndex) {
         _requestMiddlewareHandlers.emplace_back(
             _connectionsQueue
@@ -217,13 +233,12 @@ namespace HarborCLS {
 
       std::shared_ptr<std::vector<std::shared_ptr<BaseWebAppService<Protocol>>>> livingTasks
           = tasksContainer.getLivingTasks();
-
       for (auto &livingTask: *livingTasks) {
         livingTask->setWebAppLinking(*_responsesQueue, _logger);
       }
 
-      for (int applicationHandlerIndex = 0;
-           applicationHandlerIndex < _configuration.applicationHandlerAmount;
+      for (unsigned int applicationHandlerIndex = 0;
+           applicationHandlerIndex < configuration.applicationHandlerAmount;
            ++applicationHandlerIndex) {
         _applicationMiddlewareHandlers.emplace_back(
             _requestsQueue

@@ -41,10 +41,12 @@ namespace HarborCLS {
       httpHeader.fields[headerField] = value;
     }
 
-    return std::move(httpHeader);
+    return httpHeader;
   }
 
   bool HttpHeaderParser::isHeaderValid(std::string &header) {
+    (void) header;
+
     return false;
   }
 

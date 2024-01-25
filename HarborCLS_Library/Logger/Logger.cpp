@@ -12,8 +12,8 @@ Logger::Logger (std::shared_ptr<ILoggerBufferingPolicy> bufferingStrategy,
                 std::shared_ptr<ILoggerFileManagementPolicy> fileManagementStrategy,
                 std::shared_ptr<ILogFileRotation> fileRotationStrategy,
                 std::string& logFilePath)
-        : _bufferingStrategy(std::move(bufferingStrategy))
-        , _fileManagementStrategy(std::move(fileManagementStrategy))
+        : _fileManagementStrategy(std::move(fileManagementStrategy))
+        , _bufferingStrategy(std::move(bufferingStrategy))
         , _fileRotationStrategy(std::move(fileRotationStrategy))
         , _logFile(_fileManagementStrategy->getLogFile(logFilePath)) {}
 
@@ -51,13 +51,11 @@ void Logger::info(std::string message) {
 template<class... Ts> struct overloaded : Ts... { using Ts::operator()...; };
 
 void Logger::logMessage(const std::string& messageType, std::string& message) {
-  assert(!message.empty());
-
-  while (!_logFutures.empty()) {
-    _logFutures.pop_back();
+  if (message.empty()) {
+    return;
   }
 
-  _logFutures.push_back(std::async([this, message, messageType]() -> void {
+  _logFutures.emplace_back(std::async([this, message, messageType]() -> void {
     std::string completedMessage = getCurrentTime() + " [ " + messageType + " ] : " + message;
     std::optional<std::string> bufferedMessage = _bufferingStrategy->buffer(completedMessage);
 
@@ -70,11 +68,30 @@ void Logger::logMessage(const std::string& messageType, std::string& message) {
         fileStream = ofs;
       },
       [&fileStream](const std::string& str) {
+        (void) str;
         fileStream = std::nullopt;
       }
     }, _logFile);
 
     _fileManagementStrategy->log(bufferedMessage.value(), fileStream, _canWrite);
   }));
+
+  std::lock_guard<std::mutex> lock(_canModifyFutures);
+  for (auto future = _logFutures.begin(); future != _logFutures.end(); ++future) {
+    if (future->wait_for(std::chrono::seconds(0)) == std::future_status::ready) {
+      future->wait();
+      future = _logFutures.erase(future);
+    }
+  }
 }
+
+  Logger::~Logger() {
+    std::lock_guard<std::mutex> lock(_canModifyFutures);
+    for (auto future = _logFutures.begin(); future != _logFutures.end(); ++future) {
+      if (future->wait_for(std::chrono::seconds(0)) == std::future_status::ready) {
+        future->wait();
+        future = _logFutures.erase(future);
+      }
+    }
+  }
 }

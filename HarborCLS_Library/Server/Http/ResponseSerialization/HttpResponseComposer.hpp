@@ -23,53 +23,66 @@ namespace HarborCLS {
                                  " application middleware handler.");
       }
 
-      std::vector<char> responseBody = composeBody(response);
+      std::pair<std::vector<char>, bool> responseBody = composeBody(response);
 
-      std::string header = generateHeader(response, responseBody.size());
+      std::string header = generateHeader(response, responseBody.first.size(), responseBody.second);
 
       std::vector<char> responseVector = std::vector<char>(header.begin(), header.end());
 
-      responseVector.insert(responseVector.end(), responseBody.begin(), responseBody.end());
+      responseVector.insert(responseVector.end(), responseBody.first.begin(), responseBody.first.end());
 
       return responseVector;
     }
 
   private:
-    [[nodiscard]] static std::string generateHeader(HttpResponse& response, size_t bodySize) {
+    [[nodiscard]] static std::string generateHeader(HttpResponse& response, size_t bodySize, bool vectorized) {
+      (void) vectorized;
+
       std::string header;
 
-      header += response.htmlVersion + " ";
-      header += HttpResponseStatusCode::getStatusCodeString(response.statusCode) + "\r\n";
+      header +=
+          response.htmlVersion
+          + " "
+          + HttpResponseStatusCode::getStatusCodeString(response.statusCode)
+          + HttpMappings::separator;
 
       if (contentTypeMap.contains(response.contentType)) {
-        header += "Content-Type: " + contentTypeMap.at(response.contentType) + "\r\n";
+        header += "Content-Type: " + contentTypeMap.at(response.contentType) + HttpMappings::separator;
+      }
+
+      header += "Server: HarborCLS" + HttpMappings::separator;
+
+      for (auto &field: response.otherHeaderFields) {
+        header += field.fieldName + ": " + field.value + HttpMappings::separator;
       }
 
       size_t contentLength = response.contentLength
-          ? response.contentLength.value()
-          : bodySize;
+                             ? response.contentLength.value()
+                             : bodySize;
 
-      header += "Content-Length: " + std::to_string(contentLength) + "\r\n";
 
-      for (auto &field: response.otherHeaderFields) {
-        header += field.fieldName + ": " + field.value + "\r\n";
+      header += "Content-Length: " + std::to_string(contentLength) + HttpMappings::separator;
+
+      if (!response.contentTypeAdditionalInfo.empty()) {
+        header += response.contentTypeAdditionalInfo + HttpMappings::separator;
       }
 
       header += HttpMappings::separator;
+/*      header += HttpMappings::separator;*/
 
       return header;
     }
 
-
-    [[nodiscard]] static std::vector<char> composeBody(HttpResponse& response) {
-      std::vector<char> body;
+    [[nodiscard]] static std::pair<std::vector<char>, bool> composeBody(HttpResponse& response) {
+      std::pair<std::vector<char>, bool> body {{}, false};
 
       std::visit(overloaded{
           [&body](std::string &str) {
-            body = std::vector<char>(str.begin(), str.end());
+            body.first = std::move(std::vector<char>(str.begin(), str.end()));
           },
           [&body](std::vector<char> &vec) {
-            body = std::move(vec);
+            body.first = std::move(vec);
+            body.second = true;
           }
       }, response.body);
 

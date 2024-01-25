@@ -24,10 +24,10 @@ namespace HarborCLS {
 
     Basic_HttpRequest() = default;
 
-    Basic_HttpRequest(std::shared_ptr<SocketType> socket,
-                      HttpHeader header,
-                      std::shared_ptr<std::variant<std::string, std::vector<char>>> body)
-        : socket(std::move(socket)), header(std::move(header)), body(std::move(body)) {}
+    Basic_HttpRequest(std::shared_ptr<SocketType> clientSocket,
+                      HttpHeader requestHeader,
+                      std::shared_ptr<std::variant<std::string, std::vector<char>>> requestBody)
+        : socket(std::move(clientSocket)), header(std::move(requestHeader)), body(std::move(requestBody)) {}
   };
 }
 

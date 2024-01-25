@@ -8,11 +8,18 @@
 #include <string>
 #include <optional>
 
-class IConfiguration {
-public:
+namespace HarborCLS {
+
+  template<typename ConfigurationClassType>
+  class IConfiguration {
+  public:
     virtual ~IConfiguration() = default;
 
-    std::optional<std::string> get(const std::string& key);
-};
+    virtual std::optional<std::string> get(const std::string &key) = 0;
+
+    virtual ConfigurationClassType& getConfiguration() = 0;
+  };
+
+}
 
 #endif //HARBOR_CLS_ICONFIGURATION_HPP

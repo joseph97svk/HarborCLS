@@ -25,13 +25,15 @@ namespace HarborCLS {
 
     std::optional<SSLController> _sslController;
 
+    std::optional<timeval> _bufferedTimeoutBeforeChange;
+
     const unsigned int BUFFER_SIZE = 512;
   public:
     /**
      * @brief Creates a TcpSocket object with the given parameters.
      * @param ipv6 Whether or not to use _ipv6.
      */
-    explicit TcpSocket(bool ipv6);
+    explicit TcpSocket(bool ipv6 = false);
 
     /**
      * @brief Creates a TcpSocket object with the given parameters.
@@ -52,7 +54,7 @@ namespace HarborCLS {
     /**
      * @brief Destroys the TcpSocket object.
      */
-    ~TcpSocket() = default;
+    ~TcpSocket();
 
     /**
      * @brief Connects to the given host and port.
@@ -135,7 +137,9 @@ namespace HarborCLS {
      * @param seconds to wait for timeout.
      * @param microseconds to wait for timeout.
      */
-    void setTimeout(size_t seconds, size_t microseconds) const;
+    void setTimeout(size_t seconds, size_t microseconds);
+
+    void resetTimeout();
 
     [[nodiscard]] bool isIpV6() const noexcept;
 
@@ -148,7 +152,7 @@ namespace HarborCLS {
 
     [[nodiscard]] std::expected<Success, SocketError> ipv6Connect(const std::string &host, int port) const;
 
-    [[nodiscard]] unsigned int Write(const std::span<char> &message) const;
+    [[nodiscard]] size_t Write(const std::span<char> &message) const;
 
     [[nodiscard]] std::pair<std::vector<char>, unsigned int> Read() const;
   };

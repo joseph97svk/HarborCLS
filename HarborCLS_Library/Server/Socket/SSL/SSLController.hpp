@@ -77,7 +77,7 @@ namespace HarborCLS {
      * @param data The data to write.
      * @return The number of bytes written.
      */
-    unsigned int SSLWrite(const std::span<char> &data);
+    size_t SSLWrite(const std::span<char> &data);
 
   private:
     void initServerContext(const std::string &certFileName, const std::string &keyFileName);

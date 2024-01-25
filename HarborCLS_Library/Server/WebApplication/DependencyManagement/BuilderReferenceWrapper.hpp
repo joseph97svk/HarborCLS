@@ -13,7 +13,7 @@ namespace HarborCLS {
   struct BuilderReferenceWrapper {
     HarborCLS::Builder<Protocol> &builder;
 
-    explicit BuilderReferenceWrapper(HarborCLS::Builder<Protocol> &builder) : builder(builder) {}
+    explicit BuilderReferenceWrapper(HarborCLS::Builder<Protocol> &builderReference) : builder(builderReference) {}
   };
 }
 

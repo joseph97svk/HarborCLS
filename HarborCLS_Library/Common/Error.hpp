@@ -58,6 +58,10 @@ namespace HarborCLS {
     ErrorType errorType() const noexcept {
       return _errorType;
     }
+
+    ErrorType& errorType() noexcept {
+      return _errorType;
+    }
   };
 
   /**

@@ -32,7 +32,7 @@ public:
     std::string ip;
 
     auto container = _dependencyResolver.createScopedContainer();
-    std::shared_ptr<RoutingMapService> routingMapService = container->resolve<RoutingMapService>();
+    std::shared_ptr<RoutingService> routingMapService = container->resolve<RoutingService>();
 
     this->setSetUpSequence([=, this](BaseWebAppService& app) {
       _broadcastListener = std::make_shared<BroadcastListener>(
@@ -53,6 +53,8 @@ public:
     });
 
     this->setTearDownSequence([this](BaseWebAppService& app) {
+      (void) app;
+
       _broadcastListener->stop();
 
       _broadcastListener->waitToFinish();
@@ -61,10 +63,14 @@ public:
   }
 
   bool canHandle(IncommingMessageType request) override {
+    (void) request;
+
     return false;
   }
 
   std::optional<HarborCLS::MiddlewareMessage<OutgoingMessageType>> handleTask(IncommingMessageType request) override {
+    (void) request;
+
     return std::nullopt;
   }
 };

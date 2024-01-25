@@ -23,7 +23,7 @@ LegoPresentService:: LegoPresentService(
 void LegoPresentService::broadcastPresence() {
   std::vector<char> message = LegoPresentService::createPresenceMessage(
       LegoMessageCode::LEGO_PRESENT
-      , PIECES_UDP_PORT
+      , PIECES_TCP_PORT
       , HarborCLS::getComputerIp());
 
   std::vector<std::pair<std::string, int>> targets = createBroadcastTargets();
@@ -76,14 +76,6 @@ inline std::vector<char> LegoPresentService::createPresenceMessage(
     message.insert(message.end(), legoFigure.begin(), legoFigure.end());
     message.push_back(SEPARATOR);
   }
-
-  std::cout << "Message: " << std::endl;
-
-  for (char c : message) {
-    std::cout << c;
-  }
-
-  std::cout << std::endl;
 
   return message;
 }
