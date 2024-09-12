@@ -23,12 +23,14 @@ int main() {
   HarborCLS::HttpServer& server = HarborCLS::HttpServer::getInstance();
   server.addControlledShutdown(SIGINT, SIGKILL);
 
-  std::shared_ptr<HarborCLS::HttpWebApplication> intermediaryServer =
+  const std::shared_ptr<HarborCLS::HttpWebApplication> intermediaryServer =
       std::make_shared<HarborCLS::HttpWebApplication>();
+
   server.addWebApplication(intermediaryServer);
 
-  std::string path = "Servers/IntermediaryServer/Configuration.json";
+  const std::string path = "Servers/IntermediaryServer/Configuration.json";
   intermediaryServer->addConfiguration(path);
+
   intermediaryServer->addMVC();
   intermediaryServer->addFaviconManager();
 
@@ -41,7 +43,7 @@ int main() {
   try {
     server.startServer();
   } catch (std::exception& e) {
-    std::cout << "Server Fatal error - " << e.what() << std::endl;
+    std::cerr << "Server Fatal error - " << e.what() << std::endl;
   }
 }
 
@@ -56,7 +58,7 @@ void addServices(HarborCLS::Builder<HarborCLS::HttpProtocol>& services) {
 
   services.addLivingTask<LegoServerDiscoveryService>();
   services.addLivingTask<HarborCLS::DefaultResourcesProviderService>();
- services.addLivingTask<ImageRequestForwardingService>();
+  services.addLivingTask<ImageRequestForwardingService>();
 
   services.addScoped<StartUpPresenceNotificationService>();
   services.addScoped<FiguresService>();

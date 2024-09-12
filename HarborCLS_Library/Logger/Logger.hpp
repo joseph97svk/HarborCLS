@@ -6,28 +6,27 @@
 #define HARBOR_CLS_LOGGER_HPP
 
 #include <string>
-#include <utility>
 #include <variant>
 #include <fstream>
 #include <mutex>
 #include <memory>
 #include <future>
-#include <optional>
-#include <vector>
+#include <iostream>
 #include <list>
 
-#include "../Common/FileManagement.hpp"
 #include "../Common/common.hpp"
 
 #include "ILogger.hpp"
 #include "LoggingFileManagementPolicies/ILoggerFileManagementPolicy.hpp"
 #include "LoggingBufferingPolicies/ILoggerBufferingPolicy.hpp"
 #include "LogFileRotationPolicies/ILogFileRotation.hpp"
-#include "LoggerConfiguration.hpp"
+
+#include "LoggerThread.hpp"
 
 namespace HarborCLS {
 
   class Logger : public ILogger {
+  protected:
     std::shared_ptr<ILoggerFileManagementPolicy> _fileManagementStrategy {};
     std::shared_ptr<ILoggerBufferingPolicy> _bufferingStrategy {};
     std::shared_ptr<ILogFileRotation> _fileRotationStrategy {};
@@ -37,7 +36,7 @@ namespace HarborCLS {
 
     std::variant<std::string, std::ofstream> _logFile {};
 
-    std::list<std::shared_future<void>> _logFutures {};
+    LazyThread _loggerThread {};
 
   public:
     /**
@@ -55,34 +54,34 @@ namespace HarborCLS {
     /**
      * @brief Destroy the Logger object
      */
-    ~Logger() override;
+    ~Logger() override = default;
 
     /**
      * @brief logs a generic log message
      * @param message message to log
      */
-    void log(std::string message) override;
+    void log(const std::string& message) override;
 
     /**
      * @brief logs a warning
      * @param message message to log
      */
-    void warning(std::string message) override;
+    void warning(const std::string& message) override;
 
     /**
      * @brief logs an error
      * @param message message to log
      */
-    void error(std::string message) override;
+    void error(const std::string& message) override;
 
     /**
      * @brief logs an info message
      * @param message message to log
      */
-    void info(std::string message) override;
+    void info(const std::string& message) override;
 
   protected:
-    void logMessage(const std::string &messageType, std::string &message);
+    void logMessage(const std::string &messageType, const std::string& message);
   };
 }
 

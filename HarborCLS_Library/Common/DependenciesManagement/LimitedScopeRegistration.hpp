@@ -5,7 +5,6 @@
 #ifndef HARBOR_CLS_LIMITEDSCOPEREGISTRATION_HPP
 #define HARBOR_CLS_LIMITEDSCOPEREGISTRATION_HPP
 
-#include <Hypodermic/RegistrationDescriptorBuilder.h>
 #include "Hypodermic/Hypodermic/ContainerBuilder.h"
 
 #include "LimitedScopeInstanceTracing.hpp"

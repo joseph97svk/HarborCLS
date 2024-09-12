@@ -18,7 +18,7 @@ if (TSAN_BUILD)
     add_link_options(-fsanitize=thread)
 endif()
 
-add_compile_options(-Wall -Wextra -Wshadow -Wconversion -Wpedantic -Werror)
+add_compile_options(-Wall -Wextra -Wshadow -Wconversion -Wpedantic)
 
 add_subdirectory(HarborCLS_Library)
 add_subdirectory(Servers/LegoFigureMakerCommon)

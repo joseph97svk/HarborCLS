@@ -98,19 +98,16 @@ namespace HarborCLS {
      * Stops the operation of the server
      */
     void stopServer() {
-      std::cout << std::endl;
-      _logger->warning("Stopping server");
-
       for (std::shared_ptr<GenericWebApplication<Protocol>>& webApplication : _webApplications) {
         webApplication->stopApplication();
       }
-
-      _logger->info("Server terminated");
     }
 
     template<typename... Args>
     void addControlledShutdown(int first, Args... args) {
-      signal(first, [](int signal) {
+      const int errnoBuffer = errno;
+
+      signal(first, [](const int signal) {
         (void) signal;
         GenericServer::getInstance().stopServer();
       });
@@ -118,13 +115,19 @@ namespace HarborCLS {
       if constexpr (sizeof...(args) > 0) {
         addControlledShutdown(args...);
       }
+
+      errno = errnoBuffer;
     }
 
     void addControlledShutdown(int first) {
-      signal(first, [](int signal) {
+      const int errnoBuffer = errno;
+
+      signal(first, [](const int signal) {
         (void) signal;
         GenericServer::getInstance().stopServer();
       });
+
+      errno = errnoBuffer;
     }
 
   protected:

@@ -5,7 +5,6 @@
 #ifndef HARBOR_CLS_LIMITEDSCOPEINSTANCETRACING_HPP
 #define HARBOR_CLS_LIMITEDSCOPEINSTANCETRACING_HPP
 
-#include <Hypodermic/RegistrationDescriptorBuilder.h>
 #include "Hypodermic/Hypodermic/ContainerBuilder.h"
 
 template<typename ScopedType>

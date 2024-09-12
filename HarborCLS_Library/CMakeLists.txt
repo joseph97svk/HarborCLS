@@ -11,7 +11,9 @@ file(GLOB_RECURSE COMMON_SOURCES
         "*.cpp"
         "*.hpp")
 
-add_library(HarborCLS_Library ${COMMON_SOURCES})
+add_library(HarborCLS_Library ${COMMON_SOURCES}
+        Logger/CurrentTimeManagement.hpp
+        Logger/LoggerThread.hpp)
 target_include_directories(HarborCLS_Library PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
 
 find_package(OpenSSL REQUIRED)

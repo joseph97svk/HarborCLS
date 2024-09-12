@@ -9,6 +9,7 @@
 #include <string>
 #include <fstream>
 #include <mutex>
+#include <optional>
 
 namespace HarborCLS {
 

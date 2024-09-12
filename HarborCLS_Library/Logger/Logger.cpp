@@ -3,8 +3,18 @@
 //
 
 #include "Logger.hpp"
+#include "CurrentTimeManagement.hpp"
+#include <cstring>
 
-#include <cassert>
+static const std::string YELLOW_COLOR = "\033[1;33m";
+static const  std::string RED_COLOR = "\033[1;31m";
+static const  std::string GREEN_COLOR = "\033[1;32m";
+static const  std::string RESET_COLOR = "\033[0m";
+
+static const  std::string LOG_MESSAGE = "Log";
+static const  std::string WARNING_MESSAGE = YELLOW_COLOR + "Warning" + RESET_COLOR;
+static const  std::string INFO_MESSAGE = GREEN_COLOR + "Info" + RESET_COLOR;
+static const  std::string ERROR_MESSAGE = RED_COLOR + "Error" + RESET_COLOR;
 
 namespace HarborCLS {
 
@@ -18,46 +28,32 @@ Logger::Logger (std::shared_ptr<ILoggerBufferingPolicy> bufferingStrategy,
         , _logFile(_fileManagementStrategy->getLogFile(logFilePath)) {}
 
 
-void Logger::log(std::string message) {
-  const std::string messageType = "Log";
-
-  this->logMessage(messageType, message);
+void Logger::log(const std::string& message) {
+  this->logMessage(LOG_MESSAGE, message);
 }
 
-void Logger::warning(std::string message) {
-  const std::string yellowColor = "\033[1;33m";
-  const std::string resetColor = "\033[0m";
-  const std::string messageType = yellowColor + "Warning" + resetColor;
-
-  this->logMessage(messageType, message);
+void Logger::warning(const std::string& message) {
+  this->logMessage(WARNING_MESSAGE, message);
 }
 
-void Logger::error(std::string message) {
-  const std::string redColor = "\033[1;31m";
-  const std::string resetColor = "\033[0m";
-  const std::string messageType = redColor + "Error" + resetColor;
-
-  this->logMessage(messageType, message);
+void Logger::error(const std::string& message) {
+  this->logMessage(ERROR_MESSAGE, message);
 }
 
-void Logger::info(std::string message) {
-  const std::string greenColor = "\033[1;32m";
-  const std::string resetColor = "\033[0m";
-  const std::string messageType = greenColor + "Info" + resetColor;
-
-  this->logMessage(messageType, message);
+void Logger::info(const std::string& message) {
+  this->logMessage(INFO_MESSAGE, message);
 }
 
 template<class... Ts> struct overloaded : Ts... { using Ts::operator()...; };
 
-void Logger::logMessage(const std::string& messageType, std::string& message) {
+void Logger::logMessage(const std::string& messageType, const std::string& message) {
   if (message.empty()) {
     return;
   }
 
-  _logFutures.emplace_back(std::async([this, message, messageType]() -> void {
-    std::string completedMessage = getCurrentTime() + " [ " + messageType + " ] : " + message;
-    std::optional<std::string> bufferedMessage = _bufferingStrategy->buffer(completedMessage);
+  _loggerThread.Execute([this, message, messageType]() -> void {
+    std::string completedMessage = std::string(TimeManager::GetInstance().GetCurrentTime()) + " [ " + messageType + " ] : " + message;;
+    const std::optional<std::string> bufferedMessage = _bufferingStrategy->buffer(completedMessage);
 
     if (!bufferedMessage.has_value()) return;
 
@@ -74,24 +70,6 @@ void Logger::logMessage(const std::string& messageType, std::string& message) {
     }, _logFile);
 
     _fileManagementStrategy->log(bufferedMessage.value(), fileStream, _canWrite);
-  }));
-
-  std::lock_guard<std::mutex> lock(_canModifyFutures);
-  for (auto future = _logFutures.begin(); future != _logFutures.end(); ++future) {
-    if (future->wait_for(std::chrono::seconds(0)) == std::future_status::ready) {
-      future->wait();
-      future = _logFutures.erase(future);
-    }
-  }
+  });
 }
-
-  Logger::~Logger() {
-    std::lock_guard<std::mutex> lock(_canModifyFutures);
-    for (auto future = _logFutures.begin(); future != _logFutures.end(); ++future) {
-      if (future->wait_for(std::chrono::seconds(0)) == std::future_status::ready) {
-        future->wait();
-        future = _logFutures.erase(future);
-      }
-    }
-  }
 }

@@ -189,9 +189,7 @@ namespace HarborCLS {
      * Stops the application
      */
     void stopApplication() {
-      _logger->info("Stopping Web Application");
       _tcpListener->stop();
-      _logger->info("Web Application terminated");
     }
 
     /**
@@ -210,12 +208,12 @@ namespace HarborCLS {
       std::string sslKey = configuration.sslKeyFileName;
 
       _socket = std::make_shared<SocketType>(false);
-      _tcpListener = std::make_optional<ConnectionListener<SocketType>>(
+      _tcpListener = std::move(std::make_optional<ConnectionListener<SocketType>>(
           _connectionsQueue
           , _socket
           , configuration.port
           , _logger
-      );
+      ));
 
       for (unsigned int requestHandlerIndex = 0;
            requestHandlerIndex < configuration.requestHandlerAmount;

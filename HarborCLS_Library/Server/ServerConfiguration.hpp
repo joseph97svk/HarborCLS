@@ -6,6 +6,9 @@
 #define HARBOR_CLS_SERVERCONFIGURATION_HPP
 
 #include <string>
+
+#include "Logger/LoggerConfiguration.hpp"
+
 namespace HarborCLS {
   struct ServerConfiguration {
     std::string configurationFilePath {};

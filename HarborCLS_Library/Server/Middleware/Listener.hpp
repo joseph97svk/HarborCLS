@@ -22,7 +22,7 @@ namespace HarborCLS {
     std::shared_ptr<SocketType> _listeningSocket{};
 
     unsigned int _stopPort{};
-    bool _stopThread{ false };
+    std::shared_ptr<std::atomic<bool>> _stopThread = std::make_unique<std::atomic<bool>>(false);
 
     std::shared_ptr<ILogger> _logger;
   public:
@@ -51,7 +51,7 @@ namespace HarborCLS {
     ~Listener() override = default;
 
     void stop() {
-      _stopThread = true;
+      *_stopThread = true;
 
       this->unlockListen();
 
@@ -66,7 +66,7 @@ namespace HarborCLS {
       while (true) {
         MiddlewareMessage<enqueueType> data = this->obtain();
 
-        if (_stopThread) {
+        if (*_stopThread) {
           _queue.get().push(MiddlewareMessage<enqueueType>(StopCondition()));
           break;
         }
@@ -77,7 +77,7 @@ namespace HarborCLS {
           std::visit(overloaded{
               [this](StopCondition& stopCondition) {
                 (void) stopCondition;
-                _stopThread = true;
+                *_stopThread = true;
               },
               [this](Error<MessageErrors>& error) {
                 std::string errorMessage = error;
@@ -86,7 +86,7 @@ namespace HarborCLS {
               }
           }, dataContents.error());
 
-          if (_stopThread) {
+          if (*_stopThread) {
             _queue.get().push(MiddlewareMessage<enqueueType>(StopCondition()));
             break;
           }

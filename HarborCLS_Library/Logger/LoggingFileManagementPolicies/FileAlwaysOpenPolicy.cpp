@@ -26,7 +26,7 @@ namespace HarborCLS {
   void FileAlwaysOpenPolicy::log(std::string completeLoggingMessage,
                                  std::optional<std::reference_wrapper<std::ofstream>> &loggingFile,
                                  std::mutex &canWrite) {
-    std::lock_guard<std::mutex> lock(canWrite);
+    std::lock_guard lock(canWrite);
 
     auto &fileStream = loggingFile.value();
 

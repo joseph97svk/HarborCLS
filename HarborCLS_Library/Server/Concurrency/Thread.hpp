@@ -19,7 +19,7 @@ namespace HarborCLS {
       this->thread = std::make_shared<std::jthread>(&Thread::run, this);
     }
 
-    void waitToFinish() {
+    void waitToFinish() const {
       this->thread->join();
     }
 
@@ -27,4 +27,5 @@ namespace HarborCLS {
     virtual void run() = 0;
   };
 }
+
 #endif
