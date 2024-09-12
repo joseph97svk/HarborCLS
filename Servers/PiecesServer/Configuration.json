@@ -1,0 +1,10 @@
+{
+  "port": 9015,
+  "requestHandlerAmount": 1,
+  "applicationHandlerAmount": 1,
+  "responseHandlerAmount": 1,
+  "requestsQueueSize": 16,
+  "sslCertFileName": "Servers/PiecesServer/cert.crt",
+  "sslKeyFileName": "Servers/PiecesServer/key.key",
+  "LoggerConfiguration:LoggerFilePath": "Servers/PiecesServer/Logs/Log.txt"
+}

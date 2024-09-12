@@ -4,11 +4,16 @@ project(IntermediaryServer)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_BUILD_TYPE Debug)
 
-file(GLOB_RECURSE PROJECT_SOURCES "*.cpp")
+file(GLOB_RECURSE PROJECT_SOURCES
+        "*.cpp"
+        "*.hpp"
+)
 
-link_libraries(OpenSSL::SSL OpenSSL::Crypto Threads::Threads)
+foreach(SOURCE_FILE ${PROJECT_SOURCES})
+    if (SOURCE_FILE MATCHES "/CMakeFiles/")
+        list(REMOVE_ITEM PROJECT_SOURCES ${SOURCE_FILE})
+    endif()
+endforeach()
 
-set(DEFAULT_TARGET ${PROJECT_NAME})
-add_executable(${DEFAULT_TARGET} ${PROJECT_SOURCES})
-
-target_link_libraries(${DEFAULT_TARGET} HttpServer)
+add_executable(IntermediaryServer ${PROJECT_SOURCES})
+target_link_libraries(IntermediaryServer HarborCLS_Library LegoFigureMakerCommon)

@@ -1,32 +1,52 @@
-#include <iostream>
-#include <csignal>
-#include "PiecesServer.hpp"
+//
+// Created by josephvalverde on 1/4/24.
+//
 
-/**
- * Signal handler function to handle different signals received by the program.
- * @param signal The signal received by the program.
- */
-void signal_handler(int signal)
-{
-    if (signal == SIGTERM    // kill
-        || signal == SIGINT  // ctrl + C
-        || signal == SIGSTOP // ctrl + Z
-    )
-    {
-        std::cout << "\nSTOP PROGRAM" << std::endl;
-        PiecesServer::getInstance().stopServer();
-    }
+#include <HarborCLS.hpp>
+
+#include "PiecesServer.hpp"
+#include "Services/LegoInMemoryRepository.hpp"
+#include "Services/LegoPresentService.hpp"
+#include "Services/LegoServerDiscoveryService.hpp"
+#include "Services/FigureRetrievalService.hpp"
+#include "Services/FigureImageRetrievalService.hpp"
+
+void addServices(HarborCLS::Builder<LegoFigureMakerProtocol>& services);
+
+int main() {
+  PiecesServer& server = PiecesServer::getInstance();
+  server.addControlledShutdown(SIGINT, SIGKILL);
+
+  std::string configurationPath = "Servers/PiecesServer/Configuration.json";
+
+  std::shared_ptr<PiecesWebApplication> webApplication = std::make_shared<PiecesWebApplication>();
+  server.addWebApplication(webApplication);
+  webApplication->addConfiguration(configurationPath);
+
+  auto& services = webApplication->manageDependencies();
+  addServices(services);
+
+  try {
+    server.startServer();
+  } catch (std::exception& e) {
+    std::cout << e.what() << std::endl;
+  }
+
+  return 0;
 }
 
-int main(int argc, char** argv)
-{
-    (void) argc;
-    (void) argv;
-    // Set signal handlers for SIGINT, SIGTERM and SIGSTOP signals
-    signal(SIGINT, signal_handler);
-    signal(SIGTERM, signal_handler);
-    // signal(SIGSTOP, signal_handler);
-    PiecesServer::getInstance().readLegoSourceFile("PiecesServer/legoFile.txt");
+void addServices(HarborCLS::Builder<LegoFigureMakerProtocol>& services) {
+  services.addSingleton<LegoInMemoryRepository>().as<ILegoRepository>();
 
-    PiecesServer::getInstance().start();
+  std::shared_ptr<HarborCLS::BuilderReferenceWrapper<LegoFigureMakerProtocol>> dependencyResolver =
+      std::make_shared<HarborCLS::BuilderReferenceWrapper<LegoFigureMakerProtocol>>(services);
+  services.addInstance(dependencyResolver);
+
+  services.addOnStart<LegoPresentService>(&LegoPresentService::broadcastPresence);
+
+  services.addScoped<StartUpPresenceNotificationService>();
+
+  services.addLivingTask<LegoServerDiscoveryService>();
+  services.addLivingTask<FigureRetrievalService>();
+  services.addLivingTask<FigureImageRetrievalService>();
 }

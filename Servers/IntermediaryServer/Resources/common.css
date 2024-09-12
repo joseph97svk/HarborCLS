@@ -1,0 +1,18 @@
+.navigation-bar {
+    background-color: #333;
+    display: block;
+    margin: -10px;
+    padding: 20px 0 20px 30px;
+    color: white;
+    text-decoration: none;
+}
+
+.page-title {
+    font-size: 25px;
+    cursor: pointer;
+}
+
+body {
+    background-color: #f5f5f5;
+    font-family: Verdana, sans-serif;
+}
